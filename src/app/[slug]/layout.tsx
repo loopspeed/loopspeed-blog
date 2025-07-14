@@ -7,6 +7,7 @@ import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
 import { BLOG_METADATA, BlogMetadata } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
+import BlogBackgroundCanvas from '@/components/blog/blogBackground/BlogBackground'
 
 export default async function BlogLayout({
   children,
@@ -21,6 +22,8 @@ export default async function BlogLayout({
 
   return (
     <>
+      <BlogBackgroundCanvas />
+
       <main className="relative w-full font-sans">
         <BlogPostHeader {...metadata} />
 

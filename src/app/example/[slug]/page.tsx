@@ -26,6 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ExamplePage({ params }: Props) {
   const { slug } = await params
   const Content = EXAMPLES_CONTENT[slug]
-  if (!Content) redirect(Pathname.Blog)
+  if (!Content) redirect(Pathname.Home)
   return <Content />
 }

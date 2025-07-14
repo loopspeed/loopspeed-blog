@@ -7,6 +7,7 @@ import { ScrollBackgroundGradientCanvas } from '@/components/examples/three/scro
 import { GridLinesFragmentShaderPlaneCanvas } from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
 import { BLOG_METADATA, type BlogMetadata } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
+import BlogBackgroundCanvas from '@/components/blog/blogBackground/BlogBackground'
 
 export const metadata: Metadata = {
   title: 'Blog by Loopspeed',
@@ -37,34 +38,38 @@ const sortByDate = (a: BlogMetadata, b: BlogMetadata) => {
 
 export default function BlogPage() {
   return (
-    <main className="relative min-h-lvh w-full p-12 text-white">
-      <header className="horizontal-padding flex flex-col space-y-3 pt-32 pb-24">
-        <h1 className="max-w-4xl text-xl font-bold text-balance text-white sm:text-3xl sm:leading-relaxed">
-          A growing collection of guides, patterns, and fun stuff I&apos;ve been doing in the web design and engineering
-          space
-        </h1>
-        <p className="text-light">Mostly React, Next, Typescript, GSAP, ThreeJS and GLSL Shaders</p>
-      </header>
+    <>
+      <BlogBackgroundCanvas />
 
-      <section className="horizontal-padding w-full space-y-12 pb-24">
-        {Object.values(BLOG_METADATA)
-          .sort(sortByDate)
-          .map((metadata) => {
-            const { slug, title, description, date, isDraft } = metadata
-            if (!!isDraft) return null
-            return (
-              <BlogPostCard
-                key={slug}
-                href={`${Pathname.Blog}/${slug}`}
-                heading={title}
-                description={description}
-                date={date}>
-                {BLOG_CARD_COMPONENTS[slug]}
-              </BlogPostCard>
-            )
-          })}
-      </section>
-    </main>
+      <main className="relative min-h-lvh w-full p-12 text-white">
+        <header className="horizontal-padding flex flex-col space-y-3 pt-32 pb-24">
+          <h1 className="max-w-4xl text-xl font-bold text-balance text-white sm:text-3xl sm:leading-relaxed">
+            A growing collection of guides, patterns, and fun stuff I&apos;ve been doing in the web design and
+            engineering space
+          </h1>
+          <p className="text-light">Mostly React, Next, Typescript, GSAP, ThreeJS and GLSL Shaders</p>
+        </header>
+
+        <section className="horizontal-padding w-full space-y-12 pb-24">
+          {Object.values(BLOG_METADATA)
+            .sort(sortByDate)
+            .map((metadata) => {
+              const { slug, title, description, date, isDraft } = metadata
+              if (!!isDraft) return null
+              return (
+                <BlogPostCard
+                  key={slug}
+                  href={`${Pathname.Home}/${slug}`}
+                  heading={title}
+                  description={description}
+                  date={date}>
+                  {BLOG_CARD_COMPONENTS[slug]}
+                </BlogPostCard>
+              )
+            })}
+        </section>
+      </main>
+    </>
   )
 }
 

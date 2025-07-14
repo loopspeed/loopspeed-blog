@@ -1,8 +1,5 @@
 export enum Pathname {
   Home = '/',
-  Chat = '/chat',
-  MeetTheTeam = '/meet-the-team',
-  Blog = '/blog',
   Example = '/example',
 }
 
