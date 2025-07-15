@@ -5,6 +5,27 @@ import {
   GradientFragmentShaderPlaneCanvas,
   GridLinesFragmentShaderPlaneCanvas,
 } from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
+import { BlogSlug, ExampleSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: 'Build an animated wave plane in Next.js (Typescript) with React Three Fiber and custom shader material',
+  description:
+    'This simple project is a great way to learn about ThreeJS shaders and how to use them in a React Typescript environment.',
+  date: '2025-01-12',
+  slug: BlogSlug.WavePlane,
+  exampleSlug: ExampleSlug.WavePlane,
+  authors: [{ name: 'Matthew Frawley' }],
+  tags: [
+    TagName.Tutorial,
+    TagName.NextJS,
+    TagName.ThreeJS,
+    TagName.Typescript,
+    TagName.VertexShader,
+    TagName.FragmentShader,
+    'noise',
+  ]
+}
 
 <section className="relative h-[704px] max-h-[70vh] w-full">
   <WavePlaneCanvas />

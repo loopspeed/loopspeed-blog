@@ -1,3 +1,17 @@
+import { BlogSlug, ExampleSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: 'Configure your Next.js Typescript project for custom shader materials and glsify in React Three Fiber',
+  description:
+    'Step-by-step guidance on packages, config and code. Get custom React Three Fiber shader materials with glslify working in your Next.js Typescript project.',
+  date: '2025-01-12',
+  exampleSlug: ExampleSlug.ScrollingBackgroundShader,
+  slug: BlogSlug.NextJsShaderSetup,
+  tags: [TagName.Tutorial, TagName.NextJS, TagName.ThreeJS, TagName.Typescript, 'glslify', 'custom shader material'],
+  authors: [{ name: 'Matthew Frawley' }],
+}
+
 **Let's walk through the necessary setup for working with GLSL shaders in Next.js, React Three Fiber and TypeScript.**
 
 This configuration allows you to use `glslify` and load `.frag`, `.vert`, or `.glsl` files without compile-time errors. We'll also cover the correct use of Typescript within the React Component.

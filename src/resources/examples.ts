@@ -15,11 +15,6 @@ import { BlogSlug, ExampleSlug } from '@/resources/pathname'
 
 import { TagName } from './tags'
 
-export enum RebuildPathname {
-  StripeHeader = '/rebuild/stripe',
-  VercelHeader = '/rebuild/vercel',
-}
-
 export const EXAMPLES_CONTENT: Record<ExampleSlug, FC> = {
   [ExampleSlug.ImageSequence]: ImageSequencePage,
   [ExampleSlug.EnergyTransfer]: EnergyTransferCanvas,
@@ -133,17 +128,3 @@ export const EXAMPLES_METADATA: Record<ExampleSlug, Example> = {
     githubUrl: 'https://github.com/prag-matt-ic/pragmattic/tree/main/src/components/examples/three/loopPoints',
   },
 } as const
-
-//   // REBUILDS
-//   [ExamplePathname.StripeHeader]: {
-//     title: 'Stripe Header Rebuild',
-//     pathname: ExamplePathname.StripeHeader,
-//     youtubeUrl: 'https://youtu.be/fhQuxZJ3YgQ',
-//     githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/app/rebuilds/stripe/page.tsx',
-//   },
-//   [ExamplePathname.VercelHeader]: {
-//     title: 'Vercel Header Rebuild',
-//     pathname: ExamplePathname.VercelHeader,
-//     youtubeUrl: 'https://youtu.be/M9ifse-uhIs',
-//     githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/app/rebuilds/vercel/page.tsx',
-//   },

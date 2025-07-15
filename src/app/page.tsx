@@ -5,9 +5,10 @@ import React, { type FC, type PropsWithChildren, type ReactNode } from "react";
 
 import { ScrollBackgroundGradientCanvas } from "@/components/examples/three/scrollingBackgroundGradient/ScrollingBackgroundGradient";
 import { GridLinesFragmentShaderPlaneCanvas } from "@/components/examples/three/wavePlane/blog/WavePlaneBlog";
-import { BLOG_METADATA, type BlogMetadata } from "@/resources/blog";
-import { BlogSlug, Pathname } from "@/resources/pathname";
+import { BlogSlug } from "@/resources/pathname";
 import BlogBackgroundCanvas from "@/components/blog/blogBackground/BlogBackground";
+import { BlogMetadata } from "@/model/blog";
+import { BLOG_CONTENT } from "@/resources/blog";
 
 export const metadata: Metadata = {
   title: "Blog by Loopspeed",
@@ -42,8 +43,8 @@ const BLOG_CARD_COMPONENTS: Record<BlogSlug, ReactNode> = {
   [BlogSlug.ReactThreeFiberWebGPUTypescript]: null,
 };
 
-const sortByDate = (a: BlogMetadata, b: BlogMetadata) => {
-  return new Date(b.date).getTime() - new Date(a.date).getTime();
+const sortByDate = (a: {metadata: BlogMetadata}, b: {metadata: BlogMetadata}) => {
+  return new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime();
 };
 
 export default function BlogPage() {
@@ -54,7 +55,7 @@ export default function BlogPage() {
       <main className="relative min-h-lvh w-full p-12 text-white">
         <header className="horizontal-padding flex flex-col space-y-3 pt-32 pb-24">
           <h1 className="max-w-4xl text-xl font-bold text-balance text-white sm:text-3xl sm:leading-relaxed">
-            A growing collection of guides, patterns, and fun stuff I&apos;ve
+            A growing collection of guides, patterns, and fun stuff we&apos;ve
             been doing in the web design and engineering space
           </h1>
           <p className="text-light">
@@ -63,9 +64,9 @@ export default function BlogPage() {
         </header>
 
         <section className="horizontal-padding w-full space-y-12 pb-24">
-          {Object.values(BLOG_METADATA)
+          {Object.values(BLOG_CONTENT)
             .sort(sortByDate)
-            .map((metadata) => {
+            .map(({metadata}) => {
               const { slug, title, description, date, isDraft } = metadata;
               if (!!isDraft) return null;
               return (
@@ -120,3 +121,5 @@ const BlogPostCard: FC<PropsWithChildren<CardProps>> = ({
     </Link>
   );
 };
+
+// TODO: add structured data

@@ -5,9 +5,10 @@ import { type FC } from 'react'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
-import { BLOG_METADATA, BlogMetadata } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
 import BlogBackgroundCanvas from '@/components/blog/blogBackground/BlogBackground'
+import { BLOG_CONTENT } from '@/resources/blog'
+import { BlogMetadata } from '@/model/blog'
 
 export default async function BlogLayout({
   children,
@@ -17,7 +18,7 @@ export default async function BlogLayout({
   children: React.ReactNode
 }) {
   const { slug } = await params
-  const metadata = BLOG_METADATA[slug]
+  const metadata = BLOG_CONTENT[slug].metadata
   if (!metadata) redirect(Pathname.Home)
 
   return (
@@ -61,6 +62,7 @@ const JSONSchema: FC<BlogMetadata> = ({ title, description, date, slug }) => {
           image: `${process.env.NEXT_PUBLIC_BASE_URL}/opengraph-image.jpg`,
           // TODO: dynamically generated image with the blog title.
           url: url,
+          // TODO: Create an author schema for each article - one or many authors.
           author: {
             '@type': 'Person',
             givenName: 'Matthew',
