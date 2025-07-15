@@ -1,7 +1,10 @@
+import './globals.css'
+
 import type { Metadata } from 'next'
 import { Red_Hat_Display } from 'next/font/google'
-import './globals.css'
 import { twJoin } from 'tailwind-merge'
+
+import Nav from '@/components/Nav'
 
 const sans = Red_Hat_Display({
   subsets: ['latin'],
@@ -20,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={twJoin(sans.variable, 'font-sans size-full')}>{children}</body>
+      <body className={twJoin(sans.variable, 'size-full font-sans')}>
+        <Nav />
+        {children}
+      </body>
     </html>
   )
 }

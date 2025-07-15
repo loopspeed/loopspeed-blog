@@ -1,36 +1,50 @@
 import './code.css'
 
+import { type Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { type FC } from 'react'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
-import { BlogSlug, Pathname } from '@/resources/pathname'
-import BlogBackgroundCanvas from '@/components/blog/blogBackground/BlogBackground'
+import type { BlogMetadata } from '@/model/blog'
 import { BLOG_CONTENT } from '@/resources/blog'
-import { BlogMetadata } from '@/model/blog'
+import { BlogSlug, Pathname } from '@/resources/pathname'
 
-export default async function BlogLayout({
-  children,
-  params,
-}: {
+type Props = {
   params: Promise<{ slug: BlogSlug }>
-  children: React.ReactNode
-}) {
+}
+
+export function generateStaticParams() {
+  return Object.values(BlogSlug).map((slug) => ({
+    slug,
+  }))
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const metadata = BLOG_CONTENT[slug].metadata
-  if (!metadata) redirect(Pathname.Home)
+  if (!metadata) return {}
+  return {
+    title: metadata.title,
+    description: metadata.description,
+    authors: metadata.authors,
+  }
+}
+
+export default async function BlogPage({ params }: Props) {
+  const { slug } = await params
+  const { Component, metadata } = BLOG_CONTENT[slug]
+
+  if (!Component || !metadata) redirect(Pathname.Home)
 
   return (
     <>
-      <BlogBackgroundCanvas />
-
       <main className="relative w-full font-sans">
         <BlogPostHeader {...metadata} />
 
         <div className="grid grid-cols-1 grid-rows-1 xl:grid-cols-[auto_1fr]">
           <article className="prose-sm md:prose xl:prose-lg prose-pre:bg-off-black mx-auto w-full !max-w-6xl overflow-hidden bg-white px-4 py-12 text-pretty text-black md:px-12 xl:px-16 xl:py-16">
-            {children}
+            <Component />
             <hr />
             <h3>Thanks for reading, Loopspeed ✌️</h3>
           </article>

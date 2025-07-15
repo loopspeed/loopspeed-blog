@@ -4,7 +4,7 @@ import React, { type FC } from 'react'
 
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
-import { type BlogMetadata } from '@/resources/blog'
+import type { BlogMetadata } from '@/model/blog'
 import { Pathname } from '@/resources/pathname'
 
 const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date }) => {
