@@ -5,7 +5,7 @@ import React, { type FC } from 'react'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
-import { Pathname } from '@/resources/pathname'
+import { Pathname, replaceSlug } from '@/resources/pathname'
 
 const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date }) => {
   const formattedDate = format(new Date(date), 'PPP')
@@ -34,7 +34,7 @@ const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date }) =>
           </div>
 
           {!!exampleSlug && (
-            <Button href={`${Pathname.Example}/${exampleSlug}`} target="_blank" icon={<ArrowUpRight />}>
+            <Button href={replaceSlug(Pathname.Example, exampleSlug)} target="_blank" icon={<ArrowUpRight />}>
               Live demo
             </Button>
           )}

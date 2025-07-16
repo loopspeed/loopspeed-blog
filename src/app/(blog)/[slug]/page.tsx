@@ -33,7 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
   const { slug } = await params
-  const { Component, metadata } = BLOG_CONTENT[slug]
+  const Component = BLOG_CONTENT[slug]?.Component
+  const metadata = BLOG_CONTENT[slug]?.metadata
 
   if (!Component || !metadata) redirect(Pathname.Home)
 

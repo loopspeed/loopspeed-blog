@@ -38,8 +38,7 @@
   --color-accent-orange: #e97449;
   --color-accent-red: #b44438;
 
-  --text-xs: 13px;
-  --text-2xs: 11px;
+  --text-xxs: 11px;
 
   /* Z Index */
   --z-index-max: 9999;
