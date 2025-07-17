@@ -178,3 +178,9 @@ a {
 .mask-top {
   mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 85%, transparent 100%);
 }
+
+/* Leva controls z-index override */
+#leva__root {
+  position: relative;
+  z-index: var(--z-index-max);
+}

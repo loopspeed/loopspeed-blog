@@ -5,6 +5,8 @@ import { Red_Hat_Display } from 'next/font/google'
 import { headers } from 'next/headers'
 import { twJoin } from 'tailwind-merge'
 
+import ContactMenu from '@/components/contact/ContactMenu'
+import Footer from '@/components/footer/Footer'
 import Nav from '@/components/Nav'
 
 const sans = Red_Hat_Display({
@@ -31,6 +33,8 @@ export default async function RootLayout({
       <body className={twJoin(sans.variable, 'size-full font-sans')}>
         <Nav isMobile={isMobile} />
         {children}
+        <ContactMenu />
+        <Footer />
       </body>
     </html>
   )

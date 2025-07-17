@@ -6,18 +6,18 @@ import { Example, EXAMPLES_CONTENT, EXAMPLES_METADATA } from '@/resources/exampl
 import { ExampleSlug, Pathname } from '@/resources/pathname'
 
 type Props = {
-  params: Promise<{ slug: ExampleSlug }>
+  params: Promise<{ example_slug: ExampleSlug }>
 }
 
 export function generateStaticParams() {
   return Object.values(ExampleSlug).map((slug) => ({
-    slug,
+    example_slug: slug,
   }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const example = EXAMPLES_METADATA[slug]
+  const { example_slug } = await params
+  const example = EXAMPLES_METADATA[example_slug]
   return {
     title: example.title,
     description: example.description ?? 'Creative development work by Loopspeed',
@@ -25,9 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ExamplePage({ params }: Props) {
-  const { slug } = await params
-  const Component = EXAMPLES_CONTENT[slug]
-  const metadata = EXAMPLES_METADATA[slug]
+  const { example_slug } = await params
+  const Component = EXAMPLES_CONTENT[example_slug]
+  const metadata = EXAMPLES_METADATA[example_slug]
 
   if (!Component || !metadata) redirect(Pathname.Home)
 
