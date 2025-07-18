@@ -2,11 +2,10 @@ import './code.css'
 
 import { type Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { type FC } from 'react'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
-import type { BlogMetadata } from '@/model/blog'
+import JSONSchema from '@/components/JSONSchema'
 import { BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
 
@@ -55,38 +54,5 @@ export default async function BlogPage({ params }: Props) {
 
       <JSONSchema {...metadata} />
     </>
-  )
-}
-
-// TODO: merge into shared component
-const JSONSchema: FC<BlogMetadata> = ({ title, description, date, slug }) => {
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}/${slug}`
-  return (
-    <script
-      type="application/ld+json"
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'BlogPosting',
-          headline: title,
-          datePublished: date,
-          dateModified: date,
-          description: description,
-          mainEntityOfPage: url,
-          image: `${process.env.NEXT_PUBLIC_BASE_URL}/opengraph-image.jpg`,
-          // TODO: dynamically generated image with the blog title.
-          url: url,
-          // TODO: Create an author schema for each article - one or many authors.
-          author: {
-            '@type': 'Person',
-            givenName: 'Matthew',
-            name: 'Matthew Frawley',
-            brand: 'Pragmattic',
-            email: 'pragmattic.ltd@gmail.com',
-          },
-        }),
-      }}
-    />
   )
 }

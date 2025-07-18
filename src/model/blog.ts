@@ -1,4 +1,4 @@
-import { BlogSlug, ExampleSlug } from "@/resources/pathname"
+import type { BlogSlug, ExampleSlug } from '@/resources/pathname'
 
 type Author = {
   name: string

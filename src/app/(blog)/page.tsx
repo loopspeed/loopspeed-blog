@@ -7,6 +7,8 @@ import Header from '@/components/Header'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export const metadata: Metadata = {
   title: 'Blog by Loopspeed',
   description:
@@ -20,7 +22,7 @@ export default function BlogPage() {
 
       <section className="horizontal-padding w-full space-y-12">
         {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, description, date, isDraft }, CardComponent }) => {
-          if (!!isDraft) return null
+          if (!!isDraft && !isProduction) return null
           return (
             <BlogPostCard
               key={slug}

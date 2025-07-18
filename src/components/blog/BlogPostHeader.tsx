@@ -7,7 +7,7 @@ import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
 
-const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date }) => {
+const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date, authors }) => {
   const formattedDate = format(new Date(date), 'PPP')
   return (
     <>
@@ -28,7 +28,7 @@ const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date }) =>
           </h1>
 
           <div className="relative flex w-fit items-center gap-2 text-sm font-medium whitespace-nowrap text-white/90 sm:gap-3 sm:text-base">
-            <span>Matthew Frawley</span>
+            <span>{authors.map(({ name }) => name).join(', ')}</span>
             <span className="text-3xl">•</span>
             <span>{formattedDate}</span>
           </div>
