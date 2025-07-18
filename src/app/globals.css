@@ -141,10 +141,10 @@ a {
 @layer utilities {
   /* heading-xl */
   .heading-xl {
-    @apply text-4xl !leading-tight font-extrabold tracking-tight sm:text-5xl md:text-7xl 2xl:text-8xl;
+    @apply text-4xl !leading-tight font-extrabold tracking-tight md:text-5xl 2xl:text-6xl;
   }
   .heading-lg {
-    @apply text-3xl !leading-tight font-extrabold tracking-tight sm:text-4xl md:text-6xl xl:text-6xl;
+    @apply text-3xl !leading-tight font-extrabold tracking-tight sm:text-4xl md:text-5xl;
   }
   .heading-md {
     @apply text-2xl leading-tight font-extrabold tracking-tight sm:text-3xl md:text-4xl;

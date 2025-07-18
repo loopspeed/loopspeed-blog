@@ -43,7 +43,7 @@ type Props = {
   mesh: RefObject<Mesh>
 }
 
-const LoopPoints = forwardRef<Points, Props>(({ isScattered, mesh }) => {
+const LoopPoints = forwardRef<Points, Props>(({ isScattered, mesh }, ref) => {
   const size = useThree((s) => s.size)
 
   // TODO: ADJUST DYANMICALLY BASED ON PERFORMANCE - usePerformanceMonitor hook
@@ -60,8 +60,6 @@ const LoopPoints = forwardRef<Points, Props>(({ isScattered, mesh }) => {
       ease: 'power2.inOut',
     })
   }, [isScattered])
-
-  const points = useRef<Points>(null)
 
   // ------------------
   // SIMULATION SETUP
@@ -147,7 +145,7 @@ const LoopPoints = forwardRef<Points, Props>(({ isScattered, mesh }) => {
       />
 
       {/* Points */}
-      <points ref={points} dispose={null}>
+      <points ref={ref} dispose={null}>
         <bufferGeometry attach="geometry">
           <bufferAttribute
             attach="attributes-position"
