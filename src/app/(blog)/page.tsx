@@ -1,30 +1,28 @@
 import { format } from 'date-fns'
 import Link from 'next/link'
-import type { FC, PropsWithChildren, ReactNode } from 'react'
+import type { FC } from 'react'
 
+import Button from '@/components/buttons/Button'
 import Header from '@/components/Header'
+import Tag from '@/components/Tag'
+import { BlogMetadata } from '@/model/blog'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-export default function BlogHomePage() {
+export default function BlogListingPage() {
   return (
     <main className="relative min-h-lvh w-full text-white">
       <Header />
 
-      <section className="horizontal-padding w-full space-y-12">
-        {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, description, date, isDraft }, CardComponent }) => {
-          if (!!isDraft && !isProduction) return null
+      <section className="horizontal-padding flex flex-col items-center space-y-24 py-20 lg:space-y-32">
+        {ORDERED_BLOG_CONTENT.map(({ metadata, videoSrc }) => {
+          const { slug, isDraft } = metadata
+          if (!!isDraft && isProduction) return null
+          if (!videoSrc && isProduction) return null
           return (
-            <BlogPostCard
-              key={slug}
-              href={replaceSlug(Pathname.BlogPost, slug)}
-              heading={title}
-              description={description}
-              date={date}>
-              {CardComponent}
-            </BlogPostCard>
+            <BlogPostCard key={slug} href={replaceSlug(Pathname.BlogPost, slug)} {...metadata} videoSrc={videoSrc} />
           )
         })}
       </section>
@@ -32,30 +30,40 @@ export default function BlogHomePage() {
   )
 }
 
-type CardProps = {
+type CardProps = BlogMetadata & {
   href: string
-  heading: ReactNode
-  description: ReactNode
-  date: string
+  videoSrc: string | null
 }
 
-const BlogPostCard: FC<PropsWithChildren<CardProps>> = ({ children, href, heading, description, date }) => {
+const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, date, videoSrc }) => {
   return (
-    <Link
-      href={href}
-      className="flex flex-col items-center gap-4 rounded-lg border-black bg-black/20 p-2 hover:bg-black/40 sm:flex-row sm:p-4 lg:gap-12">
-      {!!children && (
-        <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded sm:size-64 md:size-80 lg:size-96">
-          {children}
+    <div className="flex flex-col items-center gap-8 lg:gap-8">
+      <Link href={href}>
+        <video autoPlay loop muted playsInline className="aspect-video w-4xl overflow-hidden rounded-sm object-cover">
+          <source src={videoSrc ?? '/blog/videos/scroll-driven-image-sequence.mp4'} type="video/mp4" />
+        </video>
+      </Link>
+
+      <div className="flex w-full max-w-2xl flex-col gap-3 lg:gap-4">
+        {/* Tags */}
+        <div className="hidden w-fit max-w-full flex-wrap justify-center gap-1.5 sm:flex">
+          {tags.map((tag) => (
+            <Tag key={tag} name={tag} />
+          ))}
         </div>
-      )}
-      <div className="max-w-4xl space-y-3 p-3 sm:p-0">
-        <span className="text-light block text-xs sm:text-sm">{format(new Date(date), 'MMM yyyy')}</span>
-        <h3 className="text-lg font-bold sm:text-xl md:text-2xl xl:text-3xl">{heading}</h3>
-        <p className="text-white/70">{description}</p>
+        {/* Title and description */}
+        <h3 className="heading-md !font-medium">{title}</h3>
+        <p className="paragraph-md text-white/80">{description}</p>
+        {/* Authors and date */}
+        <div className="paragraph-sm flex items-center gap-2 text-white/80 *:block">
+          <span>{authors.map(({ name }) => name).join(', ')}</span> •<span>{format(new Date(date), 'MMM yyyy')}</span>
+        </div>
+        <Button className="w-fit" href={href} size="small" variant="outlined">
+          Read more
+        </Button>
       </div>
-    </Link>
+    </div>
   )
 }
 
-// TODO: add structured data
+// TODO: add structured data (use AI and #fetch the relevant schema documentation)

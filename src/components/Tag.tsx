@@ -10,7 +10,7 @@ const Tag: FC<Props> = ({ name, className }) => {
   return (
     <span
       className={twMerge(
-        'rounded-sm bg-black px-1.5 py-0.5 font-mono text-xs font-semibold tracking-wide text-white/70 shadow-sm',
+        'text-light bg-darkest rounded-sm px-1.5 py-0.5 font-mono text-xs font-semibold tracking-wide shadow-sm',
         className,
       )}>
       #{name}

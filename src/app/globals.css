@@ -169,13 +169,13 @@ a {
     @apply text-lg font-semibold tracking-tight lg:text-xl;
   }
   .paragraph-md {
-    @apply text-base font-medium tracking-tight lg:text-lg;
+    @apply text-base font-medium lg:text-lg;
   }
   .paragraph-sm {
-    @apply text-sm font-medium tracking-tight lg:text-base;
+    @apply text-sm font-medium lg:text-base;
   }
   .paragraph-xs {
-    @apply text-xs font-medium tracking-tight lg:text-sm;
+    @apply text-xs font-medium lg:text-sm;
   }
 }
 

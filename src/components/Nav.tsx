@@ -30,7 +30,9 @@ const Nav: FC<Props> = ({ isMobile }) => {
 
   return (
     <header className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-4 bg-black sm:gap-8">
-      <Image src={logo} alt="Loopspeed Logo" className="h-4 w-auto flex-shrink-0 sm:h-5" />
+      <a href="https://loopspeed.co.uk" target="_blank" rel="noopener noreferrer">
+        <Image src={logo} alt="Loopspeed Logo" className="h-4 w-auto flex-shrink-0 sm:h-5" />
+      </a>
       <div className={twJoin('flex min-w-0 grow items-center gap-2.5 py-2 sm:gap-4', !isMobile && 'relative')}>
         <Link
           href={Pathname.Home}
@@ -163,6 +165,8 @@ const DropDownContent: FC<DropDownContentProps> = ({
       closeDropdown()
     })
   }
+
+  // TODO: add Tags filtering - refer to Pragmattic blog
 
   // Extracted tags from ORDERED_BLOG_CONTENT
   // Remove duplicates, limit the number of tags to 30 & randomise the order

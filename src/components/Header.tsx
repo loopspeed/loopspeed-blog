@@ -85,6 +85,7 @@ type LoopGLTF = GLTF & {
 }
 
 const LoopModel: FC = () => {
+  // TODO: this GLTF file contains 4 versions of the loop, we need to extract the one we want
   const { nodes } = useGLTF('/models/LogoInfin_ThickMesh.glb') as unknown as LoopGLTF
   const loopMesh = useRef<THREE.Mesh>(null)
 
@@ -93,7 +94,6 @@ const LoopModel: FC = () => {
       const normalW = normalWorld.y.clamp(0, 1)
       return mix(color(DARK), color(LIGHT), normalW)
     })()
-
     return { key: colorNode.uuid, colorNode }
   }, [])
 
