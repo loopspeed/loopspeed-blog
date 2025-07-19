@@ -10,10 +10,7 @@ export enum BlogSlug {
   WavePlane = 'wave-plane',
   NextJsShaderSetup = 'nextjs-setup-glsl-shaders',
   ImageSequenceHeader = 'scroll-driven-image-sequence-header',
-  // AppDevelopmentGuide = 'app-development-guide',
   AnimatedCSSGrid = 'animated-css-grid-with-tailwind-gsap',
-  // EnergyTransfer = 'energy-transfer-threejs',
-  // ScatteredMeshPoints = 'scattered-mesh-points-fbo-simulation-react-three-fiber',
   ReactThreeFiberWebGPUTypescript = 'react-three-fiber-webgpu-typescript',
 }
 

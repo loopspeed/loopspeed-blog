@@ -7,6 +7,7 @@ import {
 } from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
 import { BlogSlug, ExampleSlug } from '../pathname'
 import { TagName } from '../tags'
+import { MATTHEW_FRAWLEY } from '@/model/blog'
 
 export const metadata = {
   title: 'Build an animated wave plane in Next.js (Typescript) with React Three Fiber and custom shader material',
@@ -15,7 +16,7 @@ export const metadata = {
   date: '2025-01-12',
   slug: BlogSlug.WavePlane,
   exampleSlug: ExampleSlug.WavePlane,
-  authors: [{ name: 'Matthew Frawley' }],
+  authors: [MATTHEW_FRAWLEY],
   tags: [
     TagName.Tutorial,
     TagName.NextJS,
@@ -23,7 +24,6 @@ export const metadata = {
     TagName.Typescript,
     TagName.VertexShader,
     TagName.FragmentShader,
-    'noise',
   ]
 }
 

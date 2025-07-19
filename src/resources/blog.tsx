@@ -1,7 +1,5 @@
 import { type FC } from 'react'
 
-// import { ScrollBackgroundGradientCanvas } from '@/components/examples/three/scrollingBackgroundGradient/ScrollingBackgroundGradient'
-// import { GridLinesFragmentShaderPlaneCanvas } from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
 import type { BlogMetadata } from '@/model/blog'
 import { BlogSlug } from '@/resources/pathname'
 
@@ -40,7 +38,7 @@ export const BLOG_CONTENT: Record<BlogSlug, { Component: FC; metadata: BlogMetad
   [BlogSlug.NextJsShaderSetup]: {
     Component: NextJsShaders,
     metadata: nextShadersMetadata,
-    videoSrc: null,
+    videoSrc: '/blog/videos/scrolling-background-shader.mp4',
   },
 }
 
