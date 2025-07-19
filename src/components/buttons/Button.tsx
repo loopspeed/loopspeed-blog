@@ -42,7 +42,7 @@ const VARIANT_CLASSES: Record<
     mid: 'bg-mid text-black border-accent-teal hover:bg-mid/80 disabled:bg-mid border',
   },
   outlined: {
-    dark: 'border text-white border-white/50 backdrop-blur-sm hover:bg-black hover:border-accent-orange',
+    dark: 'border text-white border-white/50 backdrop-blur-sm hover:bg-black hover:border-accent-teal',
     light: 'border text-white border-light hover:border-white',
     'accent-teal': 'border text-accent-teal border-accent-teal hover:bg-accent-teal hover:text-white',
     mid: 'bg-mid text-black border-accent-teal hover:bg-mid/80 disabled:bg-mid border',

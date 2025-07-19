@@ -8,6 +8,7 @@ import Tag from '@/components/Tag'
 import { BlogMetadata } from '@/model/blog'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
+import { ArrowRightIcon } from 'lucide-react'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -44,8 +45,8 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
           loop
           muted
           playsInline
-          className="shadow-light/15 outline-darkest aspect-video max-h-[60svh] w-4xl overflow-hidden rounded-sm object-cover shadow-2xl outline">
-          <source src={videoSrc ?? '/blog/videos/scroll-driven-image-sequence.mp4'} type="video/mp4" />
+          className="shadow-light/15 outline-darkest hover:outline-accent-teal aspect-video max-h-[60svh] w-4xl overflow-hidden rounded-sm object-cover shadow-2xl outline">
+          {!!videoSrc && <source src={videoSrc} type="video/mp4" />}
         </video>
       </Link>
 
@@ -63,7 +64,7 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
         <div className="paragraph-sm flex items-center gap-2 text-white/80 *:block">
           <span>{authors.map(({ name }) => name).join(', ')}</span> •<span>{format(new Date(date), 'MMM yyyy')}</span>
         </div>
-        <Button className="w-fit" href={href} size="small" variant="outlined">
+        <Button className="w-fit" href={href} size="small" variant="outlined" icon={<ArrowRightIcon size={20} />}>
           Read more
         </Button>
       </div>
