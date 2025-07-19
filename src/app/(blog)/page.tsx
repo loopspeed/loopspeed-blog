@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { ArrowRightIcon } from 'lucide-react'
 import Link from 'next/link'
 import type { FC } from 'react'
 
@@ -8,7 +9,6 @@ import Tag from '@/components/Tag'
 import { BlogMetadata } from '@/model/blog'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
-import { ArrowRightIcon } from 'lucide-react'
 
 const isProduction = process.env.NODE_ENV === 'production'
 

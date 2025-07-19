@@ -1,6 +1,5 @@
 import { type FC } from 'react'
 
-import { BookIntroCallButton } from '@/components/buttons/CTAButtons'
 import { Heading2 } from '@/components/Heading'
 import Technologies from '@/components/Technologies'
 
@@ -34,8 +33,6 @@ const Services: FC = () => {
           </ul>
         </div>
       </div>
-
-      <BookIntroCallButton />
 
       <Technologies showAll />
     </section>
