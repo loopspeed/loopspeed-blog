@@ -34,13 +34,13 @@ const Header: FC = () => {
   return (
     <header
       ref={container}
-      className="horizontal-padding bg-darkest relative mt-(--nav-height) grid min-h-[60vh] grid-cols-1 grid-rows-[296px_auto] gap-6 overflow-hidden pt-12 pb-24 lg:grid-cols-[480px_1fr] lg:grid-rows-1 lg:gap-16 lg:pb-12">
+      className="horizontal-padding bg-darkest to-darkest relative mt-(--nav-height) grid min-h-[60vh] grid-cols-1 grid-rows-[296px_auto] gap-6 overflow-hidden bg-linear-0 from-black to-60% pt-12 pb-24 lg:grid-cols-[480px_1fr] lg:grid-rows-1 lg:gap-16 lg:pb-12">
       <HeaderModelCanvas />
 
       <div className="flex h-full flex-col items-center gap-4 lg:items-start lg:justify-center">
         <span className="heading-sm !font-medium text-white opacity-0 lg:text-left">Welcome to the Loopspeed Blog</span>
         <Heading1 className="from-accent-teal max-w-3xl to-white to-85% opacity-0 lg:text-left">
-          A growing collection of guides, patterns, and fun stuff we&apos;ve been building
+          A growing collection of guides and fun stuff we&apos;ve been building
         </Heading1>
       </div>
     </header>
