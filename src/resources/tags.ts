@@ -3,6 +3,7 @@ export enum TagName {
   React = 'react',
   ThreeJS = 'threejs',
   Particles = 'particles',
+  HTMLCanvas = 'html canvas',
   NextJS = 'nextjs',
   GSAP = 'gsap',
   Tailwind = 'tailwind',

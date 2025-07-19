@@ -46,7 +46,7 @@ export default async function BlogPage({ params }: Props) {
           <article className="prose-sm md:prose xl:prose-lg prose-pre:bg-off-black mx-auto w-full !max-w-6xl overflow-hidden bg-white px-4 py-12 text-pretty text-black md:px-12 xl:px-16 xl:py-16">
             <Component />
             <hr />
-            <h3>Thanks for reading, Loopspeed ✌️</h3>
+            <h4>Thanks for reading, Loopspeed ✌️</h4>
           </article>
           <BlogHeadingsNav />
         </div>

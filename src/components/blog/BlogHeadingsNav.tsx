@@ -69,7 +69,7 @@ const BlogHeadingsNav: FC = () => {
     <nav
       ref={container}
       className="sticky top-12 z-50 hidden h-fit min-w-md shrink-0 px-12 pt-16 pb-10 xl:block 2xl:px-16">
-      <h4 role="button" className="text-light mb-3 w-full text-sm tracking-wide uppercase" onClick={scrollToTop}>
+      <h4 role="button" className="text-light paragraph-sm mb-3 w-full tracking-wide uppercase" onClick={scrollToTop}>
         Contents
       </h4>
       <ul className="flex w-full flex-col">
@@ -81,7 +81,7 @@ const BlogHeadingsNav: FC = () => {
               <button
                 className={twJoin(
                   'w-full py-1.5 text-left text-base font-medium hover:text-white',
-                  isActive ? 'font-semibold text-white' : 'text-light',
+                  isActive ? 'text-white opacity-100' : 'text-light opacity-70',
                 )}
                 onClick={() => scrollToHeading(element.id)}>
                 {heading}

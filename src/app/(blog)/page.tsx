@@ -1,5 +1,4 @@
 import { format } from 'date-fns'
-import { type Metadata } from 'next'
 import Link from 'next/link'
 import type { FC, PropsWithChildren, ReactNode } from 'react'
 
@@ -9,15 +8,9 @@ import { Pathname, replaceSlug } from '@/resources/pathname'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-export const metadata: Metadata = {
-  title: 'Blog by Loopspeed',
-  description:
-    'A growing collection of guides, patterns, and fun stuff I&apos;ve been doing in the web design and engineering space',
-}
-
-export default function BlogPage() {
+export default function BlogHomePage() {
   return (
-    <main className="relative min-h-lvh w-full p-12 text-white">
+    <main className="relative min-h-lvh w-full text-white">
       <Header />
 
       <section className="horizontal-padding w-full space-y-12">

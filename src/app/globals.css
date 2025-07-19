@@ -19,6 +19,10 @@
   }
 }
 
+:root {
+  --nav-height: 56px; /* 4rem */
+}
+
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 
@@ -172,6 +176,35 @@ a {
   }
   .paragraph-xs {
     @apply text-xs font-medium tracking-tight lg:text-sm;
+  }
+}
+
+.horizontal-padding {
+  padding-left: 16px; /* px-4 equivalent */
+  padding-right: 16px;
+}
+
+@media (min-width: 768px) {
+  /* md breakpoint */
+  .horizontal-padding {
+    padding-left: 24px; /* md:px-6 equivalent */
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* lg breakpoint */
+  .horizontal-padding {
+    padding-left: 32px; /* lg:px-8 equivalent */
+    padding-right: 32px;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* xl breakpoint */
+  .horizontal-padding {
+    padding-left: 48px; /* xl:px-12 equivalent */
+    padding-right: 48px;
   }
 }
 

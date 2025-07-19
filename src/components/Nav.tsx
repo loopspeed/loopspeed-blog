@@ -29,7 +29,7 @@ const Nav: FC<Props> = ({ isMobile }) => {
   const Icon = useMemo(() => (showDropdown ? ChevronUp : ChevronDown), [showDropdown])
 
   return (
-    <header className="z-max fixed top-0 left-0 flex w-full items-center gap-4 bg-black px-4 sm:gap-8 sm:px-8">
+    <header className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-4 bg-black sm:gap-8">
       <Image src={logo} alt="Loopspeed Logo" className="h-4 w-auto flex-shrink-0 sm:h-5" />
       <div className={twJoin('flex min-w-0 grow items-center gap-2.5 py-2 sm:gap-4', !isMobile && 'relative')}>
         <Link
