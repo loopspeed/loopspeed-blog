@@ -17,13 +17,14 @@ import WavePlane, { metadata as wavePlaneMetadata } from './posts/wave-plane.mdx
 
 // Title and description - concise and benefit focused - why should someone read this article?
 // Metadata populated and exported from .mdx file
-// Preview video recorded for 16:9 aspect ratio and added to public/blog/videos
+// Preview video recorded for 16:9 aspect ratio (record 1280 x 720 px in dev tools)
+// Video optimised using ffmpeg and added to public/blog/videos
 
 export const BLOG_CONTENT: Record<BlogSlug, { Component: FC; metadata: BlogMetadata; videoSrc: string | null }> = {
   [BlogSlug.WavePlane]: {
     Component: WavePlane,
     metadata: wavePlaneMetadata,
-    videoSrc: null,
+    videoSrc: '/blog/videos/wave-plane.mp4',
   },
   [BlogSlug.ImageSequenceHeader]: {
     Component: ImageSequence,
