@@ -4,6 +4,8 @@ import { BookIntroCallButton } from '@/components/buttons/CTAButtons'
 import { Heading2 } from '@/components/Heading'
 import Technologies from '@/components/Technologies'
 
+// TODDO: Redesign this to CTA Section for Blog - linking to the Loopspeed website
+
 const Services: FC = () => {
   return (
     <section className="relative flex w-full flex-1 flex-col items-center justify-center gap-4 px-6 py-20 md:gap-6 md:px-12 lg:py-48">

@@ -27,7 +27,7 @@ const Footer: FC = () => {
             11689086.{' '}
           </span>{' '}
           <span>VAT registration number: 346016225.</span>
-          <span>
+          {/* <span>
             Read our
             <Link
               href="/legal/privacy-policy"
@@ -36,7 +36,7 @@ const Footer: FC = () => {
               className="ml-1 cursor-pointer underline">
               Privacy Policy.
             </Link>
-          </span>
+          </span> */}
         </p>
       </div>
     </footer>
