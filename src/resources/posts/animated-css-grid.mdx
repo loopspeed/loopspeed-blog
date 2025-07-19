@@ -9,9 +9,8 @@ export const metadata = {
   exampleSlug: ExampleSlug.AnimatedCSSGrid,
   slug: BlogSlug.AnimatedCSSGrid,
   tags: [TagName.Tutorial, TagName.React, TagName.GSAP, TagName.Tailwind],
-  authors: [{ name: 'Matthew Frawley' }],
+  authors: [{ name: 'Eduard Radd' }, { name: 'Matthew Frawley' }],
 }
-
 
 ## Project Setup and Dependencies
 
@@ -22,16 +21,18 @@ npm i tailwind-merge gsap @gsap/react
 ```
 
 <Aside>
-- *[tailwind-merge](https://www.npmjs.com/package/tailwind-merge)*: A utility to merge Tailwind CSS classes<br/>
-- *[gsap](https://www.npmjs.com/package/gsap)*: A framework-agnostic JavaScript animation library<br/>
-- *[@gsap/react](https://www.npmjs.com/package/@gsap/react)*: A drop-in replacement for useEffect() or useLayoutEffect()
+  - *[tailwind-merge](https://www.npmjs.com/package/tailwind-merge)*: A utility to merge Tailwind CSS classes
+  <br />
+  - *[gsap](https://www.npmjs.com/package/gsap)*: A framework-agnostic JavaScript animation library
+  <br />- *[@gsap/react](https://www.npmjs.com/package/@gsap/react)*: A drop-in replacement for useEffect() or
+  useLayoutEffect()
 </Aside>
 
 ## Defining the data
 
 Before we dive into our JSX structure, let's create some data for our grid cards.
 
-By using an array we can map over the elements rather than writing out the same markup over and over. 
+By using an array we can map over the elements rather than writing out the same markup over and over.
 This helps us adhere to the DRY principle of <i>Don't Repeat Yourself</i> and makes it much easier to change content and styling in the future.
 
 **[You can download the SVG icons here](https://blog.pragmattic.dev/blog/technology-icons.zip)**
@@ -91,13 +92,13 @@ const DATA: GridCard[] = [
   {
     image: webGLIcon,
     heading: 'WebGL',
-    description:
-      'A JavaScript API for rendering interactive 2D and 3D graphics in the browser.',
+    description: 'A JavaScript API for rendering interactive 2D and 3D graphics in the browser.',
   },
 ] as const
 ```
 
 ### Note:
+
 - We define a type to ensure each object in the array has the correct shape.
 - The image is of type `StaticImageData`, which is a Next.js-specific type for imported image assets. It contains both the source (url) and size data.
 - We use `ReactNode` for the description type to allow for inline JSX content - spot the bold phrase!
@@ -107,7 +108,7 @@ const DATA: GridCard[] = [
 
 Now that we have our data ready to roll, it's time to write the JSX for our grid. We're creating a section that serves as a 3-column grid, and we'll map over our data to render a set of simple cards.
 
-*Adjust the styling, make it beautiful! 💅*
+_Adjust the styling, make it beautiful! 💅_
 
 ```tsx title="AnimatedGrid.tsx"
 const AnimatedGrid: FC = () => {
@@ -125,17 +126,17 @@ const AnimatedGrid: FC = () => {
 }
 
 export default AnimatedGrid
-``` 
+```
 
 ### What's happening here?
-- The `<section>` is styled as a grid with 3 columns using the `grid grid-cols-3` classes. 
-- We *aren't* stating how many rows the grid should have as it will automatically adjust based on the number of items.
-- Data mapping: We loop through our data and return a `<div>` card with an image, heading (h5), and description (p) for each item.
 
+- The `<section>` is styled as a grid with 3 columns using the `grid grid-cols-3` classes.
+- We _aren't_ stating how many rows the grid should have as it will automatically adjust based on the number of items.
+- Data mapping: We loop through our data and return a `<div>` card with an image, heading (h5), and description (p) for each item.
 
 ## From Static to Dynamic: Making the Grid Responsive
 
-Time to level up! Let's make a responsive layout that adapts to both the number of cards and the screen size. 
+Time to level up! Let's make a responsive layout that adapts to both the number of cards and the screen size.
 
 We conditionally assign Tailwind grid classes depending on whether we have 3, 4, or a different number of items.
 
@@ -182,9 +183,9 @@ export default AnimatedGrid
 ```
 
 ### Summary of changes
+
 - The `className` props is spread into the section - allowing for additional styling to be passed in from the parent
 - `twMerge` is useful when there are, or could be, be class conflicts. For example the `className` prop could contain a `grid-cols-5` class which we'd want to take precedence over the default grid classes.
-
 
 ## Animating Cards with GSAP
 
@@ -209,13 +210,13 @@ The GSAP animations are scoped to the container, ensuring that only elements wit
 <Aside title="GSAP Stagger Parameters">
 
 {/* TODO: exxplain thse better and link to GSAP site */}
- We define parameters for our staggered animation. These include:
+We define parameters for our staggered animation. These include:
 A slight delay between each element (each: 0.05).
 The animation starting from the center (from: 'center').
 Automatic grid layout (grid: 'auto').
 Smooth easing (ease: 'power2.inOut').
-</Aside>
 
+</Aside>
 
 ```tsx {1,7,10,79,91,94-96} title="AnimatedGrid.tsx" showLineNumbers
 'use client'
@@ -315,7 +316,7 @@ const AnimatedGrid: FC<Props> = ({ className }) => {
         // 'opacity-0' ensures the card is invisible until animated in
         <div key={index} className="card space-y-3 rounded-xl bg-white/5 p-6 opacity-0 shadow-2xl">
           <Image src={item.image} alt={item.heading} className="h-20" />
-          <h5 className="text-sm font-semibold uppercase tracking-wide">{item.heading}</h5>
+          <h5 className="text-sm font-semibold tracking-wide uppercase">{item.heading}</h5>
           <p className="text-base text-white/60">{item.description}</p>
         </div>
       ))}
@@ -325,72 +326,72 @@ const AnimatedGrid: FC<Props> = ({ className }) => {
 ```
 
 ### Key points
+
 - The `'use client'` directive marks the component as client-side. This is essential since we're using browser-specific functions such as `useRef`...
 - We add a React `ref` to our `<section>` container.
 - We use the ref as the `useGSAP` scope so we can target it's child elements using lazy selectors without affecting elements outside the component.
 - We make a safety check to ensure container.current exists before creating our animations.
 
-
 ## Mobile friendly animations with GSAP 'matchMedia'
 
-By leveraging GSAP's [matchMedia](https://gsap.com/docs/v3/GSAP/gsap.matchMedia()) utility, we can run different animations based on a media query.
+By leveraging GSAP's [matchMedia](<https://gsap.com/docs/v3/GSAP/gsap.matchMedia()>) utility, we can run different animations based on a media query.
 
 We'll leave the desktop animation timeline as it was, but only run it if the screen width is 640px or more.
 
-Narrow screens (less than 640px width) would benefit from a different type of transition. There is a single column, and you only see a couple of cards at any one time. 
+Narrow screens (less than 640px width) would benefit from a different type of transition. There is a single column, and you only see a couple of cards at any one time.
 The grid stagger is ineffective in this scenario because by the time the user scrolls down to the latter cards, they will have already animated in.
 
 Instead, let's make it so that the cards animate individually as they enter the viewport. We can achieve this by creating a GSAP Tween with a scroll trigger unique to each card.
 
 ```tsx {6,9-39} title="AnimatedGrid.tsx useGSAP hook"
-  useGSAP(
-    () => {
-      if (!container.current) return
+useGSAP(
+  () => {
+    if (!container.current) return
 
-      // Initialize matchMedia for responsive animations
-      const matchMedia = gsap.matchMedia()
+    // Initialize matchMedia for responsive animations
+    const matchMedia = gsap.matchMedia()
 
-      // Smaller screens
-      matchMedia.add('screen and (max-width: 639px)', () => {
-        // Create an array of card elements create a GSAP animation for each
-        const cards = gsap.utils.toArray('.card') as HTMLDivElement[]
+    // Smaller screens
+    matchMedia.add('screen and (max-width: 639px)', () => {
+      // Create an array of card elements create a GSAP animation for each
+      const cards = gsap.utils.toArray('.card') as HTMLDivElement[]
 
-        cards.forEach((card) => {
-          gsap.fromTo(
-            card,
-            {
-              opacity: 0,
-              scale: 0.9,
-              y: 24,
+      cards.forEach((card) => {
+        gsap.fromTo(
+          card,
+          {
+            opacity: 0,
+            scale: 0.9,
+            y: 24,
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.in',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 90%',
+              toggleActions: 'play none none reverse',
             },
-            {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              duration: 0.5,
-              ease: 'power2.in',
-              scrollTrigger: {
-                trigger: card,
-                start: 'top 90%',
-                toggleActions: 'play none none reverse',
-              },
-            },
-          )
-        })
-        // Reset Y temporarily when the scroll trigger refreshes, 
-        // because Y is initially set to 24 we don't want that to effect the scroll trigger calculations
-        ScrollTrigger.addEventListener('refreshInit', () => {
-          gsap.set('.card', { y: 0 })
-        })
+          },
+        )
       })
+      // Reset Y temporarily when the scroll trigger refreshes,
+      // because Y is initially set to 24 we don't want that to effect the scroll trigger calculations
+      ScrollTrigger.addEventListener('refreshInit', () => {
+        gsap.set('.card', { y: 0 })
+      })
+    })
 
-      // Larger screens
-      matchMedia.add('screen and (min-width: 640px)', () => {
-        // Grid animation code from earlier
-      })
-    },
-    { scope: container, dependencies: [] },
-  )
+    // Larger screens
+    matchMedia.add('screen and (min-width: 640px)', () => {
+      // Grid animation code from earlier
+    })
+  },
+  { scope: container, dependencies: [] },
+)
 ```
 
 ## Making it reusable: Passing the card data as Props
@@ -422,9 +423,9 @@ const AnimatedGrid: FC<Props> = ({ className, cards = [] }) => {
 ```
 
 ### How does this help?
+
 - Dynamic Data Injection: The component now receives its card data via a prop, making it easy to pass dynamic content from a server-side page.
 - Type Safety: By exporting the type we can ensure each card adheres to the correct shape.
-
 
 ### Example usage:
 
@@ -438,14 +439,13 @@ const CARDS: GridCardProps[] = [
     subheader: 'Give every item its unique ID to deliver trackable and personalised experiences',
   },
   // ...
-];
+]
 
 export default function ExamplePage() {
-  // fetch cards data? 
+  // fetch cards data?
   return (
     <main className="w-full font-sans">
-      <section className="h-lvh">
-      </section>
+      <section className="h-lvh"></section>
       <AnimatedCSSGrid cards={CARDS} />
     </main>
   )
