@@ -3,7 +3,7 @@ import { BlogSlug, ExampleSlug } from '../pathname'
 import { TagName } from '../tags'
 
 export const metadata = {
-  title: 'Animated CSS Grid in Next.js: A Step-by-Step Tailwind and GSAP Tutorial',
+  title: 'Animated Grid in Next.js: A Step-by-Step Tailwind CSS and GSAP Tutorial',
   description:
     'A guide to mapping data into a responsive grid, animating it for desktop and mobile, and making it reusable.',
   date: '2025-02-04',
@@ -15,7 +15,7 @@ export const metadata = {
 
 ## Project Setup and Dependencies
 
-Once you have a Next.js project set up. You'll need these packages:
+Once you have your Next.js project set up. You'll need these packages:
 
 ```bash
 npm i tailwind-merge gsap @gsap/react
@@ -31,7 +31,7 @@ npm i tailwind-merge gsap @gsap/react
 
 ## Defining the data
 
-Before we dive into our JSX structure, let's create some data for our grid cards.
+Before we dive into our JSX structure, let's create some mock data for our grid cards.
 
 By using an array we can map over the elements rather than writing out the same markup over and over.
 This helps us adhere to the DRY principle of <i>Don't Repeat Yourself</i> and makes it much easier to change content and styling in the future.
@@ -197,12 +197,7 @@ We're going to be using the useGSAP hook and ScrollTrigger plugin, so we need to
 
 Now we can add a ref to our grid container and use that as the trigger element for the scroll based animations.
 
-We'll hide the cards with an `opacity-0` class and then animate them in using GSAP
-
-{/* MF: better to just set opacity-0 class on the card - less JS */}
-{/* We use gsap.set to initialize the opacity of all target elements to 0. This way, they animate in from an invisible state. */}
-{/* MF: This sentence is incorrect as IDS were duplicated */}
-{/* Each animated element (card, image, header, subheader) has a unique ID. This makes it straightforward for GSAP to select and animate them individually. */}
+We'll hide the cards with an `opacity-0` class and then animate them in using GSAP.
 
 The GSAP animations are scoped to the container, ensuring that only elements within the grid are targeted.
 
@@ -455,4 +450,6 @@ export default function ExamplePage() {
 
 ## Signing Out
 
-{/* TODO: conclusion */}
+You've just built a responsive, animated CSS grid that adapts between desktop and mobile experiences using GSAP and Tailwind CSS. 
+This reusable component demonstrates the power of modern web technologies to create engaging UI that perform well across devices. 
+Whether you're showcasing technologies, services, or other content, this grid pattern provides a solid foundation that you can customise to match your design needs.

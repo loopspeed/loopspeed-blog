@@ -5,7 +5,7 @@ import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPU
 import { color, Fn, mix, mx_noise_float, screenUV, time } from 'three/tsl'
 import * as THREE from 'three/webgpu'
 
-import { BLACK, DARK, DARKEST } from '@/resources/colours'
+import { DARK, DARKEST } from '@/resources/colours'
 
 declare module '@react-three/fiber' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -50,7 +50,7 @@ const BackgroundNode = Fn(() => {
     .mul(0.5)
     .add(0.5)
     .clamp(0.0, 1.0)
-  const c = mix(color(DARK), color(BLACK), colourNoise)
+  const c = mix(color(DARK), color(DARKEST), colourNoise)
 
   const grainNoise = mx_noise_float(screenUV.mul(640)).mul(0.5).add(0.5).clamp(0.0, 1.0)
   const finalColour = mix(color(DARKEST), c, grainNoise)

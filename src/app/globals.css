@@ -78,7 +78,8 @@
 
   ::-webkit-scrollbar-thumb {
     background-color: var(--color-mid);
-    border-radius: 0;
+    border-radius: 4px;
+    border: none;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -135,7 +136,7 @@ a {
 }
 
 ::selection {
-  background-color: var(--color-darkest);
+  background-color: var(--color-accent-teal);
   color: var(--color-white);
 }
 

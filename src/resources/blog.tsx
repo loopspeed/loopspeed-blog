@@ -9,16 +9,23 @@ import NextJsShaders, { metadata as nextShadersMetadata } from './posts/next-sha
 import ReactThreeFiberWebGPUTypescript, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
 import WavePlane, { metadata as wavePlaneMetadata } from './posts/wave-plane.mdx'
 
-// **New Blog Requirements**
+// ** New Blog Requirements **
 
 // Article and code reviewed by at least one other team member
 
 // Title and description - concise and benefit focused - why should someone read this article?
 // Metadata populated and exported from .mdx file
-// Preview video recorded for 16:9 aspect ratio (record 1280 x 720 px in dev tools)
-// Video optimised using ffmpeg and added to public/blog/videos
+// Preview video recorded for 16:9 aspect ratio (record 1280 x 720 px)
+// Video must fade in and out to black. (Matt can help with this if needed)
+// Video added to public/blog/videos in .mp4 format
 
-export const BLOG_CONTENT: Record<BlogSlug, { Component: FC; metadata: BlogMetadata; videoSrc: string | null }> = {
+type BlogContent = {
+  Component: FC
+  metadata: BlogMetadata
+  videoSrc: string | null
+}
+
+export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
   [BlogSlug.WavePlane]: {
     Component: WavePlane,
     metadata: wavePlaneMetadata,
@@ -29,7 +36,11 @@ export const BLOG_CONTENT: Record<BlogSlug, { Component: FC; metadata: BlogMetad
     metadata: imageSequenceMetadata,
     videoSrc: '/blog/videos/scroll-driven-image-sequence.mp4',
   },
-  [BlogSlug.AnimatedCSSGrid]: { Component: AnimatedCSSGrid, metadata: animatedCSSGridMetadata, videoSrc: null },
+  [BlogSlug.AnimatedCSSGrid]: {
+    Component: AnimatedCSSGrid,
+    metadata: animatedCSSGridMetadata,
+    videoSrc: '/blog/videos/animated-grid.mp4',
+  },
   [BlogSlug.ReactThreeFiberWebGPUTypescript]: {
     Component: ReactThreeFiberWebGPUTypescript,
     metadata: r3fWebGPUMetadata,
@@ -42,7 +53,7 @@ export const BLOG_CONTENT: Record<BlogSlug, { Component: FC; metadata: BlogMetad
   },
 }
 
-const sortBlogContentByDate = (a: { metadata: BlogMetadata }, b: { metadata: BlogMetadata }) => {
+const sortBlogContentByDate = (a: BlogContent, b: BlogContent): number => {
   return new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime()
 }
 

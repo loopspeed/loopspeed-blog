@@ -13,7 +13,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 export default function BlogListingPage() {
   return (
-    <main className="relative min-h-lvh w-full text-white">
+    <main className="relative min-h-lvh w-full pt-(--nav-height) text-white">
       <Header />
 
       <section className="horizontal-padding flex flex-col items-center space-y-24 py-20 lg:space-y-32">
@@ -37,14 +37,19 @@ type CardProps = BlogMetadata & {
 
 const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, date, videoSrc }) => {
   return (
-    <div className="flex flex-col items-center gap-8 lg:gap-8">
+    <div className="flex flex-col items-center gap-6 lg:gap-10">
       <Link href={href}>
-        <video autoPlay loop muted playsInline className="aspect-video w-4xl overflow-hidden rounded-sm object-cover">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="shadow-light/15 outline-darkest aspect-video max-h-[60svh] w-4xl overflow-hidden rounded-sm object-cover shadow-2xl outline">
           <source src={videoSrc ?? '/blog/videos/scroll-driven-image-sequence.mp4'} type="video/mp4" />
         </video>
       </Link>
 
-      <div className="flex w-full max-w-2xl flex-col gap-3 lg:gap-4">
+      <div className="relative z-10 flex w-full max-w-2xl flex-col gap-3 lg:gap-4">
         {/* Tags */}
         <div className="hidden w-fit max-w-full flex-wrap justify-center gap-1.5 sm:flex">
           {tags.map((tag) => (

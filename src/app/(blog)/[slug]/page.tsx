@@ -39,7 +39,7 @@ export default async function BlogPage({ params }: Props) {
 
   return (
     <>
-      <main className="relative w-full font-sans">
+      <main className="relative w-full pt-(--nav-height)">
         <BlogPostHeader {...metadata} />
 
         <div className="grid grid-cols-1 grid-rows-1 xl:grid-cols-[auto_1fr]">

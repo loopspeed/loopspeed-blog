@@ -2,7 +2,6 @@ import './globals.css'
 
 import type { Metadata } from 'next'
 import { Red_Hat_Display } from 'next/font/google'
-import { headers } from 'next/headers'
 import { twJoin } from 'tailwind-merge'
 
 import Footer from '@/components/footer/Footer'
@@ -28,14 +27,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const headersList = await headers()
-  const userAgent = headersList.get('user-agent')
-  const isMobile = !!userAgent?.includes('Mobile')
-
   return (
     <html lang="en">
-      <body className={twJoin(sans.variable, 'size-full bg-black font-sans')}>
-        <Nav isMobile={isMobile} />
+      <body className={twJoin(sans.variable, 'w-full bg-black font-sans text-white')}>
+        <Nav />
         {children}
         <Footer />
       </body>

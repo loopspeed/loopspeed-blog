@@ -3,7 +3,7 @@
 import { useGSAP } from '@gsap/react'
 import { format } from 'date-fns'
 import gsap from 'gsap'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -12,77 +12,72 @@ import { Transition, type TransitionStatus } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
 import logo from '@/assets/brand/logo.svg'
+import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import { BLOG_CONTENT, ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname, replaceSlug } from '@/resources/pathname'
 
-type Props = {
-  isMobile: boolean
-}
-
-const Nav: FC<Props> = ({ isMobile }) => {
+const Nav: FC = () => {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const slug = useParams().slug as BlogSlug | undefined
   const blogPostContent = BLOG_CONTENT?.[slug!]
   const [showDropdown, setShowDropdown] = useState(false)
 
-  const Icon = useMemo(() => (showDropdown ? ChevronUp : ChevronDown), [showDropdown])
-
   return (
-    <header className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-4 bg-black sm:gap-8">
-      <a href="https://loopspeed.co.uk" target="_blank" rel="noopener noreferrer">
+    <nav className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-2.5 bg-black py-2 sm:gap-4">
+      <Link
+        href={Pathname.Home}
+        className="paragraph-sm flex shrink-0 items-center gap-3 text-white/60 transition-colors hover:text-white sm:text-sm">
         <Image src={logo} alt="Loopspeed Logo" className="h-4 w-auto flex-shrink-0 sm:h-5" />
-      </a>
-      <div className={twJoin('flex min-w-0 grow items-center gap-2.5 py-2 sm:gap-4', !isMobile && 'relative')}>
-        <Link
-          href={Pathname.Home}
-          className="flex-shrink-0 py-2 text-xs text-white/60 transition-colors hover:text-white sm:text-sm">
-          Blog
-        </Link>
-        {!!blogPostContent && (
-          <>
-            <span className="flex-shrink-0 text-xs text-white/60 sm:text-sm">/</span>
-            <button
-              ref={buttonRef}
-              className="flex min-w-0 items-center gap-1 py-2 text-left text-sm font-semibold text-white transition-colors hover:text-white/60 sm:gap-2 sm:text-base"
-              onClick={() => {
-                setShowDropdown((prev) => !prev)
-              }}>
-              <span className="truncate">{blogPostContent.metadata.title}</span>
-              <Icon className="size-4 flex-shrink-0 sm:size-5" />
-            </button>
+        Blog
+      </Link>
+      {!!blogPostContent ? (
+        <div className="flex flex-1 items-center gap-2 overflow-hidden sm:gap-3">
+          <span className="paragraph-sm flex-shrink-0 text-white/60">/</span>
+          <button
+            ref={buttonRef}
+            className="flex min-w-0 items-center gap-1 py-2 text-left font-semibold text-white transition-colors hover:text-white/60 sm:gap-2"
+            onClick={() => {
+              setShowDropdown((prev) => !prev)
+            }}>
+            <span className="truncate">{blogPostContent.metadata.title}</span>
+            {showDropdown ? (
+              <ChevronUp className="size-4 flex-shrink-0 sm:size-5" />
+            ) : (
+              <ChevronDown className="size-4 flex-shrink-0 sm:size-5" />
+            )}
+          </button>
 
-            <Dropdown
-              isMobile={isMobile}
-              buttonRef={buttonRef}
-              show={showDropdown}
-              closeDropdown={() => setShowDropdown(false)}
-            />
-          </>
-        )}
-      </div>
-    </header>
+          <Dropdown buttonRef={buttonRef} show={showDropdown} closeDropdown={() => setShowDropdown(false)} />
+        </div>
+      ) : (
+        <div className="flex-1" />
+      )}
+
+      <Button size="small" icon={<ArrowUpRight className="size-4.5" />} href="https://loopspeed.co.uk" target="_blank">
+        Loopspeed
+      </Button>
+    </nav>
   )
 }
 
 export default Nav
 
 type DropdownProps = {
-  isMobile: boolean
   buttonRef: React.RefObject<HTMLButtonElement | null>
   closeDropdown: () => void
 }
 
 const Dropdown: FC<DropdownProps & { show: boolean }> = ({ show, ...props }) => {
   const container = useRef<HTMLDivElement>(null)
+  // TODO: Refactor to use Floating UI..
   return (
     <Transition in={show} nodeRef={container} timeout={{ enter: 0, exit: 150 }} appear unmountOnExit mountOnEnter>
       {(status) => (
         <div
           ref={container}
           className={twJoin(
-            'z-max absolute top-full left-0 mt-1 flex size-fit max-w-4xl origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4',
-            props.isMobile && 'mx-2',
+            'z-max absolute top-full left-0 mx-2 mt-1 flex size-fit max-w-4xl origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4',
           )}>
           <DropDownContent container={container} transitionStatus={status} {...props} />
         </div>
@@ -96,13 +91,7 @@ type DropDownContentProps = DropdownProps & {
   transitionStatus: TransitionStatus
 }
 
-const DropDownContent: FC<DropDownContentProps> = ({
-  container,
-  buttonRef,
-  isMobile,
-  transitionStatus,
-  closeDropdown,
-}) => {
+const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, transitionStatus, closeDropdown }) => {
   const { contextSafe } = useGSAP({ scope: container })
   const push = useRouter().push
 
@@ -174,9 +163,9 @@ const DropDownContent: FC<DropDownContentProps> = ({
     return ORDERED_BLOG_CONTENT.flatMap(({ metadata: { tags } }) => tags)
       .filter((tag, index, self) => self.indexOf(tag) === index)
       .sort(() => Math.random() - 0.5)
-      .slice(0, isMobile ? 10 : 30)
+      .slice(0, 30)
       .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
-  }, [isMobile])
+  }, [])
 
   return (
     <>
