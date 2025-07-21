@@ -23,7 +23,7 @@ const Technologies: FC<Props> = ({ showAll = false }) => {
   return (
     <div className="flex flex-wrap items-center justify-center gap-4 px-8 py-4 sm:gap-6">
       {technologies.map((icon, idx) => {
-        return <Image key={idx} src={icon} alt="tech icon" className="h-7 w-auto opacity-70 sm:h-8" />
+        return <Image key={idx} src={icon} alt="tech icon" className="h-6 w-auto opacity-70 sm:h-7" />
       })}
     </div>
   )

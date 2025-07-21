@@ -8,8 +8,8 @@ const CTA: FC = () => {
   return (
     <section
       id="cta"
-      className="bg-darkest relative flex w-full flex-1 flex-col items-center justify-center gap-4 px-6 py-20 md:gap-8 md:px-12 lg:py-30">
-      <Heading2 className="from-accent-teal bg-linear-30/oklch to-white to-110% text-balance">
+      className="bg-darkest relative flex w-full flex-1 flex-col items-center justify-center gap-6 px-3 py-20 sm:px-6 md:gap-8 md:px-12 lg:py-30">
+      <Heading2 className="from-accent-teal bg-linear-30/oklch to-white text-balance">
         Looking for an experienced team to help bring a project to life?
       </Heading2>
 
