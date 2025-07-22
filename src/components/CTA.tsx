@@ -1,10 +1,15 @@
+'use client'
 import { type FC } from 'react'
 
 import Button from '@/components/buttons/Button'
 import { Heading2 } from '@/components/Heading'
 import Technologies from '@/components/Technologies'
+// import { useGA4Event } from '@/hooks/useGA4Event'
+// import { EventName } from '@/resources/analytics'
 
 const CTA: FC = () => {
+  // const { sendEvent } = useGA4Event()
+
   return (
     <section
       id="cta"
@@ -13,7 +18,14 @@ const CTA: FC = () => {
         Looking for an experienced team to help bring a project to life?
       </Heading2>
 
-      <Button href="https://www.loopspeed.co.uk/">Meet Loopspeed</Button>
+      <Button
+        href="https://www.loopspeed.co.uk/"
+        // onClick={() => {
+        //   sendEvent(EventName.ClickMeetLoopspeed)
+        // }}
+      >
+        Meet Loopspeed
+      </Button>
 
       <Technologies showAll />
     </section>

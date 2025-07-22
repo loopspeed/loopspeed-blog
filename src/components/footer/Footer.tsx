@@ -6,8 +6,11 @@ import React, { type FC } from 'react'
 import linkedInIcon from '@/assets/icons/socials/linkedin.svg'
 import CopyEmail from '@/components/footer/CopyEmail'
 import LocalTime from '@/components/footer/LocalTime'
+// import { useGA4Event } from '@/hooks/useGA4Event'
+// import { EventName } from '@/resources/analytics'
 
 const Footer: FC = () => {
+  // const { sendEvent } = useGA4Event()
   return (
     <footer
       id="footer"
@@ -16,7 +19,9 @@ const Footer: FC = () => {
         <div className="flex items-center sm:gap-2">
           <LocalTime />
           <CopyEmail />
-          <Link href="https://linkedin.com/company/loopspeed" rel="noreferrer" target="_blank">
+          <Link href="https://linkedin.com/company/loopspeed" rel="noreferrer" target="_blank"
+            // onClick={() => sendEvent(EventName.ClickLinkedin)}
+          >
             <Image src={linkedInIcon} alt="LinkedIn" width={24} height={24} className="size-6" sizes="24px" />
           </Link>
         </div>

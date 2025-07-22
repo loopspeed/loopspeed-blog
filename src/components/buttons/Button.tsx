@@ -65,7 +65,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   if (href?.startsWith('/'))
     return (
       <Link href={href} target={props.target}>
-        {button}
+          {button}
       </Link>
     )
 
