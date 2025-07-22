@@ -6,6 +6,7 @@ export default function ExampleLayout({ children }: { children: ReactNode }) {
   return (
     <>
       {/* Positions the Leva controls if used */}
+      {/* TODO: move this into a client component and add to the page instead of here. */}
       <Leva titleBar={{ position: { x: -16, y: 56 } }} />
       {children}
     </>
