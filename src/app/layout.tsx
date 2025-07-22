@@ -1,5 +1,6 @@
 import './globals.css'
 
+import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata } from 'next'
 import { Red_Hat_Display } from 'next/font/google'
 import { twJoin } from 'tailwind-merge'
@@ -36,6 +37,7 @@ export default async function RootLayout({
         {/* Consider that the "examples" use this layout- keep this to a minimum */}
         <Footer />
       </body>
+       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
     </html>
   )
 }

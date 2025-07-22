@@ -14,6 +14,8 @@ import { twJoin } from 'tailwind-merge'
 import logo from '@/assets/brand/logo.svg'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
+import { useGA4Event } from '@/hooks/useGA4Event'
+import { EventName } from '@/resources/analytics'
 import { BLOG_CONTENT, ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname, replaceSlug } from '@/resources/pathname'
 
@@ -22,6 +24,7 @@ const Nav: FC = () => {
   const slug = useParams().slug as BlogSlug | undefined
   const blogPostContent = BLOG_CONTENT?.[slug!]
   const [showDropdown, setShowDropdown] = useState(false)
+  const { sendEvent } = useGA4Event()
 
   return (
     <nav className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-2.5 bg-black py-2 sm:gap-4">
@@ -54,7 +57,14 @@ const Nav: FC = () => {
         <div className="flex-1" />
       )}
 
-      <Button size="small" icon={<ArrowUpRight className="size-4.5" />} href="https://loopspeed.co.uk" target="_blank">
+      <Button
+        size="small"
+        icon={<ArrowUpRight className="size-4.5" />}
+        href="https://loopspeed.co.uk"
+        target="_blank"
+        onClick={() => {
+          sendEvent(EventName.ClickGoToLoopspeed)
+        }}>
         Loopspeed
       </Button>
     </nav>
