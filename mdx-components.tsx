@@ -65,9 +65,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return (
         <blockquote
           {...props}
-          className={twMerge('not-prose border-light/20 my-4 border-l-2 px-4 py-2', props?.className)}>
+          className={twMerge('not-prose bg-light/10 border-light my-4 border-l-2 px-4 py-2', props?.className)}>
           <span className="font-medium italic">&quot;{children}&quot;</span>
-          {author && <span className="text-mid"> - {author}</span>}
+          {!!author && <span className="text-dark"> - {author}</span>}
         </blockquote>
       )
     },
