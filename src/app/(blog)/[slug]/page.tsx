@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
+import CTA from '@/components/CTA'
 import JSONSchema from '@/components/JSONSchema'
 import { BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
@@ -50,6 +51,8 @@ export default async function BlogPage({ params }: Props) {
           </article>
           <BlogHeadingsNav />
         </div>
+
+        <CTA />
       </main>
 
       <JSONSchema {...metadata} />
