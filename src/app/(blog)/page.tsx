@@ -14,6 +14,21 @@ import { Pathname, replaceSlug } from '@/resources/pathname'
 const isProduction = process.env.NODE_ENV === 'production'
 
 export default function BlogListingPage() {
+
+  const blogData = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: ORDERED_BLOG_CONTENT.map(({ metadata }, index) => ({
+      '@type': 'BlogPosting',
+      position: index + 1,
+      headline: metadata.title,
+      description: metadata.description,
+      url: `https://blog.loopspeed.co.uk/${metadata.slug}`,
+      author: metadata.authors?.map((author) => ({ '@type': 'Person', name: author.name })),
+      datePublished: metadata.date,
+    })),
+  }
+
   return (
     <main className="relative min-h-lvh w-full pt-(--nav-height) text-white">
       <Header />
@@ -30,6 +45,7 @@ export default function BlogListingPage() {
       </section>
 
       <CTA />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogData) }} />
     </main>
   )
 }
