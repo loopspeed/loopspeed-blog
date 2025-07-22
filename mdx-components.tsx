@@ -102,20 +102,16 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return (
         <aside
           {...props}
-          className={twMerge(
-            "border-light bg-light/10 overflow-hidden rounded-md border",
-            props?.className
-          )}
-        >
+          className={twMerge('border-light bg-light/10 overflow-hidden rounded-md border', props?.className)}>
           {!!title && (
             <header className="not-prose bg-light flex w-full items-center gap-2 px-2 py-2">
               <InfoIcon className="size-5" />
               <h3 className="leading-none">{title}</h3>
             </header>
           )}
-          <div className="px-4">{children}</div>
+          <div className="px-4 [&_li]:marker:text-accent-teal [&_ul]:list-disc">{children}</div>
         </aside>
-      );
+      )
     },
     Video: ({ src, ...props }: { src: string; className?: string }) => {
       return (
