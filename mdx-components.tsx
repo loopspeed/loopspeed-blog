@@ -82,7 +82,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
               <h3 className="text-darkest leading-none">{title}</h3>
             </header>
           )}
-          <div className="px-4">{children}</div>
+          <div className="[&_li]:marker:text-accent-teal px-4 [&_ul]:list-disc">{children}</div>
         </aside>
       )
     },
