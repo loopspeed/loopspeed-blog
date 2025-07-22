@@ -4,11 +4,11 @@ import { type FC } from 'react'
 import Button from '@/components/buttons/Button'
 import { Heading2 } from '@/components/Heading'
 import Technologies from '@/components/Technologies'
-import { useGA4Event } from '@/hooks/useGA4Event'
-import { EventName } from '@/resources/analytics'
+// import { useGA4Event } from '@/hooks/useGA4Event'
+// import { EventName } from '@/resources/analytics'
 
 const CTA: FC = () => {
-  const { sendEvent } = useGA4Event()
+  // const { sendEvent } = useGA4Event()
 
   return (
     <section
@@ -20,9 +20,10 @@ const CTA: FC = () => {
 
       <Button
         href="https://www.loopspeed.co.uk/"
-        onClick={() => {
-          sendEvent(EventName.ClickMeetLoopspeed)
-        }}>
+        // onClick={() => {
+        //   sendEvent(EventName.ClickMeetLoopspeed)
+        // }}
+      >
         Meet Loopspeed
       </Button>
 
