@@ -68,7 +68,7 @@ const BlogHeadingsNav: FC = () => {
   return (
     <nav
       ref={container}
-      className="sticky top-12 z-50 hidden h-fit min-w-md shrink-0 px-12 pt-16 pb-10 xl:block 2xl:px-16">
+      className="sticky top-(--nav-height) z-50 hidden h-fit w-sm px-8 pt-12 pb-10 xl:block 2xl:px-16">
       <h4 role="button" className="text-light paragraph-sm mb-3 w-full tracking-wide uppercase" onClick={scrollToTop}>
         Contents
       </h4>
@@ -80,7 +80,7 @@ const BlogHeadingsNav: FC = () => {
             <li key={index}>
               <button
                 className={twJoin(
-                  'w-full py-1.5 text-left text-base font-medium hover:text-white',
+                  'paragraph-sm w-full py-1 text-left !font-medium hover:text-white',
                   isActive ? 'text-white opacity-100' : 'text-light opacity-70',
                 )}
                 onClick={() => scrollToHeading(element.id)}>
