@@ -1,13 +1,8 @@
 import { type FC } from 'react'
 
 import AnimatedGridPage from '@/components/examples/animatedCSSGrid/AnimatedGridPage'
-import MarqueePage from '@/components/examples/animatedMarquee/MarqueePage'
 import ImageSequencePage from '@/components/examples/imageSequence/ImageSequenceHeader'
 import RayMarchingPage from '@/components/examples/raymarching/RayMarchingPage'
-import EnergyTransferCanvas from '@/components/examples/three/energyTransfer/EnergyTransfer'
-import FBOEffectsCanvas from '@/components/examples/three/fboEffectShader/FBOEffects'
-import LoopPointsCanvas from '@/components/examples/three/loopPoints/LoopPointsCanvas'
-import StarWarsPage from '@/components/examples/three/particles/stars/StarWarsPage'
 import ScrollingBackgroundShaderPage from '@/components/examples/three/scrollingBackgroundGradient/ScrollingBackgroundGradientPage'
 import ScrollingScenePage from '@/components/examples/three/scrollingScene/ScrollingScenePage'
 import { WavePlanePage } from '@/components/examples/three/wavePlane/WavePlane'
@@ -53,40 +48,6 @@ const EXAMPLES: Record<ExampleSlug, { Component: FC; metadata: ExampleMetadata }
       githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/app/examples/scrolling-three-scene/page.tsx',
     },
   },
-  [ExampleSlug.StarsParticles]: {
-    Component: StarWarsPage,
-    metadata: {
-      title: 'Stars Wars particles with scrolling text',
-      slug: ExampleSlug.StarsParticles,
-      tags: [TagName.React, TagName.ThreeJS, TagName.Particles, TagName.Tailwind],
-      authors: [{ name: 'Matthew Frawley' }],
-      youtubeUrl: 'https://youtu.be/E4XKY-ISKdU',
-      githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/app/examples/stars-particles/page.tsx',
-    },
-  },
-  [ExampleSlug.FBOEffects]: {
-    Component: FBOEffectsCanvas,
-    metadata: {
-      title: 'FBO Effects',
-      slug: ExampleSlug.FBOEffects,
-      tags: [TagName.PostProcessing, TagName.ThreeJS, TagName.FragmentShader],
-      authors: [{ name: 'Matthew Frawley' }],
-      youtubeUrl: 'https://youtu.be/vJaLN3UMnso',
-      githubUrl:
-        'https://github.com/prag-matt-ic/pragmattic/blob/main/src/components/examples/fboEffectShader/FBOEffects.tsx',
-    },
-  },
-  [ExampleSlug.InfiniteMarquee]: {
-    Component: MarqueePage,
-    metadata: {
-      title: 'Infinite marquee for logos or icons',
-      slug: ExampleSlug.InfiniteMarquee,
-      tags: [TagName.React, TagName.GSAP, TagName.Tailwind],
-      authors: [{ name: 'Matthew Frawley' }],
-      youtubeUrl: 'https://youtu.be/KLruwdU28bw',
-      githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/components/examples/Marquee.tsx',
-    },
-  },
   [ExampleSlug.WavePlane]: {
     Component: WavePlanePage,
     metadata: {
@@ -119,31 +80,6 @@ const EXAMPLES: Record<ExampleSlug, { Component: FC; metadata: ExampleMetadata }
       authors: [{ name: 'Matthew Frawley' }],
       githubUrl:
         'https://github.com/prag-matt-ic/pragmattic/blob/main/src/components/examples/animatedCSSGrid/AnimatedCSSGrid.tsx',
-    },
-  },
-  [ExampleSlug.EnergyTransfer]: {
-    Component: EnergyTransferCanvas,
-    metadata: {
-      title: 'Energy Transfer',
-      description: `This was inspired by a magnet attraction effect in the thoroughly enjoyable game "It Takes Two"! It's essentially just a cylindrical tunnel, points and two spheres. Each with
-        their own vertex and fragment shader. The energy “lines” are spawned in JS with random colour, length and
-        duration before being drawn in the cylinder fragment shader. I've been learning that it's much easier to manage animation progress and randomise parameters outside of
-        the shader code!`,
-      tags: [TagName.ThreeJS, TagName.FragmentShader, TagName.VertexShader, TagName.PostProcessing, TagName.Particles],
-      slug: ExampleSlug.EnergyTransfer,
-      authors: [{ name: 'Matthew Frawley' }],
-      githubUrl: 'https://github.com/prag-matt-ic/pragmattic/tree/main/src/components/examples/three/energyTransfer',
-    },
-  },
-  [ExampleSlug.LoopPoints]: {
-    Component: LoopPointsCanvas,
-    metadata: {
-      title: 'Scatty Loop Points',
-      description: `In this example I'm sampling points on the loop mesh and creating a second set of scattered 3D positions. Both position sets are passed into a simulation shader as a data texture. Noise is then applied to animate the positions. Toggling between the two states triggers a GSAP tween on the scattered value, which is used in the simulation shader to mix between the two positions. The output of the simulation is then passed into the points vertex shader to set their positions. The code is written in such a way that any mesh can be used as the basis for points. You could make something pretty cool if you used a scroll trigger to update the scattered value!`,
-      tags: [TagName.ThreeJS, TagName.FragmentShader, TagName.VertexShader, TagName.Particles],
-      slug: ExampleSlug.LoopPoints,
-      authors: [{ name: 'Matthew Frawley' }],
-      githubUrl: 'https://github.com/prag-matt-ic/pragmattic/tree/main/src/components/examples/three/loopPoints',
     },
   },
 } as const

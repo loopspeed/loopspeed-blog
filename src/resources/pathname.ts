@@ -18,12 +18,7 @@ export enum ExampleSlug {
   ImageSequence = 'scroll-driven-image-sequence-header',
   ScrollingBackgroundShader = 'scrolling-background-shader',
   ScrollingThreeJs = 'three-scrolling-scene',
-  StarsParticles = 'three-stars-particles',
-  FBOEffects = 'fbo-effects',
-  InfiniteMarquee = 'infinite-scrolling-marquee',
   WavePlane = 'three-wave-plane',
   RayMarching = 'raymarching-fragment-shader',
   AnimatedCSSGrid = 'animated-grid-tailwind-gsap',
-  EnergyTransfer = 'three-energy-transfer-concept',
-  LoopPoints = 'three-loop-mesh-fbo-points',
 }
