@@ -16,7 +16,7 @@ const sans = Red_Hat_Display({
 
 export const metadata: Metadata = {
   title: { template: '%s | Loopspeed', default: 'Loopspeed Blog' },
-  description: "A growing collection of guides, patterns, and fun stuff we've been building.",
+  description: "A growing collection of guides, patterns, and fun stuff we've been building at Loopspeed.",
   authors: ALL_AUTHORS.map((author) => ({
     name: author.name,
   })),
