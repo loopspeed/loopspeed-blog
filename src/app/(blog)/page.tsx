@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { FC } from 'react'
 
 import Button from '@/components/buttons/Button'
+import CTA from '@/components/CTA'
 import Header from '@/components/Header'
 import Tag from '@/components/Tag'
 import { BlogMetadata } from '@/model/blog'
@@ -27,6 +28,8 @@ export default function BlogListingPage() {
           )
         })}
       </section>
+
+      <CTA />
     </main>
   )
 }

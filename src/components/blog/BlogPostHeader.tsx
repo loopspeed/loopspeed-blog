@@ -10,7 +10,7 @@ import { Pathname, replaceSlug } from '@/resources/pathname'
 const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date, authors }) => {
   const formattedDate = format(new Date(date), 'PPP')
   return (
-    <header className="relative flex w-full bg-linear-0 from-black/90 to-black/0 to-40% select-none">
+    <header className="relative flex w-full bg-linear-0 from-black/30 to-black/0 to-40% select-none">
       <div className="relative z-10 mx-auto flex size-full max-w-6xl flex-col items-center space-y-5 px-4 py-20 sm:px-12 sm:py-32">
         <div className="hidden flex-wrap justify-center gap-1.5 sm:flex">
           {tags.map((tag) => (

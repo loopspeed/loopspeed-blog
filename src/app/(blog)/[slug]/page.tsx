@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
+import CTA from '@/components/CTA'
 import JSONSchema from '@/components/JSONSchema'
 import { BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
@@ -42,14 +43,18 @@ export default async function BlogPage({ params }: Props) {
       <main className="relative w-full pt-(--nav-height)">
         <BlogPostHeader {...metadata} />
 
-        <div className="grid grid-cols-1 grid-rows-1 xl:grid-cols-[auto_1fr]">
-          <article className="prose-sm md:prose xl:prose-lg prose-pre:bg-off-black mx-auto w-full !max-w-6xl overflow-hidden bg-white px-4 py-12 text-pretty text-black md:px-12 xl:px-16 xl:py-16">
-            <Component />
-            <hr />
-            <h4>Thanks for reading, Loopspeed ✌️</h4>
+        <div className="grid grid-cols-1 grid-rows-1 xl:grid-cols-[1fr_auto]">
+          <article className="w-full overflow-hidden bg-white px-4 py-12 text-pretty text-black md:px-8">
+            <div className="prose-sm md:prose xl:prose-lg prose-pre:bg-darkest mx-auto w-full !max-w-5xl">
+              <Component />
+              <hr />
+              <h4>Thanks for reading, Loopspeed ✌️</h4>
+            </div>
           </article>
           <BlogHeadingsNav />
         </div>
+
+        <CTA />
       </main>
 
       <JSONSchema {...metadata} />

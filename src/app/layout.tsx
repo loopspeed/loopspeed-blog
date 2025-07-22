@@ -4,7 +4,6 @@ import type { Metadata } from 'next'
 import { Red_Hat_Display } from 'next/font/google'
 import { twJoin } from 'tailwind-merge'
 
-import CTA from '@/components/CTA'
 import Footer from '@/components/footer/Footer'
 import Nav from '@/components/Nav'
 import { ALL_AUTHORS } from '@/model/blog'
@@ -17,7 +16,7 @@ const sans = Red_Hat_Display({
 
 export const metadata: Metadata = {
   title: { template: '%s | Loopspeed', default: 'Loopspeed Blog' },
-  description: "A growing collection of guides, patterns, and fun stuff we've been building.",
+  description: "A growing collection of guides, patterns, and fun stuff we've been building at Loopspeed.",
   authors: ALL_AUTHORS.map((author) => ({
     name: author.name,
   })),
@@ -33,7 +32,8 @@ export default async function RootLayout({
       <body className={twJoin(sans.variable, 'w-full bg-black font-sans text-white')}>
         <Nav />
         {children}
-        <CTA />
+
+        {/* Consider that the "examples" use this layout- keep this to a minimum */}
         <Footer />
       </body>
     </html>
