@@ -75,14 +75,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return (
         <aside
           {...props}
-          className={twMerge('ring-light bg-light/5 overflow-hidden rounded-md ring', props?.className)}>
+          className={twMerge('ring-light bg-light/5 rounded-md ring', props?.className)}>
           {!!title && (
             <header className="not-prose bg-light/30 flex w-full items-center gap-2 p-2">
               <InfoIcon className="text-darkest size-5" />
               <h3 className="text-darkest leading-none">{title}</h3>
             </header>
           )}
-          <div className="[&_li]:marker:text-accent-teal px-4 [&_ul]:list-disc">{children}</div>
+          <div className="[&_li]:marker:text-accent-teal list-inside px-2 [&_ul]:list-disc">{children}</div>
         </aside>
       )
     },
