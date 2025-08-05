@@ -1,17 +1,15 @@
 'use client'
 
 import { Stats } from '@react-three/drei'
-import { Canvas, extend, type ThreeToJSXElements, useFrame, useThree } from '@react-three/fiber'
-import { type FC, useEffect, useLayoutEffect, useMemo } from 'react'
+import { Canvas, extend, type ThreeToJSXElements, useThree } from '@react-three/fiber'
+import { type FC, useLayoutEffect, useMemo } from 'react'
 import { color, ShaderNodeObject } from 'three/src/nodes/tsl/TSLBase.js'
 import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPURenderer.js'
 import {
   abs,
   Break,
   cos,
-  exp,
   float,
-  floor,
   Fn,
   fract,
   If,
@@ -23,7 +21,6 @@ import {
   min,
   mix,
   normalize,
-  pow,
   screenUV,
   select,
   sin,
@@ -60,13 +57,14 @@ extend(THREE as any)
 
 type Props = {
   isMobile: boolean
+  className?: string
 }
 
-const RayMarchingScene: FC<Props> = ({ isMobile }) => {
+const RayMarchingScene: FC<Props> = ({ isMobile, className }) => {
   return (
     <Canvas
       id="ray-marching-canvas"
-      className="fixed inset-0 !h-lvh"
+      className={className}
       performance={{ min: 0.3, debounce: 300 }}
       flat={true}
       gl={async (props) => {
@@ -459,8 +457,8 @@ const rotate2D = /*#__PURE__*/ Fn(([angle_immutable]: [angle: ShaderNodeObject<T
 
   // Return rotation matrix components as vec4 (row-major: [col1, col2])
   // Then we can construct mat2 from this vec4
-  const matrixValues = vec4(c, s, s.negate(), c)
-  return mat2(matrixValues)
+  // const matrixValues = vec4(c, s, s.negate(), c)
+  return mat2(c, s, s.negate(), c)
 }).setLayout({
   name: 'rotate2D',
   type: 'mat2',

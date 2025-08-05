@@ -14,8 +14,8 @@ const PlaygroundPage = async () => {
   const isMobile = !!userAgent?.includes('Mobile')
 
   return (
-    <main className="bg-darkest h-svh w-full">
-      <Scene isMobile={isMobile} />
+    <main className="bg-darkest flex h-svh w-full items-center justify-center">
+      <Scene isMobile={isMobile} className="absolute aspect-square !size-[500px] border" />
     </main>
   )
 }

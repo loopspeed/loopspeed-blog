@@ -353,7 +353,7 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
             key={slug}
             className="group flex w-full items-baseline gap-2 px-2 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
             onClick={() => onPostClick(slug)}>
-            <span className="text-xxs whitespace-nowrap text-white/60 sm:text-sm md:text-base">
+            <span className="text-2xs whitespace-nowrap text-white/60 sm:text-sm md:text-base">
               {format(new Date(date), 'MMM yyyy')}
             </span>
             <p className="text-sm transition-colors group-hover:text-white/80 sm:text-base sm:tracking-wider md:text-lg">
