@@ -8,14 +8,20 @@ import ScrollTrigger from 'gsap/dist/ScrollTrigger'
 import { ArrowUpRight, ChevronDown, ChevronUp, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
-import { type FC, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, usePathname, useRouter } from 'next/navigation'
+import {
+  type FC,
+  useEffect,
+  // useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Transition, type TransitionStatus } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
 import logo from '@/assets/brand/logo.svg'
 import Button from '@/components/buttons/Button'
-import Tag from '@/components/Tag'
+// import Tag from '@/components/Tag'
 // import { useGA4Event } from '@/hooks/useGA4Event'
 // import { EventName } from '@/resources/analytics'
 import { BLOG_CONTENT, ORDERED_BLOG_CONTENT } from '@/resources/blog'
@@ -42,6 +48,7 @@ const Nav: FC = () => {
   const links = useRef<HTMLDivElement>(null)
 
   const [isExpanded, setIsExpanded] = useState(false)
+  const pathname = usePathname()
 
   useDidUpdate(() => {
     if (!isLargeWidth) {
@@ -79,7 +86,11 @@ const Nav: FC = () => {
         matchMedia.add(`(min-width: ${DESKTOP_BREAKPOINT}px)`, () => {
           gsap
             .timeline()
-            .to(background.current, { width: 840, duration: 0.3, ease: 'power2.inOut' })
+            .to(background.current, {
+              width: pathname === Pathname.Home ? 360 : 840,
+              duration: 0.3,
+              ease: 'power2.inOut',
+            })
             .set(background.current, { clearProps: 'height' })
             .set(links.current, { display: 'flex' })
             .to('.link', {
@@ -193,7 +204,7 @@ const Nav: FC = () => {
               onClick={() => {
                 setShowDropdown((prev) => !prev)
               }}>
-              <span className="truncate">{blogPostContent.metadata.title}</span>
+              <span className="paragraph-sm truncate">{blogPostContent.metadata.title}</span>
               {showDropdown ? (
                 <ChevronUp className="size-4 flex-shrink-0 sm:size-5" />
               ) : (
@@ -251,7 +262,7 @@ const Dropdown: FC<DropdownProps & { show: boolean }> = ({ show, ...props }) => 
         <div
           ref={container}
           className={twJoin(
-            'z-max fixed top-full mx-auto mt-1 mr-8 flex size-fit max-w-4xl origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4',
+            'z-max fixed top-full mx-8 flex size-fit max-w-md origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4 md:mx-auto md:mt-1 md:max-w-lg',
           )}>
           <DropDownContent container={container} transitionStatus={status} {...props} />
         </div>
@@ -333,30 +344,30 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
 
   // Extracted tags from ORDERED_BLOG_CONTENT
   // Remove duplicates, limit the number of tags to 30 & randomise the order
-  const tags = useMemo(() => {
-    return ORDERED_BLOG_CONTENT.flatMap(({ metadata: { tags } }) => tags)
-      .filter((tag, index, self) => self.indexOf(tag) === index)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 30)
-      .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
-  }, [])
+  // const tags = useMemo(() => {
+  //   return ORDERED_BLOG_CONTENT.flatMap(({ metadata: { tags } }) => tags)
+  //     .filter((tag, index, self) => self.indexOf(tag) === index)
+  //     .sort(() => Math.random() - 0.5)
+  //     .slice(0, 30)
+  //     .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
+  // }, [])
 
   return (
     <>
-      <div id="tags" className="flex w-full max-w-3xl flex-wrap px-2 sm:px-4">
+      {/* <div id="tags" className="flex w-full max-w-3xl flex-wrap px-2 sm:px-4">
         {tags}
-      </div>
-      <div className="mx-auto h-[1px] w-[97%] bg-white/20" />
+      </div> */}
+      {/* <div className="mx-auto h-[1px] w-[97%] bg-white/20" /> */}
       <div id="post-list" className="h-fit max-h-[500px] space-y-2 overflow-y-auto sm:space-y-4">
         {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, date } }) => (
           <button
             key={slug}
-            className="group flex w-full items-baseline gap-2 px-2 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
+            className="group flex w-full items-baseline gap-2 px-4 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
             onClick={() => onPostClick(slug)}>
             <span className="text-xxs whitespace-nowrap text-white/60 sm:text-sm md:text-base">
               {format(new Date(date), 'MMM yyyy')}
             </span>
-            <p className="text-sm transition-colors group-hover:text-white/80 sm:text-base sm:tracking-wider md:text-lg">
+            <p className="text-sm transition-colors group-hover:text-white/80 sm:text-base sm:tracking-wider">
               {title}
             </p>
           </button>
