@@ -1,0 +1,76 @@
+import { EDUARD_RADD } from '@/model/blog'
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: 'From Webflow to Next.js: Unlock 3D & Custom Components with Three.js — Without Losing Webflow Editing',
+  description:
+    'Discover how a hybrid Webflow and Next.js approach lets you seamlessly add interactive Three.js 3D experiences and custom React components.',
+  date: '2025-08-05',
+  slug: BlogSlug.FromWebflowToNextJs,
+  tags: [TagName.ThreeJS, TagName.NextJS, TagName.Webflow],
+  authors: [EDUARD_RADD],
+}
+
+Webflow’s visual design and CMS empower teams to launch beautiful sites fast. But when you need advanced interactivity—like **interactive 3D graphics** or **highly custom features**—Webflow alone can hit a ceiling. The good news: you don’t have to choose between Webflow’s easy editing and a powerful custom build. A hybrid approach (`Webflow + Next.js`) lets you keep the Webflow Editor and CMS you love, while integrating a Next.js front-end to add rich features like **Three.js 3D components**. The result? You get the **best of both worlds**: marketing retains a no-code editing workflow, and your site gains the **performance, SEO, and flexibility benefits** of a modern Next.js app with custom code. **Keep editing in Webflow. Add superpowers in Next.js.**
+
+## Problem & Opportunity
+
+Have you hit Webflow’s limits? Many teams love Webflow for its visual builder, but eventually run into things it can’t easily do. For example, adding **complex interactive experiences** (3D models, personalized content, user logins) or handling custom server logic isn’t feasible purely in Webflow’s no-code environment. As one developer noted, Webflow is “perfect for small use cases” but has “quirks when trying to scale,” like no server-side code, no way to deeply customize the generated code, and difficulty building true web apps. In plain terms: Webflow can’t natively handle **advanced 3D or highly dynamic features**, which can leave your site feeling “good” but not “wow.”
+
+On the other hand, a **full rebuild from Webflow to code** can feel risky. Founders and marketing leaders worry about losing the **ease of editing** and **speed-to-market** that Webflow gave them. A ground-up rebuild might mean weeks or months of development, during which your team can’t easily tweak content or design. The opportunity here is to avoid an **all-or-nothing choice**.
+
+## How the Hybrid Works
+
+In a **Webflow + Next.js** hybrid, you continue to use Webflow for what it’s great at, and layer Next.js on top for extra power. In simple terms:
+
+- **Webflow as the content source and visual editor:** You and your team keep using Webflow’s Designer and CMS to manage content and design layouts. Webflow remains the place where marketers or designers can visually edit pages, create CMS collections, and publish content. All your copy, images, blog posts, etc., live in Webflow just like before.
+
+- **Next.js as the front-end engine:** Next.js is a popular React framework that developers use to build high-performance web applications. In the hybrid model, a Next.js app will receive the content from Webflow and render your site for visitors. This Next.js layer gives us the freedom to drop in any custom React components we need—including immersive Three.js elements or other interactive features—right into your pages. For example, your Webflow page can have a placeholder for a 3D canvas, and Next.js will fill that spot with a Three.js-powered model viewer when the page loads.
+
+- **Seamless for editors, empowering for developers:** Crucially, your content editors still do everything in Webflow—editing text, adding blog posts, tweaking images—without touching code. Meanwhile, your developers work in Next.js to build the custom components or advanced functionality that Webflow couldn’t do on its own. The two sides integrate via Webflow’s publish API, so when you publish in Webflow, the Next.js site updates.
+
+In practice, that means the **marketing team doesn’t lose any capability**—they can still push updates quickly—and the **engineering team** can add whatever magic is needed in the Next.js codebase.
+
+## Three.js Use Cases: What Can You Achieve?
+
+Why all the buzz about adding Three.js to your site? Here are a few high-impact use cases that become possible with a Next.js integration—along with the business outcomes they drive:
+
+- **360° Product Viewer (Zoom & Rotate):** Let customers interact with your product in 3D, as if it were in their hands. This level of interactivity boosts customer engagement and confidence. Shoppers spend more time examining the product (increasing time-on-page) and feel more sure about their purchase, since they’ve “seen” it from every angle. Many brands have seen tangible uplifts from 3D viewers—studies show 3D product models can increase conversion rates by 20–40% compared to static images, and even reduce returns by giving a clearer expectation of the product ([source](https://www.zealousxr.com/blog/how-3d-models-for-ecommerce-boost-product-engagement-sales?utm_source=chatgpt.com)).
+
+**Business win:** More engaged shoppers, higher conversion, and fewer “I wasn’t sure it would look like that” returns.
+
+- **Interactive 3D Hero Section:** Wow your visitors in the first 5 seconds. An interactive 3D hero scene at the top of your homepage can illustrate your product or story in a memorable way—think of a software company showing a 3D network graph that animates as you scroll, or a car company with a 3D car model that the user can spin right on the hero section. This kind of rich media was nearly impossible in Webflow alone, but with Three.js in Next.js you can build it. The payoff is a dramatic first impression that grabs attention and encourages engagement rather than a quick scroll-away. It also communicates innovation and polish—your brand is seen as a tech leader.
+
+**Business win:** Higher engagement (users exploring instead of bouncing), a differentiated brand experience, and a stickier story that users remember.
+
+- **Product Configurator (Build & Customize in 3D):** If you sell a product with options (colors, features, styles), a 3D configurator lets users customize it in real-time and see the changes. This isn’t just a novelty—it directly drives purchase intent. By empowering customers to “build their own,” you increase their emotional investment and likelihood to buy what they’ve configured.
+
+**Business win:** Higher conversion and average order value (as customers play with options, they often add upgrades), fewer returns due to misaligned expectations, and a standout shopping experience that can differentiate you from competitors.
+
+- **Data-Driven 3D Demos:** Not selling a physical product? Three.js can still elevate your site through interactive data visualization or demos. For example, a SaaS analytics company might create a 3D graph or globe that the user can rotate and filter, visualizing data in a compelling way. These experiences can take complex or abstract concepts and make them tangible and engaging. Visitors are more likely to spend time understanding your value proposition when it’s presented interactively, rather than wading through paragraphs of text. And because it’s novel, they might share it or remember it.
+
+**Business win:** Clearer communication of complex info (leading to better-informed prospects), longer session durations as users play with the demo, and strong differentiation as an innovative, cutting-edge brand.
+
+In short, Three.js and custom components unlock a world of creative possibilities for engagement: **more time-on-page, higher conversions, better user understanding, and a distinct brand edge**.
+
+
+| Aspect                 | Webflow Only 🚪                                                                                                                                                                                           | Webflow + Next.js 🚀                                                                                                                                                                                                                                                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Interactivity**      | Limited to Webflow’s native interactions and basic embeds. Truly custom or 3D features not feasible.                                                                                                      | Virtually unlimited. Embed any React/Three.js component or complex logic you need – no platform limitations.                                                                                                                                                                                                                            |
+| **Performance**        | Decent for simple sites, but heavy layouts/animations can slow down. Limited image optimization (one-size assets).                                                                                        | Highly optimized. Next.js pre-renders pages, splits code, and serves optimized images for faster load and improved Core Web Vitals.                                                                                                                                                                                                     |
+| **SEO Control**        | Basic SEO options (title, meta, alt text). Good out-of-the-box SEO, but less control over fine details or custom schemas.                                                                                 | Full control over SEO and markup. Developers can tailor meta tags, structured data, URLs, and headers as needed. Plus, better performance gives an SEO boost (Google favors fast, stable pages).                                                                                                                                        |
+| **Personalization**    | Hard to personalize beyond simple show/hide scripts. No server-side logic means same content for everyone, unless using external tools.                                                                   | Can personalize content or user experiences using Next.js logic – e.g., show custom content to logged-in users or vary content by audience segment via APIs. All while still pulling base content from Webflow CMS.                                                                                                                     |
+| **Security**           | Secure hosting managed by Webflow; no server to maintain. Limited surface for attacks (no custom backend code).                                                                                           | Secure and modern architecture when hosted on platforms like Vercel. We keep the attack surface small (mostly static prebuilt pages). You gain ability to implement advanced security features (e.g., secure auth, content gating) that Webflow alone can’t do. Webflow CMS remains for content, protected by Webflow’s infrastructure. |
+| **Editorial Workflow** | Excellent – non-technical users can edit and publish visually in Webflow’s Editor. No code needed for content updates.                                                                                    | **Still excellent** – editors *continue* using Webflow’s visual CMS for content. No change there. Developers handle the new custom components in code separately. Marketing maintains autonomy for content; engineering handles the fancy stuff.                                                                                        |
+| **Scalability**        | Scales well for content-driven sites up to a point, but you’re bound by Webflow’s hosting limits and features. Very high traffic or extremely large sites may face challenges (and higher Webflow costs). | Virtually infinite scalability. Next.js can run on serverless infrastructure, handle spikes in traffic, and integrate with CDNs globally. You can build out new sections or microsites in the codebase as needed, pulling content from Webflow or elsewhere. The architecture grows with you, rather than boxing you in.                |
+
+## Ready to Unlock 3D & Next.js Superpowers?
+
+You’ve seen how a Webflow + Next.js hybrid can elevate your website: delivering jaw-dropping 3D content and custom features without sacrificing the ease-of-use that got you here. It’s a best-of-both-worlds solution, and **Loopspeed** is here to help you make it a reality for your brand.
+
+Imagine your site with these new capabilities—and the impact on your engagement and conversions. If you’re intrigued (or even just have questions about how this could work for you), we’d love to chat. We offer a **no-pressure discovery call** to explore your needs and give you a sense of what a hybrid solution might look like in your case.
+
+*[No hard sales pitch—just a friendly conversation and some free insights about your site’s potential. Feel free to reach out!]*
+
+**Ready to take your Webflow site to the next level? Let’s do it together—and make something amazing that drives results.**

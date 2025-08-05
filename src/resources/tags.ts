@@ -17,4 +17,5 @@ export enum TagName {
   ProductDevelopment = 'product development',
   WebGL = 'webgl',
   WebGPU = 'webgpu',
+  Webflow = 'webflow',
 }
