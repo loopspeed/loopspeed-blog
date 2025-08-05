@@ -8,6 +8,7 @@ import ImageSequence, { metadata as imageSequenceMetadata } from './posts/image-
 import NextJsShaders, { metadata as nextShadersMetadata } from './posts/next-shaders.mdx'
 import ReactThreeFiberWebGPUTypescript, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
 import WavePlane, { metadata as wavePlaneMetadata } from './posts/wave-plane.mdx'
+import WebflowToNextjs, { metadata as webflowToNextjsMetadata } from './posts/webflow-to-nextjs.mdx'
 
 // ** New Blog Requirements **
 
@@ -50,6 +51,11 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Component: NextJsShaders,
     metadata: nextShadersMetadata,
     videoSrc: '/blog/videos/scrolling-background-shader.mp4',
+  },
+  [BlogSlug.FromWebflowToNextJs]: {
+    Component: WebflowToNextjs,
+    metadata: webflowToNextjsMetadata,
+    videoSrc: null,
   },
 }
 

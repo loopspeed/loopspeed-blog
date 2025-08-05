@@ -12,6 +12,7 @@ export enum BlogSlug {
   ImageSequenceHeader = 'scroll-driven-image-sequence-header',
   AnimatedCSSGrid = 'animated-css-grid-with-tailwind-gsap',
   ReactThreeFiberWebGPUTypescript = 'react-three-fiber-webgpu-typescript',
+  FromWebflowToNextJs = 'from-webflow-to-nextjs',
 }
 
 export enum ExampleSlug {
