@@ -5,7 +5,7 @@ import {
   GradientFragmentShaderPlaneCanvas,
   GridLinesFragmentShaderPlaneCanvas,
 } from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
-import { BlogSlug, ExampleSlug } from '../pathname'
+import { BlogSlug } from '../pathname'
 import { TagName } from '../tags'
 import { MATTHEW_FRAWLEY } from '@/model/blog'
 
@@ -15,16 +15,19 @@ export const metadata = {
     'This simple project is a great way to learn about ThreeJS shaders and how to use them in a Next.js Typescript environment.',
   date: '2025-01-12',
   slug: BlogSlug.WavePlane,
-  exampleSlug: ExampleSlug.WavePlane,
   authors: [MATTHEW_FRAWLEY],
   tags: [
+    TagName.Intermediate,
     TagName.Tutorial,
     TagName.NextJS,
     TagName.ThreeJS,
     TagName.Typescript,
+    TagName.WebGL,
     TagName.VertexShader,
     TagName.FragmentShader,
-  ]
+  ],
+  youtubeUrl: 'https://youtu.be/CepFdiDe3Lw',
+  githubUrl: 'https://github.com/prag-matt-ic/pragmattic/tree/main/src/components/examples/three/wavePlane',
 }
 
 <section className="relative h-[704px] max-h-[70vh] w-full">
@@ -64,6 +67,8 @@ npm i @gsap/react @react-three/drei @react-three/fiber gsap "@thi.ng/color" glsl
   import/export from inside GLSL files
   - *[glsl-noise](https://www.npmjs.com/package/glsl-noise)*: Noise functions perfect for procedural textures and effects
 </Aside>
+
+{/* TODO: Point the user at the dedicated THREEJS WEBGL SHADER SETUP ARTICLE INSTEAD OF DUPLICATING HERE */}
 
 ### Configure Typescript for GLSL shader imports
 

@@ -2,6 +2,7 @@
 
 import { Stats } from '@react-three/drei'
 import { Canvas, extend, type ThreeToJSXElements, useThree } from '@react-three/fiber'
+import { useControls } from 'leva'
 import { type FC, useLayoutEffect, useMemo } from 'react'
 import { color, ShaderNodeObject } from 'three/src/nodes/tsl/TSLBase.js'
 import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPURenderer.js'
@@ -74,8 +75,7 @@ const RayMarchingScene: FC<Props> = ({ isMobile, className }) => {
         return renderer
       }}>
       {process.env.NODE_ENV === 'development' && <Stats />}
-      {/* <RayMarchedInstances /> */}
-      <Background />
+      <ReactAtomRayMarcher />
     </Canvas>
   )
 }
@@ -106,23 +106,26 @@ const MATERIAL_COLOURS: Record<MaterialId, ShaderNodeObject<THREE.Node>> = {
   [MaterialId.Sphere]: color(ACCENT_TEAL), // React blue
 }
 
-const Background: FC = () => {
+const ReactAtomRayMarcher: FC = () => {
   const currentPerformance = useThree((s) => s.performance.current)
 
-  const { colorNode, uPointer } = useMemo(() => {
-    const MAX_ITERATIONS = int(100).mul(currentPerformance)
-    const MIN_DISTANCE = float(0.01)
+  const { colorNode, uMixStrength, uTimeMultiplier, uMinDistance, uMaxIterations } = useMemo(() => {
+    const uTimeMultiplier = uniform(float(1.0)).label('uTimeMultiplier')
+    const uMixStrength = uniform(float(0.75)).label('uMixStrength')
+
+    const uMinDistance = uniform(float(0.01)).label('uMinDistance')
+    const uMaxIterations = uniform(int(100)).label('uMaxIterations')
+    // const MAX_ITERATIONS = int(100).mul(currentPerformance)
+    // const MIN_DISTANCE = float(0.01)
     const MAX_DISTANCE = float(10.0)
 
     const LIGHT_POS = vec3(1.0, 5.0, 0.0)
     const OBJECT_POS = vec3(0, 0, 0.0)
 
-    const uPointer = uniform(vec2(0.0)).label('uPointer')
-
     const getReactAtomPosition = Fn(([p]: [p: ShaderNodeObject<THREE.VarNode>]) => {
       // Rotational repetition for 3 torus rings (React atom style)
       const torusP = p.toVar().sub(OBJECT_POS)
-      const rotationTime = time.mul(1.0)
+      const rotationTime = time.mul(uTimeMultiplier)
 
       torusP.yz.assign(torusP.yz.mul(rotate2D(rotationTime)))
 
@@ -155,7 +158,7 @@ const Background: FC = () => {
         MATERIAL_IDS[MaterialId.OuterRing],
       )
 
-      const torusMixFactor = sin(rotationTime).add(1.0).div(2.0).mul(0.72)
+      const torusMixFactor = sin(rotationTime).add(1.0).div(2.0).mul(uMixStrength)
       // Smooth minimum with color blending
       const torus12 = smoothMinWithColor(innerRing, middleRing, torusMixFactor)
       const torus123 = smoothMinWithColor(torus12, outerRing, torusMixFactor)
@@ -200,30 +203,18 @@ const Background: FC = () => {
       inputs: [{ name: 'p', type: 'vec3' }],
     })
 
-    // const getDiffuse = Fn(([p]: [p: ShaderNodeObject<THREE.VarNode>]) => {
-    //   const l = normalize(LIGHT_POS.sub(p)) // Light direction
-    //   const n = getNormal(p) // Normal at the point
-    //   let dif = l.dot(n).clamp(0.0, 1.0) // Diffuse
-    //   dif = pow(dif, 1.5)
-    //   return dif
-    // }).setLayout({
-    //   name: 'getSimpleLight',
-    //   type: 'float',
-    //   inputs: [{ name: 'p', type: 'vec3' }],
-    // })
-
     const rayMarch = Fn(([ro, rd]: [ro: ShaderNodeObject<THREE.VarNode>, rd: ShaderNodeObject<THREE.VarNode>]) => {
       const totalDistance = float(0.0).toVar()
       const finalMaterialId = float(MATERIAL_IDS[MaterialId.Background]).toVar() // Track material ID
 
-      Loop(MAX_ITERATIONS, () => {
+      Loop(uMaxIterations, () => {
         const p = ro.add(rd.mul(totalDistance)) // Current point on the ray
         const result = getReactAtomPosition(p) // Get both distance and material ID
         const distance = result.x
         finalMaterialId.assign(result.y) // Store material ID from hit point
         totalDistance.addAssign(distance) // Move the ray forward
         // If we're close enough, it's a hit, so we can do an early return
-        If(distance.lessThanEqual(MIN_DISTANCE), () => {
+        If(distance.lessThanEqual(uMinDistance), () => {
           Break()
         })
         // If we've gone too far, we can stop
@@ -296,9 +287,11 @@ const Background: FC = () => {
       const _uv = screenUV.toVar().sub(vec2(0.5, 0.5))
       _uv.x.mulAssign(aspect)
 
+      const t = time.mul(uTimeMultiplier) // Use time multiplier for speed control
+
       // Ray origin (camera position) - orbit around the center
-      const cameraDistance = float(4.0).add(sin(time))
-      const cameraAngle = time.mul(1.5)
+      const cameraDistance = float(4.0).add(sin(t))
+      const cameraAngle = t.mul(1.5)
       const ro = vec3(cos(cameraAngle).mul(cameraDistance), 0.0, sin(cameraAngle).mul(cameraDistance)).toVar()
       // Create proper camera basis vectors for perspective projection
       const target = vec3(0.0, 0.0, 0.0)
@@ -350,8 +343,51 @@ const Background: FC = () => {
       return finalColor
     })()
 
-    return { colorNode: main, uPointer }
+    return { colorNode: main, uTimeMultiplier, uMixStrength, uMinDistance, uMaxIterations }
   }, [currentPerformance])
+
+  useControls({
+    speed: {
+      label: 'Speed (time multiplier)',
+      value: 1,
+      step: 0.1,
+      min: 0.2,
+      max: 2.0,
+      onChange: (value) => {
+        uTimeMultiplier.value = value
+      },
+    },
+    mixStrength: {
+      label: 'Mix Strength (blend)',
+      value: 0.75,
+      step: 0.05,
+      min: 0.05,
+      max: 1.0,
+      onChange: (value) => {
+        uMixStrength.value = value
+      },
+    },
+    minDistance: {
+      label: 'Min Distance (precision)',
+      value: 0.01,
+      step: 0.01,
+      min: 0.01,
+      max: 0.1,
+      onChange: (value) => {
+        uMinDistance.value = value
+      },
+    },
+    iterations: {
+      label: 'Max Iterations (quality)',
+      value: 100,
+      step: 10,
+      min: 10,
+      max: 200,
+      onChange: (value) => {
+        uMaxIterations.value = value
+      },
+    },
+  })
 
   const scene = useThree((s) => s.scene)
 
@@ -458,6 +494,7 @@ const rotate2D = /*#__PURE__*/ Fn(([angle_immutable]: [angle: ShaderNodeObject<T
   // Return rotation matrix components as vec4 (row-major: [col1, col2])
   // Then we can construct mat2 from this vec4
   // const matrixValues = vec4(c, s, s.negate(), c)
+  // @ts-expect-error - ignore
   return mat2(c, s, s.negate(), c)
 }).setLayout({
   name: 'rotate2D',
@@ -505,6 +542,18 @@ const smoothMin = /*#__PURE__*/ Fn(
     { name: 'k', type: 'float' },
   ],
 })
+
+// const getDiffuse = Fn(([p]: [p: ShaderNodeObject<THREE.VarNode>]) => {
+//   const l = normalize(LIGHT_POS.sub(p)) // Light direction
+//   const n = getNormal(p) // Normal at the point
+//   let dif = l.dot(n).clamp(0.0, 1.0) // Diffuse
+//   dif = pow(dif, 1.5)
+//   return dif
+// }).setLayout({
+//   name: 'getSimpleLight',
+//   type: 'float',
+//   inputs: [{ name: 'p', type: 'vec3' }],
+// })
 
 // https://iquilezles.org/articles/sdfrepetition/
 

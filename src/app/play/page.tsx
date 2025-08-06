@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 
 import Scene from '@/components/examples/tsl/TSLRayMarchingAtom'
 import { DARKEST } from '@/resources/colours'
+import FBOParticlesCanvas from '@/components/examples/fboParticles/FBOParticles'
 
 export const viewport: Viewport = {
   themeColor: DARKEST,
@@ -14,8 +15,8 @@ const PlaygroundPage = async () => {
   const isMobile = !!userAgent?.includes('Mobile')
 
   return (
-    <main className="bg-darkest flex h-svh w-full items-center justify-center">
-      <Scene isMobile={isMobile} className="absolute aspect-square !size-[500px] border" />
+    <main className="w-full bg-black">
+      <FBOParticlesCanvas />
     </main>
   )
 }

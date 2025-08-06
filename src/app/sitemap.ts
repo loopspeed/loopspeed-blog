@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { BlogSlug, ExampleSlug, Pathname } from '@/resources/pathname'
+import { BlogSlug, Pathname } from '@/resources/pathname'
 
 // Sitemap for the blog
 
@@ -17,11 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 1,
   }))
 
-  const examples: MetadataRoute.Sitemap = Object.values(ExampleSlug).map((slug) => ({
-    url: `${baseUrl}${Pathname.Example}/${slug}`,
-    lastModified: lastModified,
-    priority: 0.5,
-  }))
+  // TODO: add links to demos if they exist
+  // const demos: MetadataRoute.Sitemap = Object.values(BlogSlug)
+  //   .filter((slug) => !!slug && !!Pathname.BlogPost)
+  //   .map((slug) => ({
+  //     url: `${baseUrl}${Pathname.BlogPost.replace('[slug]', slug)}/demo`,
+  //     lastModified: lastModified,
+  //     priority: 0.8,
+  //   }))
 
   const site: MetadataRoute.Sitemap = [
     {
@@ -31,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...blogs,
-    ...examples,
+    // ...examples,
   ]
 
   return site

@@ -1,4 +1,4 @@
-import type { BlogSlug, ExampleSlug } from '@/resources/pathname'
+import type { BlogSlug } from '@/resources/pathname'
 
 type Author = {
   name: string
@@ -44,6 +44,7 @@ export type BlogMetadata = {
   slug: BlogSlug
   tags: string[]
   authors: Author[]
-  exampleSlug?: ExampleSlug
+  githubUrl?: string
+  youtubeUrl?: string
   isDraft?: boolean
 }
