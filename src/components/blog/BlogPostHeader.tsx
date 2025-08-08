@@ -8,9 +8,12 @@ import youtubeIcon from '@/assets/icons/socials/youtube.svg'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
+import { BLOG_CONTENT } from '@/resources/blog'
 
-const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl }) => {
+const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl, externalDemoUrl }) => {
   const formattedDate = format(new Date(date), 'PPP')
+  const Demo = BLOG_CONTENT[slug]?.Demo
+
   return (
     <header className="relative flex w-full bg-linear-0 from-black/30 to-black/0 to-40% select-none">
       <div className="relative z-10 mx-auto flex size-full max-w-6xl flex-col items-center space-y-5 px-4 py-20 sm:px-12 sm:py-32">
@@ -34,9 +37,15 @@ const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, gi
           <span>{formattedDate}</span>
         </div>
 
-        <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
+        {!!Demo && <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
           Live demo
-        </Button>
+        </Button>}
+
+        {!!externalDemoUrl && <Button href={externalDemoUrl} icon={<ArrowUpRight />}>
+          Live demo
+        </Button>}
+
+
 
         <div className="flex gap-3">
           {!!githubUrl && (
