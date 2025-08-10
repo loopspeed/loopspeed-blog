@@ -17,14 +17,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 1,
   }))
 
-  // TODO: add links to demos if they exist
-  // const demos: MetadataRoute.Sitemap = Object.values(BlogSlug)
-  //   .filter((slug) => !!slug && !!Pathname.BlogPost)
-  //   .map((slug) => ({
-  //     url: `${baseUrl}${Pathname.BlogPost.replace('[slug]', slug)}/demo`,
-  //     lastModified: lastModified,
-  //     priority: 0.8,
-  //   }))
+  const demos: MetadataRoute.Sitemap = Object.values(BlogSlug).map((slug) => ({
+    url: `${baseUrl}/${slug}/demo`,
+    lastModified: lastModified,
+    priority: 0.8,
+  }))
 
   const site: MetadataRoute.Sitemap = [
     {
@@ -34,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...blogs,
-    // ...examples,
+    ...demos,
   ]
 
   return site
