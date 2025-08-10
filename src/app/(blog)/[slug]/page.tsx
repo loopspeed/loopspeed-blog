@@ -1,7 +1,9 @@
 import './code.css'
 
 import { type Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import BlogHeadingsNav from '@/components/blog/BlogHeadingsNav'
 import BlogPostHeader from '@/components/blog/BlogPostHeader'
@@ -9,6 +11,8 @@ import CTA from '@/components/CTA'
 import JSONSchema from '@/components/JSONSchema'
 import { BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname } from '@/resources/pathname'
+
+const BlogBackgroundCanvas = dynamic(() => import('@/components/blog/BlogBackground'))
 
 type Props = {
   params: Promise<{ slug: BlogSlug }>
@@ -33,13 +37,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
   const { slug } = await params
-  const Component = BLOG_CONTENT[slug]?.Component
+  const Component = BLOG_CONTENT[slug]?.Blog
   const metadata = BLOG_CONTENT[slug]?.metadata
-
   if (!Component || !metadata) redirect(Pathname.Home)
 
   return (
     <>
+      <Suspense>
+        <BlogBackgroundCanvas />
+      </Suspense>
       <main className="relative w-full pt-(--nav-height)">
         <BlogPostHeader {...metadata} />
 

@@ -5,9 +5,8 @@ import React, { type FC } from 'react'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
-import { Pathname, replaceSlug } from '@/resources/pathname'
 
-const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date, authors }) => {
+const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl }) => {
   const formattedDate = format(new Date(date), 'PPP')
   return (
     <header className="relative flex w-full bg-linear-0 from-black/30 to-black/0 to-40% select-none">
@@ -32,11 +31,11 @@ const BlogPostHeader: FC<BlogMetadata> = ({ title, tags, exampleSlug, date, auth
           <span>{formattedDate}</span>
         </div>
 
-        {!!exampleSlug && (
-          <Button href={replaceSlug(Pathname.Example, exampleSlug)} target="_blank" icon={<ArrowUpRight />}>
-            Live demo
-          </Button>
-        )}
+        {/* TODO: add buttons to open the code and the youtube video if they exist. */}
+
+        <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
+          Live demo
+        </Button>
       </div>
     </header>
   )

@@ -1,9 +1,8 @@
 import { type FC } from 'react'
 
 import { type BlogMetadata } from '@/model/blog'
-import { type ExampleMetadata } from '@/model/example'
 
-type Props = { type?: 'BlogPosting' | 'CreativeWork' } & (BlogMetadata | ExampleMetadata)
+type Props = { type?: 'BlogPosting' | 'CreativeWork' } & BlogMetadata
 
 const JSONSchema: FC<Props> = ({ type = 'BlogPosting', ...metadata }) => {
   const url = `${process.env.NEXT_PUBLIC_BASE_URL}/${metadata.slug}`

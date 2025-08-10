@@ -1,0 +1,990 @@
+import { WavePlaneCanvas } from '@/components/examples/three/wavePlane/WavePlane'
+import {
+  RotatedPlaneCanvas,
+  BasicFragmentShaderPlaneCanvas,
+  GradientFragmentShaderPlaneCanvas,
+  GridLinesFragmentShaderPlaneCanvas,
+} from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+import { MATTHEW_FRAWLEY } from '@/model/blog'
+
+export const metadata = {
+  title: 'Advanced particle transitions using a WebGL simulation',
+  description:
+    'Learn how I built the scroll-animated background particles on the Loopspeed home page using Three.js, a simulation shader and GSAP.',
+  date: '2025-08-10',
+  slug: BlogSlug.FBOParticles,
+  authors: [MATTHEW_FRAWLEY],
+  tags: [
+    TagName.Advanced,
+    TagName.Tutorial,
+    TagName.ThreeJS,
+    TagName.Particles,
+    TagName.WebGL,
+    TagName.VertexShader,
+    TagName.FragmentShader,
+    TagName.Typescript,
+  ]
+}
+
+<Video src='/blog/videos/fbo-particles.mp4' />
+
+## Intro
+
+In this article we'll explore how I setup the scroll-controlled background particles on the Loopspeed home page - combining Three.js Points, a simulation shader and the GSAP animation library.
+The site is a Next.js project, but the same process can be used in any React Three Fiber project.
+
+### Why use a simulation shader?
+Simulation shaders allow for complex visual effects to be computed on the GPU, enabling interactions and animations that would be impossible to run smoothly using CPU-based methods.
+GPUs contain a large number of cores which take advantage of parallel processing, making them ideal for tasks like particle simulations where millions of calculations need to be run every second!
+In this example we have 16,384 particles. Depending on the hardware, each particle's position is updated 60 or 120 times per second. At 120fps on a Macbook Pro that's **1.9 million calculations per second!**
+
+### FBO what?
+A Framebuffer Object (FBO) is a WebGL feature that allows us to render to a texture or buffer for use in shaders. They are utilised in various effects like post-processing, and in this case, simulating particle positions.
+
+### WebGPU will make things easier
+This code uses WebGL shaders (.glsl files) which are compatible with all modern browsers. 
+WebGPU is rolling out in Safari this year, and when it does we'll be able to use the `compute` feature to simplify the simulation process. I'll cover the transition from WebGL to WebGPU in a future article.
+
+## Getting Started
+
+### Install the necessary dependencies into your Next.js project
+
+```bash
+npm i @gsap/react @react-three/drei @react-three/fiber gsap glslify glslify-loader glsl-noise raw-loader
+```
+
+<Aside title="What are the packages for?">
+  - *[@react-three/fiber](https://www.npmjs.com/package/@react-three/fiber)*: React renderer for Three.js that lets you
+  build 3D scenes using declarative React components
+  - *[@react-three/drei](https://www.npmjs.com/package/@react-three/drei)*: A collection of useful abstractions and
+  helpers for React Three Fiber
+  - *[gsap](https://www.npmjs.com/package/gsap)*: Versatile animation library
+  - *[@gsap/react](https://www.npmjs.com/package/@gsap/react)*: Hooks for using GSAP in React
+  - *[raw-loader](https://www.npmjs.com/package/raw-loader)*: Webpack loader for importing files as a strings
+  - *[glslify-loader](https://www.npmjs.com/package/glslify-loader)*: Webpack loader that processes GLSL files using
+  glslify
+  - *[glslify](https://www.npmjs.com/package/glslify)*: Resolves `#pragma glslify` statements, allowing us to
+  import/export from inside GLSL files
+  - *[glsl-noise](https://www.npmjs.com/package/glsl-noise)*: Noise functions perfect for procedural textures and effects
+</Aside>
+
+### Configuring your Next.js project
+Refer to [this other article](https://blog.loopspeed.co.uk/next-webgl-shaders) on how to setup your Next.js Typescript project for custom shader materials and glslify.
+
+
+## React Three Fiber Canvas Setup
+
+Let's begin by briefly covering the outer component containing the [Canvas](https://r3f.docs.pmnd.rs/api/canvas) and HTML sections.
+Next.js components are server-side by default, so we need to add the ['use client'](https://nextjs.org/docs/app/building-your-application/rendering/client-components#using-client-components-in-nextjs) directive in each of the component files.
+
+```tsx title="FBOParticlesCanvas.tsx" showLineNumbers {1,13}
+'use client'
+import { useGSAP } from '@gsap/react'
+import { PerformanceMonitor, Stats } from '@react-three/drei'
+import { Canvas, extend } from '@react-three/fiber'
+import gsap from 'gsap'
+import ScrollTrigger from 'gsap/dist/ScrollTrigger'
+import React, { type FC, useLayoutEffect, useState } from 'react'
+import * as THREE from 'three'
+
+import Camera from './Camera'
+import Points from './points/Points'
+
+gsap.registerPlugin(useGSAP, ScrollTrigger)
+
+type Props = {
+  isMobile: boolean
+}
+
+// @ts-expect-error - Extend THREE with the necessary types
+extend(THREE)
+
+const FBOParticlesCanvas: FC<Props> = ({ isMobile }) => {
+  const [dpr, setDpr] = useState(1)
+  const minDpr = isMobile ? 0.8 : 1
+
+  useLayoutEffect(() => {
+    setDpr(window.devicePixelRatio ?? 1)
+  }, [])
+
+  const onPerformanceInline = () => {
+    if (dpr < window.devicePixelRatio) setDpr((prev) => prev + 0.2)
+  }
+
+  const onPerformanceDecline = () => {
+    if (dpr > minDpr) setDpr((prev) => prev - 0.2)
+  }
+
+  return (
+    <div className="w-full">
+      <Canvas
+        className="fixed! top-0 left-0 h-lvh! w-full bg-black"
+        camera={{ position: [0, 0, 5], fov: 60, far: 20, near: 0.01 }}
+        performance={{ min: 0.5, max: 1, debounce: 300 }}
+        dpr={dpr}
+        flat={true}
+        gl={{
+          alpha: false,
+          antialias: false,
+        }}>
+        <PerformanceMonitor
+          onIncline={onPerformanceInline}
+          onDecline={onPerformanceDecline}
+          flipflops={5} // number of times it will incline/decline
+          factor={0.8}
+          step={0.1}>
+          <Points isMobile={isMobile} />
+          <Camera isMobile={isMobile} />
+        </PerformanceMonitor>
+        {process.env.NODE_ENV === 'development' && <Stats />}
+      </Canvas>
+      {/* HTML sections for scroll triggers */}
+      <section id="model" className="h-[120lvh] w-full" />
+      <section id="sphere" className="h-[120lvh] w-full" />
+      <section id="ring" className="h-[120lvh] w-full" />
+    </div>
+  )
+}
+
+export default FBOParticlesCanvas
+```
+
+### Key Points
+- We register the relevant GSAP plugins
+- We set the `dpr` (device pixel ratio) to ensure the canvas renders at the optimal resolution.
+- The `PerformanceMonitor` component from `@react-three/drei` helps manage performance by adjusting the DPR based on performance.
+- The HTML sections have IDs which will be used by our GSAP scroll triggers
+
+## High level Architecture/Flow
+
+To help you understand the complete solution, here's a step by step breakdown:
+
+1. Load model & size the simulation texture grid based on the particle count
+2. Setup the simulation pipeline (FBO scene, camera and render target)
+3. Generate particle attributes (seeds, UVs, colours) and positions for each stage (e.g loop model, sphere, ring)
+4. Configure GSAP for updating position blending values on scroll
+5. Per frame: Update simulation uniforms and render result to a texture
+6. Per frame: Update points shader uniforms and use the rendered texture to sample positions
+7. Per frame: Render the points
+
+## Points Component
+
+In the Points component, notice how the custom shader for the points receives positions as a Texture, rather than a buffer attribute of X,Y,Z values.
+This is because calculations for the positions are done within the simulation fragment shader, which renders the position data into a texture.
+
+```tsx {3}
+type PointsShaderUniforms = {
+  uTime: number
+  uPositions: Texture | null
+  uScatteredAmount: number
+  uDpr: number
+}
+```
+
+In order to sample positions from the texture, we create UVs (x,y coordinates) for each point. 
+These UVs tell our points shader where to look in the texture for the position data.
+The first point will have UVs of `0,0` which is the top left corner of the texture.
+
+The texture size for the simulation is the square root of the total number of points. That's why the particle count should be a power of 2.
+If there were 64 points, the texture size would be 8x8. For desktop we have 16,384 - which means a 128x128 texture.
+Within each of those squares, we can read the X,Y and Z positions of the point, given it's UV coordinate.
+
+
+### Visualising the simulation with 64 particles
+If we display the simulation texture, we can see how the values in the texture effect the particle positions:
+<Video src='/blog/videos/fbo-particles-texture.mp4' />
+
+
+Once we have our texture size, we calculate the UVs, seed values (a random number) and colour for each point.
+These calculations are performed within a single loop inside a `useMemo` hook to ensure it doesn't re-run unnecessarily.
+The buffer attributes are then assigned to the point geometry inside the return statement.
+
+The `useFrame` hook is used to update the shader uniforms each frame.
+
+```tsx title="Points.tsx" showLineNumbers {25-40, 67, 116-147, 206-216}
+'use client'
+import { useGSAP } from '@gsap/react'
+import { Billboard, shaderMaterial, useFBO, useGLTF } from '@react-three/drei'
+import { extend, useFrame, useThree } from '@react-three/fiber'
+import gsap from 'gsap'
+import React, { type FC, useMemo, useRef } from 'react'
+import {
+  AdditiveBlending,
+  Color,
+  FloatType,
+  Mesh,
+  NearestFilter,
+  OrthographicCamera,
+  Points,
+  RGBAFormat,
+  Scene,
+  Texture,
+} from 'three'
+import { GLTF } from 'three/examples/jsm/Addons.js'
+
+import FBOPointsSimulation, { type SimulationShaderRef } from '../simulation/Simulation'
+import particleFragment from './point.frag'
+import particleVertex from './point.vert'
+
+type PointsShaderUniforms = {
+  uTime: number
+  uPositions: Texture | null
+  uScatteredAmount: number
+  uDpr: number
+}
+
+const INITIAL_POINTS_UNIFORMS: PointsShaderUniforms = {
+  uTime: 0,
+  uPositions: null,
+  uScatteredAmount: 1,
+  uDpr: 1,
+}
+
+const CustomShaderMaterial = shaderMaterial(INITIAL_POINTS_UNIFORMS, particleVertex, particleFragment)
+const FBOPointsShaderMaterial = extend(CustomShaderMaterial)
+
+type LoopGLTF = GLTF & {
+  nodes: {
+    INFINITY_ThickMesh: Mesh
+  }
+  materials: object
+}
+
+type Props = {
+  isMobile: boolean
+}
+
+const FBOPoints: FC<Props> = ({ isMobile }) => {
+  const { nodes } = useGLTF('/models/LogoInfin_ThickMesh.glb') as unknown as LoopGLTF
+  const mesh = useRef<Mesh>(null)
+  const dpr = useThree((s) => s.viewport.dpr)
+  const performance = useThree((s) => s.performance).current
+
+  const particlesCount = useMemo(() => Math.pow(isMobile ? 56 : 126 * performance, 2), [isMobile, performance])
+
+  const points = useRef<Points>(null)
+  const pointsShaderMaterial = useRef<typeof FBOPointsShaderMaterial & PointsShaderUniforms>(null)
+  const simulationShaderMaterial = useRef<SimulationShaderRef>(null)
+  const textureSize = useMemo(() => Math.sqrt(particlesCount), [particlesCount])
+
+  // Animation values
+  const scatteredAmount = useRef({ value: 1 })
+  const sphereAmount = useRef({ value: 0 })
+  const ringAmount = useRef({ value: 0 })
+
+  useGSAP(() => {
+    // Transition points in on mount
+    gsap.to(scatteredAmount.current, {
+      value: 0,
+      duration: 1,
+      delay: 1,
+      ease: 'power2.inOut',
+    })
+    // Scroll based transitions
+    // Sphere stage
+    gsap.to(sphereAmount.current, {
+      value: 1,
+      duration: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: `#sphere`,
+        start: 'top bottom',
+        end: 'top 20%',
+        scrub: true,
+        fastScrollEnd: true,
+      },
+    })
+    // Ring stage
+    gsap.to(ringAmount.current, {
+      value: 1,
+      duration: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: `#ring`,
+        start: 'top bottom',
+        end: 'top 20%',
+        scrub: true,
+        fastScrollEnd: true,
+      },
+    })
+  }, [])
+
+  // ------------------
+  // PARTICLE GEOMETRY SETUP
+  // ------------------
+  // Use a dummy position attribute because our vertex shader will sample from uPositions.
+  const particlesPositions = useMemo(() => {
+    return new Float32Array(particlesCount * 3).fill(0)
+  }, [particlesCount])
+
+  // Create UVs for the particles (for sampling the simulation texture)
+  const { seeds, textureUvs, colours } = useMemo(() => {
+    // Allocate single buffer: 1 seed + 2 UVs + 3 teal = 6 floats per particle
+    const totalFloats = particlesCount * 6
+    const singleBuffer = new Float32Array(totalFloats)
+
+    // Create views into the buffer
+    const seeds = singleBuffer.subarray(0, particlesCount)
+    const textureUvs = singleBuffer.subarray(particlesCount, particlesCount * 3)
+    const colours = singleBuffer.subarray(particlesCount * 3, particlesCount * 6)
+
+    for (let i = 0; i < particlesCount; i++) {
+      // Seed
+      seeds[i] = Math.random()
+
+      // UV coordinates
+      const x = (i % textureSize) / (textureSize - 1)
+      const y = Math.floor(i / textureSize) / (textureSize - 1)
+      textureUvs[i * 2] = x
+      textureUvs[i * 2 + 1] = y
+
+      // Colour
+      const i3 = i * 3
+      const tealColorIndex = Math.floor(Math.random() * TEAL_PALETTE.length)
+      const tealColor = new Color(TEAL_PALETTE[tealColorIndex])
+      colours[i3 + 0] = tealColor.r
+      colours[i3 + 1] = tealColor.g
+      colours[i3 + 2] = tealColor.b
+    }
+
+    return { seeds, textureUvs, colours }
+  }, [particlesCount, textureSize])
+
+  // ------------------
+  // SIMULATION SETUP
+  // ------------------
+  const fboScene = useMemo(() => new Scene(), [])
+  const fboCamera = useMemo(() => new OrthographicCamera(-1, 1, 1, -1, 0.1, 1), [])
+  const renderTarget = useFBO({
+    stencilBuffer: false,
+    minFilter: NearestFilter,
+    magFilter: NearestFilter,
+    format: RGBAFormat,
+    type: FloatType,
+  })
+
+  useFrame(({ gl, clock }) => {
+    if (!pointsShaderMaterial.current || !simulationShaderMaterial.current || !mesh.current) return
+
+    const time = clock.elapsedTime
+
+    // Set simulation uniforms BEFORE rendering to FBO
+    simulationShaderMaterial.current.uTime = time
+    simulationShaderMaterial.current.uScatteredAmount = scatteredAmount.current.value
+    simulationShaderMaterial.current.uSphereAmount = sphereAmount.current.value
+    simulationShaderMaterial.current.uRingAmount = ringAmount.current.value
+
+    // Render simulation to FBO
+    gl.setRenderTarget(renderTarget)
+    gl.clear()
+    gl.render(fboScene, fboCamera)
+    gl.setRenderTarget(null)
+
+    // Set points uniforms AFTER FBO rendering
+    pointsShaderMaterial.current.uTime = time
+    pointsShaderMaterial.current.uPositions = renderTarget.texture
+    pointsShaderMaterial.current.uScatteredAmount = scatteredAmount.current.value
+  })
+
+  return (
+    <>
+      {/* Loop mesh used for sampling */}
+      <mesh ref={mesh} geometry={nodes.INFINITY_ThickMesh.geometry} scale={1.6}>
+        <meshBasicMaterial transparent={true} opacity={0} depthTest={false} />
+      </mesh>
+
+      {/* Simulation */}
+      {/* Responsible for calculating positions */}
+      <FBOPointsSimulation
+        ref={simulationShaderMaterial}
+        particlesCount={particlesCount}
+        textureSize={textureSize}
+        mesh={mesh}
+        fboScene={fboScene}
+        seeds={seeds}
+      />
+
+      {/* Points */}
+      {/* Renders the particle points */}
+      <points ref={points} dispose={null} frustumCulled={false}>
+        <bufferGeometry attach="geometry">
+          <bufferAttribute
+            attach="attributes-position"
+            args={[particlesPositions, 3]}
+            count={particlesPositions.length / 3}
+            itemSize={3}
+          />
+          <bufferAttribute attach="attributes-uv" args={[textureUvs, 2]} count={textureUvs.length / 2} />
+          <bufferAttribute attach="attributes-seed" args={[seeds, 1]} count={seeds.length} />
+          <bufferAttribute attach="attributes-color" args={[colours, 3]} count={colours.length / 3} />
+        </bufferGeometry>
+        <FBOPointsShaderMaterial
+          key={CustomShaderMaterial.key}
+          ref={pointsShaderMaterial}
+          transparent={true}
+          depthTest={false}
+          blending={AdditiveBlending}
+          {...INITIAL_POINTS_UNIFORMS}
+          uDpr={dpr}
+        />
+      </points>
+
+      {/* Visualization of the simulation texture */}
+      <Billboard position={[2, 1, 1]}>
+        <mesh>
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial map={renderTarget.texture} depthTest={false} />
+        </mesh>
+      </Billboard>
+    </>
+  )
+}
+
+useGLTF.preload('/models/LogoInfin_ThickMesh.glb')
+
+export default FBOPoints
+```
+
+## Points Vertex Shader (Size and position sampling)
+
+The vertex shader for the points is responsible for:
+- Sampling and transforming the texture positions into world space (gl_Position)
+- Setting a dynamic dpr-adjusted point size based on the seed value and z distance (gl_PointSize)
+- Passing the seed and color attributes to the fragment shader via the vSeed and vColor varyings.
+
+By altering size constants, we can easily control the size variation of the points.
+*Note: We could further simplify the vertex shader by pre-calculating point sizes alongside the seeds, passing them in as another attribute.*
+
+```glsl title="point.vert" showLineNumbers {}
+// Points vertex shader
+attribute float seed;
+attribute vec3 color;
+
+uniform sampler2D uPositions;
+uniform float uTime;
+uniform float uDpr;
+
+varying float vSeed;
+varying vec3 vColor;
+
+const float MIN_PT_SIZE = 12.0;
+const float LG_PT_SIZE = 24.0;
+const float XL_PT_SIZE = 48.0;
+
+void main() {
+  // DPR adjusted point sizes (ensuring uniformity across devices)
+  float minPtSize = MIN_PT_SIZE * uDpr;
+  float lgPtSize = LG_PT_SIZE * uDpr;
+  float xlPtSize = XL_PT_SIZE * uDpr;
+
+  // Sample the position from the simulation texture using the UV
+  vec4 simulationData = texture2D(uPositions, uv);
+  vec3 pos = simulationData.xyz;
+  
+  // Transform the position into world space.
+  vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+  // Transform to view and clip space.
+  vec4 viewPosition = viewMatrix * worldPosition;
+  vec4 projectedPosition = projectionMatrix * viewPosition;
+  
+  // Dynamic point size based on seed and distance from camera
+  float stepSeed = step(0.95, seed); // Some of the points will be XL size
+  float size = mix(mix(minPtSize, lgPtSize, seed), xlPtSize, stepSeed); // Random size based on seed
+
+  float attenuationFactor = 1.0 / -viewPosition.z; // Size attenuation (get smaller as distance increases)
+  float pointSize = size * attenuationFactor;
+
+  vSeed = seed;
+  vColor = color;
+
+  gl_PointSize = pointSize;
+  gl_Position = projectedPosition;
+}
+```
+
+#### Key Points
+- The `uDpr` uniform is used to adjust the point sizes based on the device pixel ratio, without this the points would appear smaller on higher DPI displays.
+- Points that are further away from the camera are made smaller using 'size attenuation' logic.
+
+
+## Points Fragment Shader (Circle shape and flickering effect)
+
+By default all Three.js points are squares. In order to make them circular, we adjust the alpha so that the corners are transparent.
+
+The points fragment shader:
+- Makes it a circle by setting the alpha (`circleAlpha`) based on the distance from the center of the point.
+- Sets the colour of the point using the `vColor` varying.
+- Creates a flickering effect by fading the point in and out over time.
+
+The circle alpha, flickering alpha and max alpha values are combined to give the final opacity value, which is returned alongside the colour.
+
+
+```glsl title="point.frag" showLineNumbers {29,31}
+// Point fragment shader
+uniform float uTime;
+uniform float uScatteredAmount;
+
+varying float vSeed;
+varying vec3 vColor;
+
+const float MAX_ALPHA = 0.5;
+
+float random(in float x) {
+  return fract(sin(x) * 43758.5453123);
+}
+
+void main() {
+  // gl_PointCoord is a vec2 containing the coordinates of the fragment within the point being rendered
+  float circleAlpha = 1.0 - step(0.25, distance(gl_PointCoord, vec2(0.25)));
+  
+  // Fade in and out
+  // Use the seed (vSeed) to generate an offset so that not all points start at the same time.
+  float offset = random(vSeed);
+  float period = mix(0.5, 4.0, random(vSeed * 2.0));
+  float tCycle = mod(uTime + offset * period, period);
+  float fadeDuration = period * 0.3; // 30% of the period
+  
+  // Fade in and out based on the cycle time
+  float fadeIn = smoothstep(0.0, fadeDuration, tCycle);
+  float fadeOut = 1.0 - smoothstep(period - fadeDuration, period, tCycle);
+  float flickerAlpha = fadeIn * fadeOut;
+  float alpha = circleAlpha * flickerAlpha * (1.0 - uScatteredAmount) * MAX_ALPHA;
+
+  gl_FragColor = vec4(vColor, alpha);
+}
+```
+
+
+## Simulation Setup
+
+{/* TODO: What is an FBO Aside */}
+{/* <Aside title="What is an FBO? The useFBO hook.">
+THREE.WebGLRenderTarget
+</Aside> */}
+
+Inside the Points component, we create a `Scene` for the simulation, an `OrthographicCamera` (2D) to render the scene, and a render target to store the result.
+
+By specifying the render target format as `RGBAFormat` and the type `FloatType`, we can store 4 values per texel (X, Y, Z, W) in the texture. We aren't using it here, but "W" could be used for other data like velocity or age (think "particle emitter"!).
+
+```tsx title="Points.tsx (Simulation Setup)"
+  const fboScene = useMemo(() => new Scene(), [])
+  const fboCamera = useMemo(() => new OrthographicCamera(-1, 1, 1, -1, 0.1, 1), [])
+  const renderTarget = useFBO({
+    stencilBuffer: false,
+    minFilter: NearestFilter,
+    magFilter: NearestFilter,
+    format: RGBAFormat,
+    type: FloatType,
+  })
+```
+
+The `FBOPointsSimulation` component has a ref forwarded to it so that we can set it's uniforms inside the same `useFrame` hook that updates the points shader.
+We could merge these components but for maintainability and separation of concerns I've chosen to create a new one.
+
+As we are getting point positions from our mesh, we also pass it's ref through.
+
+```tsx title="Points.tsx (Sample)"
+      <FBOPointsSimulation
+        ref={simulationShaderMaterial}
+        particlesCount={particlesCount}
+        textureSize={textureSize}
+        mesh={mesh}
+        fboScene={fboScene}
+        seeds={seeds}
+      />
+```
+
+## Simulation Shader Component
+
+We want this to be hidden from the user, so we render it off-screen using the `createPortal` function from `@react-three/fiber`.
+
+To maximise performance, we use the [`ScreenQuad`](https://drei.docs.pmnd.rs/shapes/screen-quad) component that's designed for post-processing effects or off-screen rendering.
+
+Before the shader compiles, we prepare our different sets of positions. 
+In this example, I'm sampling the loop mesh surface using the [`MeshSurfaceSampler`](https://threejs.org/docs/#examples/en/math/MeshSurfaceSampler) from ThreeJS. This gives us a random point on the surface.
+For the sphere and ring stages, I'm utilising helper functions which use math to generate random positions.
+The positions (Float32Array) are then converted into a `DataTexture` for use in the shader.
+
+[Full code here](https://github.com/loopspeed/loopspeed-blog/tree/main/src/components/examples)
+
+```tsx title="Simulation.tsx" showLineNumbers {12-22,54-55,60-65}
+'use client'
+
+import { ScreenQuad, shaderMaterial } from '@react-three/drei'
+import { createPortal, extend } from '@react-three/fiber'
+import React, { forwardRef, memo, type RefObject } from 'react'
+import { DataTexture, FloatType, Mesh, RGBAFormat, Scene, Vector3 } from 'three'
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js'
+
+import simulationFragment from './simulation.frag'
+import simulationVertex from './simulation.vert'
+
+type SimulationUniforms = {
+  uTime: number
+  uScatteredPositions: DataTexture | null
+  uModelPositions: DataTexture | null
+  uSpherePositions: DataTexture | null
+  uRingPositions: DataTexture | null
+  uSeedTexture: DataTexture | null
+  uScatteredAmount: number
+  uSphereAmount: number
+  uRingAmount: number
+}
+
+const INITIAL_UNIFORMS: SimulationUniforms = {
+  uTime: 0,
+  uScatteredPositions: null,
+  uModelPositions: null,
+  uSpherePositions: null,
+  uRingPositions: null,
+  uSeedTexture: null,
+  uScatteredAmount: 1,
+  uSphereAmount: 0,
+  uRingAmount: 0,
+}
+
+const CustomShaderMaterial = shaderMaterial(INITIAL_UNIFORMS, simulationVertex, simulationFragment)
+const SimulationShaderMaterial = extend(CustomShaderMaterial)
+
+type Props = {
+  mesh: RefObject<Mesh | null>
+  particlesCount: number
+  textureSize: number
+  fboScene: Scene
+  seeds: Float32Array
+}
+
+export type SimulationShaderRef = typeof SimulationShaderMaterial & SimulationUniforms
+
+const FBOPointsSimulation = forwardRef<SimulationShaderRef, Props>(
+  ({ mesh, particlesCount, textureSize, fboScene, seeds }, ref) => {
+    // Off-screen simulation material
+    return (
+      <>
+        {createPortal(
+          <ScreenQuad>
+            <SimulationShaderMaterial
+              key={CustomShaderMaterial.key}
+              ref={ref}
+              {...INITIAL_UNIFORMS}
+              onBeforeCompile={(shader) => {
+                if (!shader || !mesh.current) return
+
+                // We calculate the positions for the particles at different stages
+                // Then convert them into textures (that can read in the shader)
+                // Finally set them as uniforms
+
+                const scatteredPositions = createDataTextureFromPositions(
+                  getMeshSurfacePositions({
+                    mesh: mesh.current,
+                    count: particlesCount,
+                    scale: 3,
+                  }),
+                  textureSize,
+                )
+
+                const modelPositions = createDataTextureFromPositions(
+                  getMeshSurfacePositions({
+                    mesh: mesh.current,
+                    count: particlesCount,
+                    scale: mesh.current.scale.x,
+                  }),
+                  textureSize,
+                )
+
+                const spherePositions = createDataTextureFromPositions(
+                  getSpherePositions({
+                    count: particlesCount,
+                    radius: 1.2,
+                    offset: { x: 0, y: 0, z: 0 },
+                  }),
+                  textureSize,
+                )
+
+                const ringPositions = createDataTextureFromPositions(
+                  getRingPositions({
+                    count: particlesCount,
+                    radius: 1.6,
+                    spread: 0.3,
+                    seeds: seeds,
+                  }),
+                  textureSize,
+                )
+
+                const seedTexture = createDataTextureFromSeeds(seeds, textureSize)
+
+                shader.uniforms.uScatteredPositions = {
+                  value: scatteredPositions as SimulationUniforms['uScatteredPositions'],
+                }
+                shader.uniforms.uModelPositions = {
+                  value: modelPositions as SimulationUniforms['uModelPositions'],
+                }
+                shader.uniforms.uSpherePositions = {
+                  value: spherePositions as SimulationUniforms['uSpherePositions'],
+                }
+                shader.uniforms.uRingPositions = {
+                  value: ringPositions as SimulationUniforms['uRingPositions'],
+                }
+                shader.uniforms.uSeedTexture = {
+                  value: seedTexture as SimulationUniforms['uSeedTexture'],
+                }
+              }}
+            />
+          </ScreenQuad>,
+          fboScene,
+        )}
+      </>
+    )
+  },
+)
+
+FBOPointsSimulation.displayName = 'FBOPointsSimulation'
+```
+
+
+## Simulation Vertex Shader
+
+Remember when I said that the `<ScreenQuad>` was used for better performance? 
+This is because it's vertex shader is extremely simple and quick to run. 
+It just passes the UV coordinates through to the fragment shader rather than calculating any 3D positions.
+
+{/* Rather than doing what? */}
+
+```glsl title="simulation.vert"
+// Vertex Shader for ScreenQuad
+varying vec2 vUv;
+varying float vSeed;
+
+void main() {
+    vUv = position.xy * 0.5 + 0.5;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
+}
+```
+
+## Blend them Baby
+Before we dive into the fragment shader code, let's step back to the Points component to understand how the blending of positions is controlled.
+
+There is a ref for each of the blending amounts: `scatteredAmount`, `sphereAmount`, and `ringAmount`.
+Each of these has a corresponding uniform in the simulation shader: `uScatteredAmount`, `uSphereAmount`, and `uRingAmount`.
+Initially the scattered amount is set to 1 (fully scattered).
+
+I'm using GSAP to animate the scattered amount value to 0 when the component mounts - this will cause them to move from their dispersed positions, to their initial ones.
+For the sphere and ring transitions, a scroll trigger is used to animate the values. By setting `scrub: true` it will use the scroll progress to update the value.
+You can learn more about [GSAP scroll triggers here](https://gsap.com/docs/v3/Plugins/ScrollTrigger/).
+
+```tsx title="Points.tsx" {2,8-13,20-26}
+  // Animation values
+  const scatteredAmount = useRef({ value: 1 })
+  const sphereAmount = useRef({ value: 0 })
+  const ringAmount = useRef({ value: 0 })
+
+  useGSAP(() => {
+    // Transition points in on mount
+    gsap.to(scatteredAmount.current, {
+      value: 0,
+      duration: 1,
+      delay: 1,
+      ease: 'power2.inOut',
+    })
+    // Scroll based transitions
+    // Sphere stage
+    gsap.to(sphereAmount.current, {
+      value: 1,
+      duration: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: `#sphere`,
+        start: 'top bottom',
+        end: 'top 20%',
+        scrub: true,
+        fastScrollEnd: true,
+      },
+    })
+    // Ring stage
+    gsap.to(ringAmount.current, {
+      value: 1,
+      duration: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: `#ring`,
+        start: 'top bottom',
+        end: 'top 20%',
+        scrub: true,
+        fastScrollEnd: true,
+      },
+    })
+  }, [])
+```
+
+
+The uniforms are float values which tell the shader program how much to blend between the different sets of positions.
+For example, if `uScatteredAmount` is 1.0, we get fully scattered positions.
+If `uSphereAmount` is 1.0, we get fully spherical positions.
+If `uRingAmount` is 0.5, we get a 50% mix of sphere and ring positions.
+
+The blending amounts, each ranging from 0-1 are passed to the simulation shader inside useFrame.
+
+```tsx title="useFrame hook"
+simulationShaderMaterial.current.uScatteredAmount = scatteredAmount.current.value
+simulationShaderMaterial.current.uSphereAmount = sphereAmount.current.value
+simulationShaderMaterial.current.uRingAmount = ringAmount.current.value
+```
+
+**This technique of using GSAP to animate the blending values makes it possible for us to drive the transitions based on scroll position, whilst also making it easy to tweak durations and apply easing.**
+
+## Simulation Fragment Shader (Position calculations)
+
+{/* In the “Simulation Fragment Shader” section, you say:
+“The completed shader code handles blending between all of the different positions.”
+You could also add:
+Why uSeedTexture exists
+Why rotation3dZ is only applied in the ring stage
+How applyNoise affects the motion visually */}
+
+**This is where the heavy lifting happens.**
+Our simulation fragment shader calculates the current position of each point using the positions textures and blending amounts.
+
+```glsl title="Simplified example"
+// Sample the positions textures
+vec3 scatteredPos = texture2D(uScatteredPositions, vUv).xyz;
+vec3 modelPos = texture2D(uModelPositions, vUv).xyz;
+
+// Mix the positions based on the scattered amount
+vec3 pos = mix(modelPos, scatteredPos, uScatteredAmount);
+
+// Return the final position as gl_FragColor
+gl_FragColor = vec4(pos, 1.0);
+```
+
+Imagine that a point has a model position of `[1,1,1]` and a scattered position of `[2,2,2]`.
+When the scattered amount is 0.5, the position for that point will be `[1.5, 1.5, 1.5]`. 
+Which is a linear interpolation between the 2 sets of values.
+
+| Scattered Amount | Final Position |
+|------------------|----------------|
+| 1.0              | [2, 2, 2]      |
+| 0.75             | [1.75, 1.75, 1.75] |
+| 0.5              | [1.5, 1.5, 1.5] |
+| 0.25             | [1.25, 1.25, 1.25] |
+| 0.0              | [1, 1, 1]      |
+
+
+The completed shader code handles blending between all of the different positions. 
+
+It also applies curl noise and 3D rotation to the position before it's returned as the gl_FragColor.
+
+
+```glsl title="simulation.frag (Complete)" showLineNumbers
+#pragma glslify: noise = require('glsl-noise/simplex/2d')
+#pragma glslify: snoise = require('glsl-noise/simplex/3d')
+#pragma glslify: rotation3dX = require(glsl-rotate/rotation-3d-x)
+#pragma glslify: rotation3dY = require(glsl-rotate/rotation-3d-y)
+#pragma glslify: rotation3dZ = require(glsl-rotate/rotation-3d-z)
+
+uniform sampler2D uScatteredPositions;
+uniform sampler2D uModelPositions;
+uniform sampler2D uSpherePositions;
+uniform sampler2D uRingPositions;
+uniform sampler2D uSeedTexture;
+
+uniform float uTime;
+uniform float uScatteredAmount;
+uniform float uSphereAmount;
+uniform float uRingAmount;
+
+varying vec2 vUv;
+
+const float CURL_NOISE_SCALE = 1.2;
+
+// Noise related functions (not important for the main logic)
+
+vec3 snoiseVec3(in vec3 x) {
+  float s  = snoise(vec3(x));
+  float s1 = snoise(vec3(x.y - 19.1, x.z + 33.4, x.x + 47.2));
+  float s2 = snoise(vec3(x.z + 74.2, x.x - 124.5, x.y + 99.4));
+  return vec3(s, s1, s2);
+}
+
+vec3 curlNoise(in vec3 p) {
+  const float divisor = 1.0 / (2.0 * CURL_NOISE_SCALE);
+  // Pre-compute offsets
+  vec3 dx = vec3(CURL_NOISE_SCALE, 0.0, 0.0);
+  vec3 dy = vec3(0.0, CURL_NOISE_SCALE, 0.0);
+  vec3 dz = vec3(0.0, 0.0, CURL_NOISE_SCALE);
+  // Compute all noise samples
+  vec3 p_x0 = snoiseVec3(p - dx);
+  vec3 p_x1 = snoiseVec3(p + dx);
+  vec3 p_y0 = snoiseVec3(p - dy);
+  vec3 p_y1 = snoiseVec3(p + dy);
+  vec3 p_z0 = snoiseVec3(p - dz);
+  vec3 p_z1 = snoiseVec3(p + dz);
+  // Compute curl components directly
+  vec3 curl = vec3(
+    p_y1.z - p_y0.z - p_z1.y + p_z0.y,
+    p_z1.x - p_z0.x - p_x1.z + p_x0.z,
+    p_x1.y - p_x0.y - p_y1.x + p_y0.x
+  ) * divisor;
+  
+  return normalize(curl);
+}
+
+vec3 applyNoise(inout vec3 pos, in float time) {
+  vec3 noiseVec = curlNoise(pos * 0.5 + time * 0.3);
+  float noiseStrength = 0.05 + (0.15 * (sin(time) * 0.5 + 0.5));
+  pos += noiseVec * noiseStrength;
+  return pos;
+}
+
+void main() {
+  // Sample the scattered positions texture
+  vec3 scatteredPos = texture2D(uScatteredPositions, vUv).xyz;
+  
+  // If scattered amount is 1, use scatteredPos directly and return out
+  if (uScatteredAmount >= 1.0) {
+    gl_FragColor = vec4(scatteredPos, 0.0);
+    return;
+  }
+  
+  vec3 modelPos = texture2D(uModelPositions, vUv).xyz;
+  vec3 pos = modelPos; // Default position is the model position
+
+  // Conditional texture sampling based on blend amounts
+  if (uSphereAmount > 0.0) {
+    // Sample and apply sphere position if needed
+    vec3 spherePos = texture2D(uSpherePositions, vUv).xyz;
+    pos = mix(pos, spherePos, uSphereAmount);
+  }
+
+  if (uRingAmount > 0.0) {
+    // Sample and apply ring position if needed
+    vec3 ringPos = texture2D(uRingPositions, vUv).xyz;
+    float seed = texture2D(uSeedTexture, vUv).r;
+    pos = mix(pos, ringPos, uRingAmount);
+    // Apply Z rotation to the ring
+    pos *= rotation3dZ(uTime * seed * 0.8);
+  }
+
+  if (uScatteredAmount > 0.0) {
+    pos = mix(pos, scatteredPos, uScatteredAmount);
+  }
+    
+  pos = applyNoise(pos, uTime);
+  
+  gl_FragColor = vec4(pos, 1.0);
+}
+```
+
+## Where to next?
+
+Congratulations for making it this far! My hope is that you can take away at least one new useful technique or concept.
+
+The big question now is - **where will you go next?**
+
+The [complete code](https://github.com/loopspeed/loopspeed-blog/tree/main/src/components/examples) from this example can be adapted to use different 3D models or effects. 
+
+Ideas for next steps:
+- Replace the loop model with your own 3D model
+- Transition between two models using the same blending technique
+- Implement pointer interactions by passing the pointer position to the simulation shader and using it to influence the positions

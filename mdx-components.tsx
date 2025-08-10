@@ -73,16 +73,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     Aside: ({ children, title, ...props }: { children: React.ReactNode; title?: string; className?: string }) => {
       return (
-        <aside
-          {...props}
-          className={twMerge('ring-light bg-light/5 rounded-md ring', props?.className)}>
+        <aside {...props} className={twMerge('ring-light bg-light/5 rounded-md ring', props?.className)}>
           {!!title && (
-            <header className="not-prose bg-light/30 flex w-full items-center gap-2 p-2">
-              <InfoIcon className="text-darkest size-5" />
+            <div className="not-prose bg-light/20 flex w-full items-center gap-2 p-2 md:p-3">
+              <InfoIcon className="text-darkest size-5" strokeWidth={1.5} />
               <h3 className="text-darkest leading-none">{title}</h3>
-            </header>
+            </div>
           )}
-          <div className="[&_li]:marker:text-accent-teal list-inside px-2 [&_ul]:list-disc">{children}</div>
+          <div className="[&_li]:marker:text-mid px-2 py-2 [&_ul]:list-disc">{children}</div>
         </aside>
       )
     },

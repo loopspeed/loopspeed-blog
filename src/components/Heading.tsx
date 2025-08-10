@@ -23,7 +23,7 @@ const Span: FC<Props> = ({ children, spanClassName }) => {
 
 const Heading1: FC<Props> = ({ children, className, spanClassName }) => {
   return (
-    <h1 className={twMerge('heading-xl', COMMON_CLASSES, className)}>
+    <h1 className={twMerge('heading-lg', COMMON_CLASSES, className)}>
       <Span spanClassName={spanClassName}>{children}</Span>
     </h1>
   )

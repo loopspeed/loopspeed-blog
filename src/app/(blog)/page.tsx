@@ -31,7 +31,7 @@ export default function BlogListingPage() {
   }
 
   return (
-    <main className="relative min-h-lvh w-full pt-(--nav-height) text-white">
+    <main className="relative min-h-lvh w-full text-white">
       <Header />
 
       <section className="horizontal-padding flex flex-col items-center space-y-24 py-20 lg:space-y-32">

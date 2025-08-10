@@ -33,11 +33,10 @@ export default async function RootLayout({
       <body className={twJoin(sans.variable, 'w-full bg-black font-sans text-white')}>
         <Nav />
         {children}
-
-        {/* Consider that the "examples" use this layout- keep this to a minimum */}
+        {/* Consider that the demos use this layout- keep this to a minimum */}
         <Footer />
       </body>
-       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
     </html>
   )
 }
