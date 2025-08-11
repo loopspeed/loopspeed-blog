@@ -196,11 +196,11 @@ Within each of those squares, we can read the X,Y and Z positions of the point, 
 
 
 ### Visualising the simulation with 64 particles
-If we display the simulation texture, we can see how the values in the texture effect the particle positions:
+If we display the simulation texture, we can see how the values in the texture are driving the particle positions:
 <Video src='/blog/videos/fbo-particles-texture.mp4' />
 
 
-Once we have our texture size, we calculate the UVs, seed values (a random number) and colour for each point.
+Once we have our square texture size, we calculate the UVs, seed values (a random number) and colour for each point.
 These calculations are performed within a single loop inside a `useMemo` hook to ensure it doesn't re-run unnecessarily.
 The buffer attributes are then assigned to the point geometry inside the return statement.
 
@@ -248,6 +248,7 @@ const INITIAL_POINTS_UNIFORMS: PointsShaderUniforms = {
 const CustomShaderMaterial = shaderMaterial(INITIAL_POINTS_UNIFORMS, particleVertex, particleFragment)
 const FBOPointsShaderMaterial = extend(CustomShaderMaterial)
 
+// Type definition for the GLTF model
 type LoopGLTF = GLTF & {
   nodes: {
     INFINITY_ThickMesh: Mesh
@@ -256,7 +257,7 @@ type LoopGLTF = GLTF & {
 }
 
 type Props = {
-  isMobile: boolean
+  isMobile: boolean // on mobile we use fewer particles
 }
 
 const FBOPoints: FC<Props> = ({ isMobile }) => {
