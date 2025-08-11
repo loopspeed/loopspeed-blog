@@ -1,9 +1,9 @@
 'use client'
 
-import { Stats } from '@react-three/drei'
+import { PerformanceMonitor, PerformanceMonitorApi, Stats, usePerformanceMonitor } from '@react-three/drei'
 import { Canvas, extend, type ThreeToJSXElements, useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
-import { type FC, useLayoutEffect, useMemo } from 'react'
+import { type FC, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { color, ShaderNodeObject } from 'three/src/nodes/tsl/TSLBase.js'
 import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPURenderer.js'
 import {
@@ -75,9 +75,33 @@ const RayMarchingScene: FC<Props> = ({ isMobile, className }) => {
         return renderer
       }}>
       {process.env.NODE_ENV === 'development' && <Stats />}
-      <ReactAtomRayMarcher />
+      <PerformanceMonitor>
+        <ReactAtomRayMarcher />
+        <Postprocessing />
+      </PerformanceMonitor>
     </Canvas>
   )
+}
+
+const Postprocessing: FC = () => {
+  const scene = useThree((s) => s.scene)
+  const renderer = useThree((s) => s.gl)
+  const camera = useThree((s) => s.camera)
+  const [isEnabled, setIsEnabled] = useState(true)
+
+  const onIncline = (api: PerformanceMonitorApi) => {
+    setIsEnabled(api.fps > 50)
+  }
+
+  const onDecline = (api: PerformanceMonitorApi) => {
+    setIsEnabled(!(api.fps > 50))
+  }
+
+  usePerformanceMonitor({ onIncline, onDecline })
+
+  useEffect(() => {}, [])
+
+  return null
 }
 
 export default RayMarchingScene
