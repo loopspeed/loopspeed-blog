@@ -5,6 +5,9 @@ import React, { type FC } from 'react'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
+import Image from 'next/image'
+import githubIcon from '@/assets/icons/socials/github.svg'
+import youtubeIcon from '@/assets/icons/socials/youtube.svg'
 
 const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl }) => {
   const formattedDate = format(new Date(date), 'PPP')
@@ -31,11 +34,23 @@ const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, gi
           <span>{formattedDate}</span>
         </div>
 
-        {/* TODO: add buttons to open the code and the youtube video if they exist. */}
-
         <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
           Live demo
         </Button>
+
+        <div className="flex gap-3">
+          {!!githubUrl && (
+            <Button variant="outlined" href={githubUrl} target="_blank">
+              <Image src={githubIcon} alt="GitHub" className="size-5 md:size-6" />
+            </Button>
+          )}
+
+          {!!youtubeUrl && (
+            <Button variant="outlined" href={youtubeUrl} target="_blank">
+              <Image src={youtubeIcon} alt="YouTube" className="size-5 md:size-6" />
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   )
