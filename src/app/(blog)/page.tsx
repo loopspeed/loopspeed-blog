@@ -73,7 +73,7 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
 
       <div className="relative z-10 flex w-full max-w-2xl flex-col gap-3 lg:gap-4">
         {/* Tags */}
-        <div className="hidden w-fit max-w-full flex-wrap justify-center gap-1.5 sm:flex">
+        <div className="hidden w-fit max-w-full flex-wrap gap-1.5 sm:flex">
           {tags.map((tag) => (
             <Tag key={tag} name={tag} />
           ))}

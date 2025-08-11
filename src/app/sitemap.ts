@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { BlogSlug, Pathname } from '@/resources/pathname'
+import { BLOG_CONTENT } from '@/resources/blog'
 
 // Sitemap for the blog
 
@@ -11,17 +11,23 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://blog.loopspeed.co.u
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date().toISOString().split('T')[0]
 
-  const blogs: MetadataRoute.Sitemap = Object.values(BlogSlug).map((slug) => ({
-    url: `${baseUrl}/${slug}`,
-    lastModified: lastModified,
-    priority: 1,
-  }))
+  const blogs: MetadataRoute.Sitemap = []
+  const demos: MetadataRoute.Sitemap = []
 
-  const demos: MetadataRoute.Sitemap = Object.values(BlogSlug).map((slug) => ({
-    url: `${baseUrl}/${slug}/demo`,
-    lastModified: lastModified,
-    priority: 0.8,
-  }))
+  Object.values(BLOG_CONTENT).forEach(({ metadata, Demo }) => {
+    if (metadata.isDraft) return
+    blogs.push({
+      url: `${baseUrl}/${metadata.slug}`,
+      lastModified: lastModified,
+      priority: 1.0,
+    })
+    if (!Demo) return
+    demos.push({
+      url: `${baseUrl}/${metadata.slug}/demo`,
+      lastModified: lastModified,
+      priority: 0.8,
+    })
+  })
 
   const site: MetadataRoute.Sitemap = [
     {
