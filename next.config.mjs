@@ -13,6 +13,16 @@ const nextConfig = {
       test: /\.(glsl|vs|fs|vert|frag)$/,
       use: ['raw-loader', 'glslify', 'glslify-loader'],
     })
+
+    // Add fallbacks for Node.js modules that face-api.js tries to use
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+      encoding: false,
+    }
+
     return config
   },
 }

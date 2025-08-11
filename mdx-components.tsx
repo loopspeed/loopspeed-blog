@@ -94,7 +94,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           muted={true}
           playsInline={true}
           disablePictureInPicture={true}
-          className="not-prose m-0 size-auto w-full border-2 border-black bg-black">
+          className={twMerge('not-prose m-0 h-auto w-full max-w-full border border-black bg-black', props.className)}>
           Your browser does not support the video tag
           <source src={src} type="video/mp4" />
         </video>

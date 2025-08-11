@@ -14,7 +14,6 @@ import { twJoin } from 'tailwind-merge'
 
 import logo from '@/assets/brand/logo.svg'
 import Button from '@/components/buttons/Button'
-// import Tag from '@/components/Tag'
 import { BLOG_CONTENT, ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname, replaceSlug } from '@/resources/pathname'
 
@@ -25,7 +24,7 @@ const Nav: FC = () => {
   const [showDropdown, setShowDropdown] = useState(false)
 
   return (
-    <nav className="z-max horizontal-padding fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-2.5 bg-black py-2 sm:gap-4">
+    <nav className="z-max fixed top-0 left-0 flex h-(--nav-height) w-full items-center gap-2.5 bg-black px-(--x-padding) py-2 sm:gap-4">
       <Link
         href={Pathname.Home}
         className="paragraph-sm flex shrink-0 items-center gap-3 text-white/60 transition-colors hover:text-white sm:text-sm">

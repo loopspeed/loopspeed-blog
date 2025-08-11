@@ -34,7 +34,7 @@ export default function BlogListingPage() {
     <main className="relative min-h-lvh w-full text-white">
       <Header />
 
-      <section className="horizontal-padding flex flex-col items-center space-y-24 py-20 lg:space-y-32">
+      <section className="flex flex-col items-center space-y-24 px-(--x-padding) py-20 lg:space-y-32">
         {ORDERED_BLOG_CONTENT.map(({ metadata, videoSrc }) => {
           const { slug, isDraft } = metadata
           if (!!isDraft && isProduction) return null

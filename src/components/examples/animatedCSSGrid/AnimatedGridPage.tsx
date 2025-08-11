@@ -60,13 +60,13 @@ export default function AnimatedGridPage() {
   return (
     <main className="w-full space-y-16 bg-black pb-40 font-sans">
       <ScrollDownArrow />
-      <section className="horizontal-padding flex h-[80vh] flex-col justify-center">
+      <section className="flex h-[80vh] flex-col justify-center px-(--x-padding)">
         <h1 className="text-7xl font-black text-white">Animated CSS Grid</h1>
       </section>
-      <AnimatedCSSGrid cards={CARDS} className="horizontal-padding" />
-      <AnimatedCSSGrid cards={fourCards} className="horizontal-padding" />
-      <AnimatedCSSGrid cards={threeCards} className="horizontal-padding" />
-      <AnimatedCSSGrid cards={[...CARDS, ...CARDS]} className="horizontal-padding" />
+      <AnimatedCSSGrid cards={CARDS} className="px-(--x-padding)" />
+      <AnimatedCSSGrid cards={fourCards} className="px-(--x-padding)" />
+      <AnimatedCSSGrid cards={threeCards} className="px-(--x-padding)" />
+      <AnimatedCSSGrid cards={[...CARDS, ...CARDS]} className="px-(--x-padding)" />
     </main>
   )
 }

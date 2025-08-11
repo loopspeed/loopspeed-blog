@@ -3,6 +3,7 @@ import { type FC } from 'react'
 import AnimatedGridPage from '@/components/examples/animatedCSSGrid/AnimatedGridPage'
 import FBOParticlesCanvas from '@/components/examples/fboParticles/FBOParticles'
 import ImageSequencePage from '@/components/examples/imageSequence/ImageSequenceHeader'
+import FaceIDMain from '@/components/examples/rebuilds/faceId/FaceIDMain'
 // import RayMarchingPage from '@/components/examples/raymarching/RayMarchingPage'
 import ScrollingBackgroundShaderPage from '@/components/examples/three/scrollingBackgroundGradient/ScrollingBackgroundGradientPage'
 import ScrollingScenePage from '@/components/examples/three/scrollingScene/ScrollingScenePage'
@@ -11,6 +12,7 @@ import type { BlogMetadata } from '@/model/blog'
 import { BlogSlug } from '@/resources/pathname'
 
 import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './posts/animated-css-grid.mdx'
+import FaceIdBlog, { metadata as faceIdMetadata } from './posts/face-id-rebuild.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
 import NextJsLocalisation, { metadata as nextJsLocalisationMetadata } from './posts/next-js-localisation.mdx'
@@ -80,6 +82,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: null,
     metadata: nextJsLocalisationMetadata,
     videoSrc: '/blog/videos/next-js-localisation.mp4',
+  },
+  [BlogSlug.FaceIDRebuild]: {
+    Blog: FaceIdBlog,
+    Demo: FaceIDMain,
+    metadata: faceIdMetadata,
+    videoSrc: '/blog/videos/face-id.mp4',
   },
 }
 

@@ -22,6 +22,7 @@
     "@thi.ng/color": "^5.7.46",
     "@types/mdx": "^2.0.13",
     "date-fns": "^4.1.0",
+    "face-api.js": "^0.22.2",
     "glsl-fast-gaussian-blur": "^1.0.2",
     "glsl-noise": "^0.0.0",
     "glsl-rotate": "^2.0.1",

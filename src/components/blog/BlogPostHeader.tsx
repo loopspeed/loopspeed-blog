@@ -23,13 +23,7 @@ const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, gi
           ))}
         </div>
 
-        <h1
-          className="heading-xl text-center text-balance"
-          style={{
-            textShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          }}>
-          {title}
-        </h1>
+        <h1 className="heading-xl text-center text-balance">{title}</h1>
 
         <div className="paragraph-md relative flex w-fit items-center gap-2 whitespace-nowrap text-white/90 sm:gap-3">
           <span>{authors.map(({ name }) => name).join(', ')}</span>

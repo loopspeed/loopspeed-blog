@@ -1,15 +1,23 @@
 'use client'
 
-import { Stats } from '@react-three/drei'
-import { Canvas, extend, type ThreeToJSXElements, useThree } from '@react-three/fiber'
+import {
+  OrthographicCamera,
+  PerformanceMonitor,
+  PerformanceMonitorApi,
+  ScreenQuad,
+  Stats,
+  usePerformanceMonitor,
+} from '@react-three/drei'
+import { Canvas, extend, type ThreeToJSXElements, useFrame, useThree } from '@react-three/fiber'
 import { useControls } from 'leva'
-import { type FC, useLayoutEffect, useMemo } from 'react'
+import { type FC, useEffect, useMemo, useRef, useState } from 'react'
 import { color, ShaderNodeObject } from 'three/src/nodes/tsl/TSLBase.js'
 import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPURenderer.js'
 import {
   abs,
   Break,
   cos,
+  emissive,
   float,
   Fn,
   fract,
@@ -21,13 +29,18 @@ import {
   max,
   min,
   mix,
+  mrt,
   normalize,
+  output,
+  pass,
+  positionGeometry,
   screenUV,
   select,
   sin,
   step,
   time,
   uniform,
+  varying,
   vec2,
   vec3,
   vec4,
@@ -36,17 +49,9 @@ import {
 import { WebGPURenderer } from 'three/webgpu'
 import * as THREE from 'three/webgpu'
 
-import {
-  ACCENT_ORANGE,
-  ACCENT_TEAL,
-  BLACK,
-  BLACK_VEC3,
-  DARK,
-  DARKEST,
-  LIGHT,
-  MID,
-  ORANGE_ACCENT_VEC3,
-} from '@/resources/colours'
+import { ACCENT_TEAL, BLACK, DARK, DARKEST } from '@/resources/colours'
+
+import { Bloom } from './PostProcessing'
 
 declare module '@react-three/fiber' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -57,11 +62,10 @@ declare module '@react-three/fiber' {
 extend(THREE as any)
 
 type Props = {
-  isMobile: boolean
   className?: string
 }
 
-const RayMarchingScene: FC<Props> = ({ isMobile, className }) => {
+const RayMarchingScene: FC<Props> = ({ className }) => {
   return (
     <Canvas
       id="ray-marching-canvas"
@@ -71,11 +75,16 @@ const RayMarchingScene: FC<Props> = ({ isMobile, className }) => {
       gl={async (props) => {
         const renderer = new WebGPURenderer(props as WebGPURendererParameters)
         renderer.outputColorSpace = 'srgb'
+        renderer.toneMapping = THREE.CineonToneMapping
         await renderer.init()
         return renderer
       }}>
       {process.env.NODE_ENV === 'development' && <Stats />}
-      <ReactAtomRayMarcher />
+      <PerformanceMonitor>
+        <OrthographicCamera makeDefault position={[0, 0, 1]} near={0.1} far={10} />
+        <ReactAtomRayMarcher />
+        <Bloom />
+      </PerformanceMonitor>
     </Canvas>
   )
 }
@@ -107,16 +116,12 @@ const MATERIAL_COLOURS: Record<MaterialId, ShaderNodeObject<THREE.Node>> = {
 }
 
 const ReactAtomRayMarcher: FC = () => {
-  const currentPerformance = useThree((s) => s.performance.current)
-
-  const { colorNode, uMixStrength, uTimeMultiplier, uMinDistance, uMaxIterations } = useMemo(() => {
+  const size = useThree((s) => s.size)
+  const { vertexNode, colorNode, uMixStrength, uTimeMultiplier, uMinDistance, uMaxIterations } = useMemo(() => {
     const uTimeMultiplier = uniform(float(1.0)).label('uTimeMultiplier')
     const uMixStrength = uniform(float(0.75)).label('uMixStrength')
-
     const uMinDistance = uniform(float(0.01)).label('uMinDistance')
     const uMaxIterations = uniform(int(100)).label('uMaxIterations')
-    // const MAX_ITERATIONS = int(100).mul(currentPerformance)
-    // const MIN_DISTANCE = float(0.01)
     const MAX_DISTANCE = float(10.0)
 
     const LIGHT_POS = vec3(1.0, 5.0, 0.0)
@@ -343,8 +348,14 @@ const ReactAtomRayMarcher: FC = () => {
       return finalColor
     })()
 
-    return { colorNode: main, uTimeMultiplier, uMixStrength, uMinDistance, uMaxIterations }
-  }, [currentPerformance])
+    const vertexNode = Fn(() => {
+      const vUv = varying(vec2(), 'vUv')
+      vUv.assign(positionGeometry.xy.mul(0.5).add(0.5))
+      return vec4(positionGeometry.xy, 0.0, 1.0)
+    })()
+
+    return { colorNode: main, vertexNode, uTimeMultiplier, uMixStrength, uMinDistance, uMaxIterations }
+  }, [])
 
   useControls({
     speed: {
@@ -362,7 +373,7 @@ const ReactAtomRayMarcher: FC = () => {
       value: 0.75,
       step: 0.05,
       min: 0.05,
-      max: 1.0,
+      max: 2.0,
       onChange: (value) => {
         uMixStrength.value = value
       },
@@ -389,18 +400,22 @@ const ReactAtomRayMarcher: FC = () => {
     },
   })
 
-  const scene = useThree((s) => s.scene)
+  const screenQuadGeometry = useMemo(() => createScreenQuadGeometry(), [])
 
-  useLayoutEffect(() => {
-    scene.backgroundNode = colorNode
-  }, [colorNode, scene, colorNode.uuid])
+  return (
+    <mesh geometry={screenQuadGeometry} frustumCulled={false}>
+      <meshBasicNodeMaterial colorNode={colorNode} vertexNode={vertexNode} />
+    </mesh>
+  )
+}
 
-  // useFrame(({ pointer }) => {
-  //   // @ts-expect-error ignore
-  //   uPointer.value = pointer
-  // })
-
-  return null
+function createScreenQuadGeometry(): THREE.BufferGeometry {
+  const geometry = new THREE.BufferGeometry()
+  const vertices = new Float32Array([-1, -1, 3, -1, -1, 3])
+  geometry.boundingSphere = new THREE.Sphere()
+  geometry.boundingSphere.set(new THREE.Vector3(), Infinity)
+  geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 2))
+  return geometry
 }
 
 const getMaterialColor = Fn(([materialId]: [materialId: ShaderNodeObject<THREE.VarNode>]) => {

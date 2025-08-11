@@ -34,10 +34,11 @@ The solution combines Three.js Points, a GLSL simulation shader and the GSAP ani
 ### Why use a simulation shader?
 Simulation shaders allow for complex visual effects to be computed on the GPU, enabling interactions and animations that would be impossible to run smoothly using CPU-based methods.
 GPUs contain a large number of cores which take advantage of parallel processing, making them ideal for tasks like particle simulations where millions of calculations need to be run every second.
-In this example we have 16,384 particles. Depending on the hardware, each particle's position is updated 60 or 120 times per second. At 120fps on a Macbook Pro that's **1.9 million calculations per second!**
+In this example we have 16,384 particles. Depending on the hardware, each particle's position is updated 60 or 120 times per second. At 120fps on a Macbook Pro that's **1.9 million position calculations per second!**
 
 ### FBO what?
 A Framebuffer Object (FBO) is a WebGL feature that allows us to render to a texture or buffer for use in shaders. They are utilised in various effects, and in this case, simulating particle positions.
+By leveraging an FBO scene, we are able to simulate particles off-screen and then render the final image efficiently. 
 
 ### WebGPU will make things easier
 This code uses WebGL shaders (.glsl files) which are compatible with all modern browsers. 

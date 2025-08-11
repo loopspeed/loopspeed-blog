@@ -42,7 +42,7 @@ export default async function BlogDemoPage({ params }: Props) {
   return (
     <>
       <DemoComponent />
-      <LevaControls />
+      <LevaControls isMobile={isMobile} />
       <JSONSchema type="CreativeWork" {...metadata} />
     </>
   )
