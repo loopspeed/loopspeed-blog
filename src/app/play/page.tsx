@@ -17,7 +17,7 @@ const PlaygroundPage = async () => {
 
   return (
     <main className="w-full bg-black">
-      <RayMarchingScene isMobile={isMobile} />
+      <RayMarchingScene isMobile={isMobile} className="!h-lvh" />
     </main>
   )
 }
