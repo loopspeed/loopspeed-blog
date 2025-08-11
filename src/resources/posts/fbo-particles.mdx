@@ -38,7 +38,7 @@ The site is a Next.js project, but the same process can be used in any React Thr
 
 ### Why use a simulation shader?
 Simulation shaders allow for complex visual effects to be computed on the GPU, enabling interactions and animations that would be impossible to run smoothly using CPU-based methods.
-GPUs contain a large number of cores which take advantage of parallel processing, making them ideal for tasks like particle simulations where millions of calculations need to be run every second!
+GPUs contain a large number of cores which take advantage of parallel processing, making them ideal for tasks like particle simulations where millions of calculations need to be run every second.
 In this example we have 16,384 particles. Depending on the hardware, each particle's position is updated 60 or 120 times per second. At 120fps on a Macbook Pro that's **1.9 million calculations per second!**
 
 ### FBO what?
@@ -162,9 +162,9 @@ export default FBOParticlesCanvas
 
 To help you understand the complete solution, here's a step by step breakdown:
 
-1. Load model & size the simulation texture grid based on the particle count
+1. Load model & set the simulation texture size based on the particle count
 2. Setup the simulation pipeline (FBO scene, camera and render target)
-3. Generate particle attributes (seeds, UVs, colours) and positions for each stage (e.g loop model, sphere, ring)
+3. Generate point attributes (seeds, UVs, colours) and positions for each stage (e.g loop model, sphere, ring)
 4. Configure GSAP for updating position blending values on scroll
 5. Per frame: Update simulation uniforms and render result to a texture
 6. Per frame: Update points shader uniforms and use the rendered texture to sample positions
