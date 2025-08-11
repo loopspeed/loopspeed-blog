@@ -1,13 +1,13 @@
 import { format } from 'date-fns'
 import { ArrowUpRight } from 'lucide-react'
+import Image from 'next/image'
 import React, { type FC } from 'react'
 
+import githubIcon from '@/assets/icons/socials/github.svg'
+import youtubeIcon from '@/assets/icons/socials/youtube.svg'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
-import Image from 'next/image'
-import githubIcon from '@/assets/icons/socials/github.svg'
-import youtubeIcon from '@/assets/icons/socials/youtube.svg'
 
 const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl }) => {
   const formattedDate = format(new Date(date), 'PPP')
