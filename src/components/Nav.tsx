@@ -7,13 +7,13 @@ import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { type FC, useEffect, useMemo, useRef, useState } from 'react'
+import { type FC, useEffect, useRef, useState } from 'react'
 import { Transition, type TransitionStatus } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
 import logo from '@/assets/brand/logo.svg'
 import Button from '@/components/buttons/Button'
-import Tag from '@/components/Tag'
+// import Tag from '@/components/Tag'
 import { BLOG_CONTENT, ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { BlogSlug, Pathname, replaceSlug } from '@/resources/pathname'
 
@@ -134,7 +134,7 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
             { opacity: 1, scaleY: 1, duration: 0.2, ease: 'power2.out' },
           )
           .fromTo(
-            '#tags, #post-list button',
+            '#post-list button',
             { opacity: 0, y: -8 },
             { opacity: 1, y: 0, duration: 0.15, stagger: 0.05, ease: 'power2.out' },
             '-=0.1',
@@ -159,30 +159,27 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
 
   // Extracted tags from ORDERED_BLOG_CONTENT
   // Remove duplicates, limit the number of tags to 30 & randomise the order
-  const tags = useMemo(() => {
-    return ORDERED_BLOG_CONTENT.flatMap(({ metadata: { tags } }) => tags)
-      .filter((tag, index, self) => self.indexOf(tag) === index)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 30)
-      .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
-  }, [])
+  // const tags = useMemo(() => {
+  //   return ORDERED_BLOG_CONTENT.flatMap(({ metadata: { tags } }) => tags)
+  //     .filter((tag, index, self) => self.indexOf(tag) === index)
+  //     .sort(() => Math.random() - 0.5)
+  //     .slice(0, 30)
+  //     .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
+  // }, [])
 
   return (
     <>
-      <div id="tags" className="flex w-full max-w-3xl flex-wrap px-2 sm:px-4">
+      {/* <div id="tags" className="flex w-full max-w-3xl flex-wrap px-2 sm:px-4">
         {tags}
-      </div>
-      <div className="mx-auto h-[1px] w-[97%] bg-white/20" />
-      <div id="post-list" className="h-fit max-h-[500px] space-y-2 overflow-y-auto sm:space-y-4">
+      </div> */}
+      <div id="post-list" className="h-fit max-h-[540px] space-y-2 overflow-y-auto sm:space-y-4">
         {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, date } }) => (
           <button
             key={slug}
             className="group flex w-full items-baseline gap-2 px-2 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
             onClick={() => onPostClick(slug)}>
-            <span className="text-xxs whitespace-nowrap text-white/60 sm:text-sm md:text-base">
-              {format(new Date(date), 'MMM yyyy')}
-            </span>
-            <p className="text-sm transition-colors group-hover:text-white/80 sm:text-base sm:tracking-wider md:text-lg">
+            <span className="paragraph-xs text-light/70 whitespace-nowrap">{format(new Date(date), 'MMM yyyy')}</span>
+            <p className="paragraph-sm group-hover:text-accent-teal max-w-lg overflow-hidden text-ellipsis transition-colors">
               {title}
             </p>
           </button>
