@@ -63,8 +63,6 @@ const BlogHeadingsNav: FC = () => {
     })
   }
 
-  if (!headingLinks.length) return null
-
   return (
     <nav
       ref={container}
