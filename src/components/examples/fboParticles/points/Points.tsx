@@ -39,6 +39,7 @@ const INITIAL_POINTS_UNIFORMS: PointsShaderUniforms = {
 const CustomShaderMaterial = shaderMaterial(INITIAL_POINTS_UNIFORMS, particleVertex, particleFragment)
 const FBOPointsShaderMaterial = extend(CustomShaderMaterial)
 
+// Type definition for the GLTF model
 type LoopGLTF = GLTF & {
   nodes: {
     INFINITY_ThickMesh: Mesh
@@ -47,7 +48,7 @@ type LoopGLTF = GLTF & {
 }
 
 type Props = {
-  isMobile: boolean
+  isMobile: boolean // on mobile we use fewer particles
 }
 
 const FBOPoints: FC<Props> = ({ isMobile }) => {
