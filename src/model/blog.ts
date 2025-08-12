@@ -46,6 +46,7 @@ export type BlogMetadata = {
   authors: Author[]
   githubUrl?: string
   youtubeUrl?: string
-  externalDemoUrl?:string
+  externalDemoUrl?: string
+  viewLiveLink?: string
   isDraft?: boolean
 }

@@ -13,7 +13,7 @@ import { BlogMetadata } from '@/model/blog'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
 
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production'
 
 export default function BlogListingPage() {
   const blogData = {
@@ -37,8 +37,7 @@ export default function BlogListingPage() {
       <section className="horizontal-padding flex flex-col items-center space-y-24 py-20 lg:space-y-32">
         {ORDERED_BLOG_CONTENT.map(({ metadata, videoSrc }) => {
           const { slug, isDraft } = metadata
-          if (!!isDraft && isProduction) return null
-          if (!videoSrc && isProduction) return null
+          if (isProduction && (!!isDraft || !videoSrc)) return null
           return (
             <BlogPostCard key={slug} href={replaceSlug(Pathname.BlogPost, slug)} {...metadata} videoSrc={videoSrc} />
           )

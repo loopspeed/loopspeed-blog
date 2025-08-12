@@ -10,7 +10,17 @@ import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
 import { BLOG_CONTENT } from '@/resources/blog'
 
-const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl, externalDemoUrl }) => {
+const BlogPostHeader: FC<BlogMetadata> = ({
+  slug,
+  title,
+  tags,
+  date,
+  authors,
+  githubUrl,
+  youtubeUrl,
+  externalDemoUrl,
+  viewLiveLink,
+}) => {
   const formattedDate = format(new Date(date), 'PPP')
   const Demo = BLOG_CONTENT[slug]?.Demo
 
@@ -37,15 +47,23 @@ const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, gi
           <span>{formattedDate}</span>
         </div>
 
-        {!!Demo && <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
-          Live demo
-        </Button>}
+        {!!Demo && (
+          <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
+            Live demo
+          </Button>
+        )}
 
-        {!!externalDemoUrl && <Button href={externalDemoUrl} icon={<ArrowUpRight />}>
-          Live demo
-        </Button>}
+        {!!externalDemoUrl && (
+          <Button href={externalDemoUrl} icon={<ArrowUpRight />} target="_blank">
+            Live demo
+          </Button>
+        )}
 
-
+        {!!viewLiveLink && (
+          <Button href={viewLiveLink} target="_blank" icon={<ArrowUpRight />}>
+            View Live
+          </Button>
+        )}
 
         <div className="flex gap-3">
           {!!githubUrl && (
