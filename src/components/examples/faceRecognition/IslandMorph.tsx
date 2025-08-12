@@ -24,17 +24,18 @@ const IslandMorph: FC = () => {
       tl.current = gsap
         .timeline({
           paused: true,
-          defaults: { ease: 'power2.inOut' },
+        })
+        .to(path.current, {
+          duration: 0.1,
+          morphSVG: { shape: pathMiddle, type: 'linear', origin: '50% 0%' },
+          transformOrigin: '50% 0%',
+          ease: 'power2.out',
         })
         .to(path.current, {
           duration: 0.3,
-          morphSVG: { shape: pathMiddle, type: 'linear', origin: '50% 0%' },
-          transformOrigin: '50% 0%',
-        })
-        .to(path.current, {
-          duration: 0.4,
           morphSVG: { shape: pathEnd, type: 'linear', origin: '50% 20%' },
           transformOrigin: '50% 20%',
+          ease: 'elastic.inOut(0.3,0.2)',
         })
     },
     { scope: container },
@@ -52,16 +53,18 @@ const IslandMorph: FC = () => {
   }
 
   return (
-    <section className="flex w-full flex-col items-center justify-center" ref={container}>
+    <section className="z-10 flex h-96 flex-col items-center justify-between pt-2.5 pb-4" ref={container}>
       <svg
-        width="50%"
+        width="25%"
         viewBox="0 0 448 366"
         fill="none"
         className="flex items-center justify-center"
         xmlns="http://www.w3.org/2000/svg">
         <path ref={path} d={pathStart} fill="black" />
       </svg>
-      <button onClick={onClick} className="mt-4 cursor-pointer rounded-full bg-black px-4 py-2 text-white">
+      <button
+        onClick={onClick}
+        className="hover:text-light text-2xs w-17 cursor-pointer rounded-full bg-black py-1 text-white">
         MORPH
       </button>
     </section>
