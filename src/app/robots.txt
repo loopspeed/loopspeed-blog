@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 Disallow: /private/
-Sitemap: https://blog.pragmattic.dev/sitemap.xml
+Sitemap: https://blog.loopspeed.co.uk/sitemap.xml
