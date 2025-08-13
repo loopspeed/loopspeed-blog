@@ -1,18 +1,11 @@
-import { WavePlaneCanvas } from '@/components/examples/three/wavePlane/WavePlane'
-import {
-  RotatedPlaneCanvas,
-  BasicFragmentShaderPlaneCanvas,
-  GradientFragmentShaderPlaneCanvas,
-  GridLinesFragmentShaderPlaneCanvas,
-} from '@/components/examples/three/wavePlane/blog/WavePlaneBlog'
 import { BlogSlug } from '../pathname'
 import { TagName } from '../tags'
 import { MATTHEW_FRAWLEY } from '@/model/blog'
 
 export const metadata = {
-  title: 'Advanced particle transitions using a WebGL simulation',
+  title: 'Advanced scroll-based particle transitions using a WebGL simulation shader',
   description:
-    'Learn how I built the scroll-animated background particles on the Loopspeed home page using Three.js, a simulation shader and GSAP.',
+    'Learn how I built the background particles on the Loopspeed home page using Three.js, a simulation shader (FBO) and the GSAP animation library.',
   date: '2025-08-10',
   slug: BlogSlug.FBOParticles,
   authors: [MATTHEW_FRAWLEY],
