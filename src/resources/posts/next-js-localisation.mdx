@@ -5,7 +5,7 @@ import { TagName } from '../tags'
 export const metadata = {
   title: 'How to use Google Sheets as a free CMS for Next.js Localisation - supporting unlimited locales',
   description:
-    'A lightweight localisation setup for Next.js App Router using TypeScript — featuring locale-based routing, a custom parseT function, HTML element parsing, and translation syncing from Google Sheets via a simple script.',
+    'A lightweight localisation setup for Next.js App Router using TypeScript. Featuring locale-based routing, a custom parseT function, HTML element parsing, and translation syncing from Google Sheets.',
   date: '2025-08-14',
   slug: BlogSlug.NextJsLocalisation,
   tags: [TagName.Tutorial, TagName.NextJS, TagName.Typescript, 'localisation', 'translations', 'google-sheets', 'html-react-parser'],
@@ -16,13 +16,13 @@ export const metadata = {
 
 ## Introduction
 
-This article walks through a lightweight localisation setup for **Next.js (App Router) + TypeScript** with **no external i18n libraries**. It uses simple building blocks you already know: **locale-based routing**, a **custom `parseT`** that supports variables and inline elements, and a **React Context** initialised on the server to provide the dictionary and current locale across your app. Translation copy lives in **Google Sheets**, and a small script pulls the data into your repo when you’re ready—**run the script and commit** (no live syncing required).
+This article walks through a lightweight localisation setup for **Next.js (App Router) + TypeScript** with **no external i18n libraries**. It uses simple building blocks you already know: **locale-based routing**, a **custom `parseT`** that supports variables and inline elements, and a **React Context** initialised on the server to provide the dictionary and current locale across your app. Translation copy lives in **Google Sheets**, and a small script pulls the data into your repo when you're ready—**run the script and commit** (no live syncing required).
 
-### Why Google Sheets as a mini CMS?
+### Why use Google Sheets as a mini CMS?
 - **Free & familiar** — most teams already live in Sheets; no onboarding to a new tool.  
 - **Non-tech friendly** — product, marketing, and translators can edit copy without touching code.  
 - **Collaboration built-in** — comments, edit history, permissions, and easy review flows.  
-- **Structured yet flexible** — formulas help enforce conventions (e.g. generate kebab-case keys from “key-as-text”).  
+- **Structured yet flexible** — formulas help enforce conventions  
 - **Single source of truth** — your app pulls from the same document everyone edits.
 
 ### Why this approach?
@@ -33,7 +33,7 @@ This article walks through a lightweight localisation setup for **Next.js (App R
 - **Low dependency footprint** — avoid heavyweight i18n libraries while keeping the features you need.  
 - **Deterministic deploys** — changes land when you **run the sync script** and commit, keeping environments in lockstep.
 
-The following is a **complete, step-by-step process** for implementing this setup in your own project.
+The following is a complete, step-by-step process for implementing this setup in your own project.
 
 
 ## Project Setup and Dependencies
@@ -79,7 +79,7 @@ The main tasks performed by the script are:
 - parsing each row into localisation keys and their translations per locale
 - building locale objects that map each language key to its translation dictionary
 - preparing the output folder by deleting any existing one and creating a fresh directory
-- writing each locale’s translations as separate JSON files (e.g., en.json, fr.json)
+- writing each locale's translations as separate JSON files (e.g., en.json, fr.json)
 - generating a TypeScript index file that exports lazy-loaded dictionaries and type definitions for the localisation keys
 - caching and exporting a helper function to retrieve the dictionary by locale, with a fallback to English
 
@@ -236,7 +236,7 @@ main();
 
 
 ```
-<br/>
+
 Add the following script to your `package.json`
 ```json title="package.json"
   "scripts": {
@@ -245,7 +245,7 @@ Add the following script to your `package.json`
   },
 ```
 
-and run 
+and run:
 
 ```bash
 npm run get-translations
@@ -283,7 +283,6 @@ export type AvailableLocale = (typeof AVAILABLE_LOCALES)[number];
 
 This setup ensures your localisation code is `type-safe` and that only the languages listed in `AVAILABLE_LOCALES` are treated as valid in the app.
 
-
 Inside `src/utils` folder create a `locales.ts` file with the following helpers:
 
 ```ts title="src/utils/locales.ts"
@@ -300,7 +299,7 @@ export const getAvailableLocale = ({ locale }: { locale: string }): AvailableLoc
 
 ## Organise App Directory Layouts
 
-To organise pages by locale, we’ll keep the root `layout.tsx` file unchanged and handle the initial locale routing in the root `page.tsx`.  In this example, we redirect to the English locale by default:
+To organise pages by locale, we'll keep the root `layout.tsx` file unchanged and handle the initial locale routing in the root `page.tsx`.  In this example, we redirect to the English locale by default:
 
 ```tsx title="src/app/page.tsx"
 import { redirect } from 'next/navigation'
@@ -354,7 +353,7 @@ Just like popular i18n libraries, we need to handle translated text in our JSON 
 
 The following utility handles parsing translated text from our JSON dictionaries while supporting both **dynamic variables** and **custom HTML elements**.  
 
-It also provides a helper to **load and prepare a locale’s dictionary** so it’s ready to use in our components.
+It also provides a helper to **load and prepare a locale's dictionary** so it's ready to use in our components.
 
 The main tasks performed by this code are:
 
@@ -456,7 +455,6 @@ export async function resolveDictionary(params: { locale: string }): Promise<Res
 
 > **Note:** `resolveDictionary` will be called in the `[locale]/layout.tsx` file and will receive the `params` from the layout, so translations are prepared before rendering the page.
 
-<br />
 Inside the [locale] folder, update your layout.tsx as follows:
 ```tsx title="src/app/[locale]/layout.tsx"
 import { resolveDictionary } from '@/utils/dictionary'
@@ -516,10 +514,10 @@ export const useDictionary = () => {
   }
   return context
 }
-
 ```
-<br/>
+
 Inside the [locale] folder, update your layout.tsx as follows:
+
 ```tsx title="src/app/[locale]/layout.tsx"
 import { DictionaryProvider } from '@/components/DictionaryProvider'
 import { resolveDictionary } from '@/utils/dictionary'
@@ -542,7 +540,6 @@ export default async function LocaleLayout({
 }
 ```
 
-<br/>
 Inside the `src` folder, create a new `hooks` directory and add the following code to a new file called `useParseT.ts`:
 
 ```ts title="src/hooks/useParseT.ts"
@@ -566,7 +563,7 @@ export function useParseT() {
 ```
 
 ## Create a Server-Side Page Component
-Next, we’ll render the parsed translation data in the app’s UI.
+Next, we'll render the parsed translation data in the app's UI.
 
 Inside the `[locale]` folder, create a new `page.tsx` file. Import `resolveDictionary` and use the `parseT` helper to render translated copy and inject custom elements seamlessly:
 
@@ -666,8 +663,8 @@ With this, you now have translations set up to work seamlessly on both server-si
 
 ## Create a Language Picker
 
-With the translation system in place, let’s add a simple UI component to switch between languages.
-This component will detect the current pathname, swap out the locale segment, and use Next.js’s `Link` for instant navigation without a full page reload.
+With the translation system in place, let's add a simple UI component to switch between languages.
+This component will detect the current pathname, swap out the locale segment, and use Next.js's `Link` for instant navigation without a full page reload.
 
 ```tsx title="src/components/LanguagePicker.tsx"
 'use client'
@@ -718,7 +715,7 @@ export default LanguagePicker
 
 ## Create App Header with Page Navigation
 
-Now let’s add a __global header__ that will appear across the app.
+Now let's add a __global header__ that will appear across the app.
 It will include:
 
 - The `LanguagePicker` component you just built
@@ -772,8 +769,8 @@ const Header: FC = () => {
 export default Header
 ```
 
-<br/>
 Inside the [locale] folder, update your layout.tsx as follows:
+
 ```tsx title="src/app/[locale]/layout.tsx"
 import { DictionaryProvider } from '@/components/DictionaryProvider'
 import Header from '@/components/Header'
@@ -802,7 +799,7 @@ export default async function LocaleLayout({
 
 ## All Set — Your Multilingual App is Ready 🎉
 
-You’ve now set up a **complete translation workflow** in Next.js:  
+You've now set up a **complete translation workflow** in Next.js:  
 
 - **Server-side rendering** of translated content for SEO and performance  
 - **Client-side rendering** for interactive pages  
@@ -810,7 +807,7 @@ You’ve now set up a **complete translation workflow** in Next.js:
 - A **language picker** for seamless switching between locales  
 - A **global header** to navigate and switch languages anywhere in the app  
 
-Your app can now serve translations **wherever they’re needed** — whether that’s at build time on the server or dynamically in the browser.
+Your app can now serve translations **wherever they're needed** — whether that's at build time on the server or dynamically in the browser.
 
 You can explore the full source code here:  
 [**GitHub Repository →**](https://github.com/atanas-dim/next-localization)
