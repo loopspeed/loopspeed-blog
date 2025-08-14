@@ -1,5 +1,6 @@
 'use client'
 
+import { offset, size as floatingSize, useDismiss, useFloating, useInteractions } from '@floating-ui/react'
 import { useGSAP } from '@gsap/react'
 import { format } from 'date-fns'
 import gsap from 'gsap'
@@ -7,7 +8,7 @@ import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { type FC, useEffect, useRef, useState } from 'react'
+import { type FC, RefObject, useEffect, useRef, useState } from 'react'
 import { Transition, type TransitionStatus } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
@@ -64,52 +65,78 @@ const Nav: FC = () => {
 export default Nav
 
 type DropdownProps = {
-  buttonRef: React.RefObject<HTMLButtonElement | null>
+  buttonRef: RefObject<HTMLButtonElement | null>
   closeDropdown: () => void
 }
 
-const Dropdown: FC<DropdownProps & { show: boolean }> = ({ show, ...props }) => {
-  const container = useRef<HTMLDivElement>(null)
-  // TODO: Refactor to use Floating UI..
+const Dropdown: FC<DropdownProps & { show: boolean }> = ({ show, buttonRef, closeDropdown }) => {
+  // Floating UI
+  const { refs, floatingStyles, context } = useFloating({
+    strategy: 'fixed',
+    placement: 'bottom-start',
+    transform: false, // keep GSAP transform animations (scaleY) separate from positioning
+    open: show,
+    onOpenChange: (open) => {
+      if (!open) closeDropdown()
+    },
+    middleware: [
+      offset(8),
+      floatingSize({
+        padding: 8,
+        apply({ availableHeight, elements }) {
+          Object.assign(elements.floating.style, {
+            maxHeight: `${availableHeight}px`,
+          })
+        },
+      }),
+    ],
+  })
+
+  useEffect(() => {
+    if (buttonRef.current) refs.setReference(buttonRef.current)
+  }, [buttonRef, refs])
+
+  // Close on outside click / Escape
+  const dismiss = useDismiss(context)
+  const { getFloatingProps } = useInteractions([dismiss])
+
   return (
-    <Transition in={show} nodeRef={container} timeout={{ enter: 0, exit: 150 }} appear unmountOnExit mountOnEnter>
+    <Transition
+      in={show}
+      nodeRef={refs.floating as RefObject<HTMLDivElement>}
+      timeout={{ enter: 0, exit: 150 }}
+      appear
+      unmountOnExit
+      mountOnEnter>
       {(status) => (
         <div
-          ref={container}
+          ref={refs.setFloating}
+          {...getFloatingProps()}
+          style={floatingStyles}
           className={twJoin(
-            'z-max absolute top-full left-0 mx-2 mt-1 flex size-fit max-w-4xl origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4',
+            // NOTE: Floating handles positioning; no absolute/top/left/margins needed here
+            'z-max flex size-fit max-w-4xl origin-top flex-col gap-4 rounded bg-black/90 pt-4 pb-3 text-left text-white shadow-xl backdrop-blur sm:pt-5 sm:pb-4',
           )}>
-          <DropDownContent container={container} transitionStatus={status} {...props} />
+          <DropdownPanel
+            container={refs.floating as RefObject<HTMLDivElement>}
+            transitionStatus={status}
+            buttonRef={buttonRef}
+            closeDropdown={closeDropdown}
+          />
         </div>
       )}
     </Transition>
   )
 }
 
-type DropDownContentProps = DropdownProps & {
+type DropdownPanelProps = DropdownProps & {
   container: React.RefObject<HTMLDivElement | null>
   transitionStatus: TransitionStatus
 }
 
-const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, transitionStatus, closeDropdown }) => {
+const DropdownPanel: FC<DropdownPanelProps> = ({ container, transitionStatus, closeDropdown }) => {
   const { contextSafe } = useGSAP({ scope: container })
   const push = useRouter().push
-
-  useEffect(() => {
-    // Set event listener to close dropdown on outside click
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (!container.current?.contains(event.target as Node) && !buttonRef.current?.contains(event.target as Node))
-        closeDropdown()
-    }
-
-    document.addEventListener('touchstart', handleClickOutside)
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
-    }
-  }, [buttonRef, container, closeDropdown])
 
   const animateClose = contextSafe((onComplete?: () => void) => {
     gsap.to(container.current, {
@@ -117,9 +144,7 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
       scaleY: 0.8,
       duration: 0.13,
       ease: 'power2.in',
-      onComplete: () => {
-        onComplete?.()
-      },
+      onComplete: () => onComplete?.(),
     })
   })
 
@@ -156,7 +181,6 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
   }
 
   // TODO: add Tags filtering - refer to Pragmattic blog
-
   // Extracted tags from ORDERED_BLOG_CONTENT
   // Remove duplicates, limit the number of tags to 30 & randomise the order
   // const tags = useMemo(() => {
@@ -166,25 +190,22 @@ const DropDownContent: FC<DropDownContentProps> = ({ container, buttonRef, trans
   //     .slice(0, 30)
   //     .map((tag) => <Tag key={tag} name={tag} className="md:text-sm" />)
   // }, [])
-
   return (
-    <>
+    <div id="post-list" className="h-fit max-h-[540px] space-y-2 overflow-y-auto sm:space-y-4">
       {/* <div id="tags" className="flex w-full max-w-3xl flex-wrap px-2 sm:px-4">
         {tags}
       </div> */}
-      <div id="post-list" className="h-fit max-h-[540px] space-y-2 overflow-y-auto sm:space-y-4">
-        {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, date } }) => (
-          <button
-            key={slug}
-            className="group flex w-full items-baseline gap-2 px-2 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
-            onClick={() => onPostClick(slug)}>
-            <span className="paragraph-xs text-light/70 whitespace-nowrap">{format(new Date(date), 'MMM yyyy')}</span>
-            <p className="paragraph-sm group-hover:text-accent-teal max-w-lg overflow-hidden text-ellipsis transition-colors">
-              {title}
-            </p>
-          </button>
-        ))}
-      </div>
-    </>
+      {ORDERED_BLOG_CONTENT.map(({ metadata: { slug, title, date } }) => (
+        <button
+          key={slug}
+          className="group flex w-full items-baseline gap-2 px-2 py-1 text-left opacity-0 sm:gap-4 sm:px-4"
+          onClick={() => onPostClick(slug)}>
+          <span className="paragraph-xs text-light/70 whitespace-nowrap">{format(new Date(date), 'MMM yyyy')}</span>
+          <p className="paragraph-sm group-hover:text-accent-teal max-w-lg overflow-hidden text-ellipsis transition-colors">
+            {title}
+          </p>
+        </button>
+      ))}
+    </div>
   )
 }
