@@ -3,16 +3,37 @@ import { BlogSlug, ExampleSlug } from '../pathname'
 import { TagName } from '../tags'
 
 export const metadata = {
-  title: 'Custom Next.js TypeScript Localisation with Google Sheets and App Router',
+  title: 'How to use Google Sheets as a free CMS for Next.js Localisation - supporting unlimited locales',
   description:
     'A lightweight localisation setup for Next.js App Router using TypeScript — featuring locale-based routing, a custom parseT function, HTML element parsing, and translation syncing from Google Sheets via a simple script.',
-  date: '2025-08-11',
+  date: '2025-08-14',
   slug: BlogSlug.NextJsLocalisation,
-  tags: [TagName.Tutorial, TagName.NextJS, TagName.Typescript, 'localisation', 'google-sheets', 'html-react-parser'],
+  tags: [TagName.Tutorial, TagName.NextJS, TagName.Typescript, 'localisation', 'translations', 'google-sheets', 'html-react-parser'],
   authors: [ATANAS_DIMITROV],
   githubUrl: "https://github.com/atanas-dim/next-localization",
   externalDemoUrl: "https://next-localization-phi.vercel.app",
 }
+
+## Introduction
+
+This article walks through a lightweight localisation setup for **Next.js (App Router) + TypeScript** with **no external i18n libraries**. It uses simple building blocks you already know: **locale-based routing**, a **custom `parseT`** that supports variables and inline elements, and a **React Context** initialised on the server to provide the dictionary and current locale across your app. Translation copy lives in **Google Sheets**, and a small script pulls the data into your repo when you’re ready—**run the script and commit** (no live syncing required).
+
+### Why Google Sheets as a mini CMS?
+- **Free & familiar** — most teams already live in Sheets; no onboarding to a new tool.  
+- **Non-tech friendly** — product, marketing, and translators can edit copy without touching code.  
+- **Collaboration built-in** — comments, edit history, permissions, and easy review flows.  
+- **Structured yet flexible** — formulas help enforce conventions (e.g. generate kebab-case keys from “key-as-text”).  
+- **Single source of truth** — your app pulls from the same document everyone edits.
+
+### Why this approach?
+- **Server-side initialisation** — dictionary and locale are seeded in `layout.tsx` for fast, predictable rendering.  
+- **Inline element support** — translations can include safe inline HTML/React elements via `html-react-parser`.  
+- **TypeScript first** — predictable shapes for your dictionaries and helpers.  
+- **Simple routing** — `[locale]` folder provides clean, locale-based URLs.  
+- **Low dependency footprint** — avoid heavyweight i18n libraries while keeping the features you need.  
+- **Deterministic deploys** — changes land when you **run the sync script** and commit, keeping environments in lockstep.
+
+The following is a **complete, step-by-step process** for implementing this setup in your own project.
 
 
 ## Project Setup and Dependencies
@@ -55,14 +76,14 @@ The main tasks performed by the script are:
 
 - fetching data from Google Sheets (requires an API key from the Google Cloud Console)
 - extracting language keys (locales) from the sheet header
-- parsing each row into localization keys and their translations per locale
+- parsing each row into localisation keys and their translations per locale
 - building locale objects that map each language key to its translation dictionary
 - preparing the output folder by deleting any existing one and creating a fresh directory
 - writing each locale’s translations as separate JSON files (e.g., en.json, fr.json)
-- generating a TypeScript index file that exports lazy-loaded dictionaries and type definitions for the localization keys
+- generating a TypeScript index file that exports lazy-loaded dictionaries and type definitions for the localisation keys
 - caching and exporting a helper function to retrieve the dictionary by locale, with a fallback to English
 
-The JSON files and the generated index file are created inside the `src/dictionaries` folder within the project root, which serves as the centralized location for all localization data.
+The JSON files and the generated index file are created inside the `src/dictionaries` folder within the project root, which serves as the centralised location for all localisation data.
 
 ```js title="scripts/get-translations.mjs"
 import dotenv from "dotenv";
@@ -460,7 +481,7 @@ export default async function LocaleLayout({
 
 
 ## Create React Context for Client Components
-The next step is to pass the `dict` and `locale` data into a React Context provider. This provider will wrap the entire app, making the localization data easily accessible to all client-side components right away.
+The next step is to pass the `dict` and `locale` data into a React Context provider. This provider will wrap the entire app, making the localisation data easily accessible to all client-side components right away.
 
 Inside the `src` folder, create a new `components` directory and add the following code to a new file called `DictionaryProvider.tsx`:
 
