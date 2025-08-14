@@ -1,0 +1,816 @@
+import { ATANAS_DIMITROV } from '@/model/blog'
+import { BlogSlug, ExampleSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: 'How to use Google Sheets as a free CMS for Next.js Localisation - supporting unlimited locales',
+  description:
+    'A lightweight localisation setup for Next.js App Router using TypeScript. Featuring locale-based routing, a custom parseT function, HTML element parsing, and translation syncing from Google Sheets.',
+  date: '2025-08-14',
+  slug: BlogSlug.NextJsLocalisation,
+  tags: [TagName.Tutorial, TagName.NextJS, TagName.Typescript, 'localisation', 'translations', 'google-sheets', 'html-react-parser'],
+  authors: [ATANAS_DIMITROV],
+  githubUrl: "https://github.com/atanas-dim/next-localization",
+  externalDemoUrl: "https://next-localization-phi.vercel.app",
+}
+
+## Introduction
+
+This article walks through a lightweight localisation setup for **Next.js (App Router) + TypeScript** with **no external i18n libraries**. It uses simple building blocks you already know: **locale-based routing**, a **custom `parseT`** that supports variables and inline elements, and a **React Context** initialised on the server to provide the dictionary and current locale across your app. Translation copy lives in **Google Sheets**, and a small script pulls the data into your repo when you're ready—**run the script and commit** (no live syncing required).
+
+### Why use Google Sheets as a mini CMS?
+- **Free & familiar** — most teams already live in Sheets; no onboarding to a new tool.  
+- **Non-tech friendly** — product, marketing, and translators can edit copy without touching code.  
+- **Collaboration built-in** — comments, edit history, permissions, and easy review flows.  
+- **Structured yet flexible** — formulas help enforce conventions  
+- **Single source of truth** — your app pulls from the same document everyone edits.
+
+### Why this approach?
+- **Server-side initialisation** — dictionary and locale are seeded in `layout.tsx` for fast, predictable rendering.  
+- **Inline element support** — translations can include safe inline HTML/React elements via `html-react-parser`.  
+- **TypeScript first** — predictable shapes for your dictionaries and helpers.  
+- **Simple routing** — `[locale]` folder provides clean, locale-based URLs.  
+- **Low dependency footprint** — avoid heavyweight i18n libraries while keeping the features you need.  
+- **Deterministic deploys** — changes land when you **run the sync script** and commit, keeping environments in lockstep.
+
+The following is a complete, step-by-step process for implementing this setup in your own project.
+
+
+## Project Setup and Dependencies
+
+Create a new Next.js, TypeScript, TailwindCSS, App Router app with the `create-next-app` CLI:
+
+```bash
+npx create-next-app@latest [project-name] [options]
+```
+
+Once your Next.js project is up and running, install the core packages:
+
+```bash
+npm i html-react-parser dotenv node-fetch tailwind-merge
+```
+
+For code formatting and linting, we also use:
+
+```bash
+npm i prettier-plugin-tailwindcss eslint-plugin-simple-import-sort 
+```
+
+## Add Translation Copy in Google Sheets
+
+Start by creating a spreadsheet that holds your translations for each locale.
+
+- The `key-as-text` column is where you enter the raw key text in a user-friendly way.  
+- The `key` column uses a formula to automatically convert the `key-as-text` value into a clean kebab-case identifier used in the app.
+
+You can use [this template sheet](https://docs.google.com/spreadsheets/d/19KKthb0Q7gODfKEGwMYVh6ZaQjatn0VIEf5UXQWTEB0/edit?usp=sharing) — just duplicate it and replace the sample copy with your own.
+
+<Image src='/blog/images/next-js-localisation/translations-sheet.jpg' alt='Google Sheet template for translated copy' width={1200} height={800} quality={80} className='object-contain' />
+
+
+## Create Script to Pull Translations from Sheet
+
+Next step is to fetch the Google Sheet data and format it into individual dictionaries per locale.
+
+The main tasks performed by the script are:
+
+- fetching data from Google Sheets (requires an API key from the Google Cloud Console)
+- extracting language keys (locales) from the sheet header
+- parsing each row into localisation keys and their translations per locale
+- building locale objects that map each language key to its translation dictionary
+- preparing the output folder by deleting any existing one and creating a fresh directory
+- writing each locale's translations as separate JSON files (e.g., en.json, fr.json)
+- generating a TypeScript index file that exports lazy-loaded dictionaries and type definitions for the localisation keys
+- caching and exporting a helper function to retrieve the dictionary by locale, with a fallback to English
+
+The JSON files and the generated index file are created inside the `src/dictionaries` folder within the project root, which serves as the centralised location for all localisation data.
+
+```js title="scripts/get-translations.mjs"
+import dotenv from "dotenv";
+import fs from "fs";
+import fetch from "node-fetch";
+import path from "path";
+
+dotenv.config({ path: [".env.local", ".env"] });
+
+const KEY = process.env.GOOGLE_SHEETS_KEY;
+const SHEET_ID = process.env.SHEET_ID;
+const SHEET_NAME = process.env.SHEET_NAME;
+const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A1:Z1000?key=${KEY}`;
+
+const OUTPUT_DIR = path.join("src", "dictionaries");
+
+// === Main Execution ===
+async function main() {
+	console.log("\nFetching localizations from Google Sheets");
+
+	const sheetData = await fetchSheetData();
+
+	if (!sheetData || !sheetData.values || !sheetData.values.length) {
+		console.log("sheetData", sheetData);
+		console.log("No localizations found");
+		process.exit();
+	}
+
+	const { header, languageKeys, localizations } = parseSheetData(sheetData);
+	console.log(`Found potential localizations for: ${languageKeys.join(", ")}`);
+
+	const locales = buildLocales(languageKeys, localizations);
+
+	prepareOutputFolder(OUTPUT_DIR);
+	writeLocaleFiles(locales, OUTPUT_DIR);
+	generateIndexFile(locales, localizations, OUTPUT_DIR);
+
+	console.log("\nFinished creating localizations");
+	console.log(localizations);
+}
+
+// === Fetching ===
+async function fetchSheetData() {
+	try {
+		const response = await fetch(SHEET_URL);
+		return await response.json();
+	} catch (error) {
+		console.error("Error fetching sheet data:", error);
+		process.exit(1);
+	}
+}
+
+// === Parsing Sheet ===
+function parseSheetData(sheetData) {
+	const [headerRow, ...localizations] = sheetData.values;
+	const [, ...languageKeys] = headerRow;
+	return {
+		header: headerRow,
+		languageKeys,
+		localizations,
+	};
+}
+
+// === Building Locales ===
+function buildLocales(languageKeys, localizations) {
+	const locales = languageKeys.map((lang) => ({ [lang]: {} }));
+
+	localizations.forEach((translations) => {
+		const [key, ...rest] = translations;
+
+		// Ensure we have a value for each language
+		if (rest.length < languageKeys.length) {
+			const fillerArray = new Array(languageKeys.length - rest.length).fill("");
+			rest.push(...fillerArray);
+		}
+
+		rest.forEach((text, index) => {
+			locales[index][languageKeys[index]][key] = text;
+		});
+	});
+
+	return locales;
+}
+
+// === Output Directory Handling ===
+function prepareOutputFolder(dir) {
+	if (fs.existsSync(dir)) {
+		console.log("Dictionaries folder already exists, deleting");
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+
+	console.log("\nCreating dictionaries folder");
+	fs.mkdirSync(dir, { recursive: true });
+}
+
+// === Writing Locale Files ===
+function writeLocaleFiles(locales, dir) {
+	locales.forEach((lang) => {
+		const langKey = Object.keys(lang)[0];
+		console.log(`Creating ${langKey} localization`);
+		const filePath = path.join(dir, `${langKey}.json`);
+		fs.writeFileSync(filePath, JSON.stringify(lang[langKey], null, 2));
+	});
+}
+
+// === Generate Index File ===
+function generateIndexFile(locales, localizations, dir) {
+	console.log(`\nCreating index file`);
+
+	const typeEntries = localizations
+		.map((row) => {
+			const key = row[0];
+			return key ? `  "${key}": string;` : "";
+		})
+		.join("\n");
+
+	const dictionaryEntries = locales
+		.map((lang) => {
+			const langKey = Object.keys(lang)[0];
+			if (langKey === "key-as-text") return "";
+			return `  "${langKey}": () => import("./${langKey}.json").then((module) => module.default),`;
+		})
+		.join("\n");
+
+	const fileData = `import { cache } from 'react'
+
+export type Dictionary = {
+${typeEntries}
+}
+
+type Dictionaries = {
+  [key: string]: () => Promise<Dictionary>;
+};
+
+const dictionaries: Dictionaries = {
+${dictionaryEntries}
+};
+
+export const getDictionary = cache(async (locale: string) => {
+  return dictionaries[locale]?.() || dictionaries['en']()
+});
+`;
+
+	const indexPath = path.join(dir, "index.ts");
+	fs.writeFileSync(indexPath, fileData);
+}
+
+// Run it
+main();
+
+
+```
+
+Add the following script to your `package.json`
+```json title="package.json"
+  "scripts": {
+    ...
+    "get-translations": "node scripts/get-translations.mjs"
+  },
+```
+
+and run:
+
+```bash
+npm run get-translations
+```
+
+You should now see the translations organised per locale in JSON files. 🎉
+
+## Locales and Utilities
+
+Inside `src/resources`, create a new `locales.ts` file to define all supported locales for your app.
+This file contains:
+
+- an `enum` listing locale codes (ISO 639-1) for a wide range of languages
+- a constant `AVAILABLE_LOCALES` listing only the locales currently enabled in the app
+- a derived `AvailableLocale` type, representing the subset of locales your app supports
+
+```tsx title="src/resources/locales.ts"
+export enum Locale {
+  Afar = "aa",
+  Abkhazian = "ab",
+  Avestan = "ae",
+  Afrikaans = "af",
+  Akan = "ak",
+  Amharic = "am",
+  ...
+  ...
+  ...
+}
+
+export const AVAILABLE_LOCALES = [Locale.English, Locale.French] as const;
+
+export type AvailableLocale = (typeof AVAILABLE_LOCALES)[number];
+
+```
+
+This setup ensures your localisation code is `type-safe` and that only the languages listed in `AVAILABLE_LOCALES` are treated as valid in the app.
+
+Inside `src/utils` folder create a `locales.ts` file with the following helpers:
+
+```ts title="src/utils/locales.ts"
+import { AVAILABLE_LOCALES, AvailableLocale, Locale } from '@/resources/locales'
+
+const isValidLocale = (locale: string): locale is AvailableLocale => {
+  return AVAILABLE_LOCALES.includes(locale as AvailableLocale)
+}
+
+export const getAvailableLocale = ({ locale }: { locale: string }): AvailableLocale =>
+  isValidLocale(locale) ? locale : Locale.English
+
+```
+
+## Organise App Directory Layouts
+
+To organise pages by locale, we'll keep the root `layout.tsx` file unchanged and handle the initial locale routing in the root `page.tsx`.  In this example, we redirect to the English locale by default:
+
+```tsx title="src/app/page.tsx"
+import { redirect } from 'next/navigation'
+import { type FC } from 'react'
+
+import { Locale } from '@/resources/locales'
+
+const IndexPage: FC = () => {
+  redirect('/' + Locale.English)
+}
+
+export default IndexPage
+
+```
+
+> **Note:** Alternatively redirects can be handled in a Next.js `middleware.ts` where more complex logic is required.
+
+Inside `src/app`, create a __dynamic segment__ folder called `[locale]`.
+This will act as the new root for all pages in the app, with the locale provided as a URL parameter.
+
+Inside the `[locale]` folder, create a `layout.tsx` file:
+
+```tsx title="src/app/[locale]/layout.tsx"
+export default async function LocaleLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}>) {
+	// Here we'll handle dictionary data by locale from the params
+
+  return (
+    <>
+	  {/* Add global components like the app header here */}
+      {children}
+    </>
+  )
+}
+```
+
+This layout will wrap all locale-specific pages and is the perfect place to:
+
+- load the appropriate dictionary based on the `locale` param
+- include shared components such as the header, footer, or navigation
+
+
+## Parsing Translations with Custom HTML Elements and Variables
+
+Just like popular i18n libraries, we need to handle translated text in our JSON dictionaries that may contain HTML elements in different positions for each language, as well as variables that can be replaced with specific values or dynamic data in the app.
+
+The following utility handles parsing translated text from our JSON dictionaries while supporting both **dynamic variables** and **custom HTML elements**.  
+
+It also provides a helper to **load and prepare a locale's dictionary** so it's ready to use in our components.
+
+The main tasks performed by this code are:
+
+- replacing variables in translation strings (e.g., `{{username}}`) with the actual values provided at runtime  
+- parsing translation strings that contain HTML and replacing specific HTML tags with custom React elements or components  
+- allowing both **function components** and **predefined React elements** as replacements for custom tags  
+- falling back to the translation key itself if the dictionary entry is missing  
+- exposing a `createParseT` helper that generates a type-safe translation function bound to a specific dictionary  
+- providing a `resolveDictionary` function to:
+  - determine the correct locale from incoming `params`
+  - fetch the corresponding dictionary JSON
+  - return the dictionary along with a ready-to-use `parseT` function
+
+Add this to your `utils`:
+
+```ts title="src/utils/dictionary.ts"
+import parse, { type DOMNode, domToReact, type HTMLReactParserOptions } from 'html-react-parser'
+import {
+  cloneElement,
+  createElement,
+  type HTMLAttributes,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
+
+import { type Dictionary, getDictionary } from '@/dictionaries'
+import { type AvailableLocale } from '@/resources/locales'
+
+import { getAvailableLocale } from './locales'
+
+export type Variables = {
+  [key: string]: string | number
+}
+
+type CustomElementProps = HTMLAttributes<HTMLElement>
+
+export type CustomElements = {
+  [tag: string]: ((props: CustomElementProps) => ReactElement<CustomElementProps, string>) | ReactElement
+}
+
+const parseT = (copy: string, variables?: Variables, customElements?: CustomElements): ReactNode => {
+  const filledTemplate = (copy as string).replace(/\{{(\w+)\}}/g, (_, variable) => String(variables?.[variable]) || '')
+
+  const options: HTMLReactParserOptions = {
+    replace: (node: DOMNode) => {
+      if (node.type === 'tag' && customElements) {
+        const { name, attribs, children } = node
+        const customElement = customElements[name]
+
+        // Check if customElement is a function or a React element
+        if (typeof customElement === 'function') {
+          // If it's a function, create it with attribs and children
+          return createElement(customElement, {
+            ...attribs,
+            children: domToReact(children as DOMNode[]),
+          } as CustomElementProps)
+        } else if (isValidElement(customElement)) {
+          // If it's a React element, clone it to apply attribs and children
+          return cloneElement(customElement, attribs)
+        }
+      }
+      // Return the original node if no replacement is needed
+      return node
+    },
+  }
+
+  return parse(filledTemplate, options)
+}
+
+export function createParseT(dict: Dictionary) {
+  return (
+    key: keyof Dictionary,
+    options?: {
+      variables?: Variables
+      customElements?: CustomElements
+    },
+  ) => {
+    const str = dict[key] || key // fallback to key if missing
+    return parseT(str, options?.variables, options?.customElements)
+  }
+}
+
+type ResolvedDictionary = {
+  locale: AvailableLocale
+  dict: Dictionary
+  parseT: ReturnType<typeof createParseT>
+}
+
+export async function resolveDictionary(params: { locale: string }): Promise<ResolvedDictionary> {
+  const locale = getAvailableLocale(params)
+  const dict = await getDictionary(locale)
+  const parseT = createParseT(dict) // ✅ assign function, do NOT invoke it here
+
+  return { locale, dict, parseT }
+}
+
+```
+
+> **Note:** `resolveDictionary` will be called in the `[locale]/layout.tsx` file and will receive the `params` from the layout, so translations are prepared before rendering the page.
+
+Inside the [locale] folder, update your layout.tsx as follows:
+```tsx title="src/app/[locale]/layout.tsx"
+import { resolveDictionary } from '@/utils/dictionary'
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}>) {
+  const { dict, locale } = await resolveDictionary(await params)
+
+  return (
+    <>
+	  {/* Add global components like the app header here */}
+      {children}
+    </>
+  )
+}
+```
+
+
+## Create React Context for Client Components
+The next step is to pass the `dict` and `locale` data into a React Context provider. This provider will wrap the entire app, making the localisation data easily accessible to all client-side components right away.
+
+Inside the `src` folder, create a new `components` directory and add the following code to a new file called `DictionaryProvider.tsx`:
+
+```tsx title="src/components/DictionaryProvider.tsx"
+'use client'
+
+import React, { createContext, type PropsWithChildren, useContext } from 'react'
+
+import { Dictionary } from '@/dictionaries'
+import { AvailableLocale } from '@/resources/locales'
+
+type DictionaryContextType = {
+  dict: Dictionary
+  locale: AvailableLocale
+}
+
+const DictionaryContext = createContext<DictionaryContextType | undefined>(undefined)
+
+type DictionaryProviderProps = {
+  dict: Dictionary
+  locale: AvailableLocale
+}
+
+export const DictionaryProvider = ({ dict, locale, children }: PropsWithChildren<DictionaryProviderProps>) => {
+  return <DictionaryContext.Provider value={{ dict, locale }}>{children}</DictionaryContext.Provider>
+}
+
+export const useDictionary = () => {
+  const context = useContext(DictionaryContext)
+  if (!context) {
+    throw new Error('useDictionary must be used within a DictionaryProvider')
+  }
+  return context
+}
+```
+
+Inside the [locale] folder, update your layout.tsx as follows:
+
+```tsx title="src/app/[locale]/layout.tsx"
+import { DictionaryProvider } from '@/components/DictionaryProvider'
+import { resolveDictionary } from '@/utils/dictionary'
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}>) {
+  const { dict, locale } = await resolveDictionary(await params)
+
+  return (
+    <DictionaryProvider dict={dict} locale={locale}>
+	  {/* Add global components like the app header here */}
+      {children}
+    </DictionaryProvider>
+  )
+}
+```
+
+Inside the `src` folder, create a new `hooks` directory and add the following code to a new file called `useParseT.ts`:
+
+```ts title="src/hooks/useParseT.ts"
+import { useCallback } from 'react'
+
+import { useDictionary } from '@/components/DictionaryProvider'
+import { Dictionary } from '@/dictionaries'
+import { createParseT, CustomElements, Variables } from '@/utils/dictionary'
+
+export function useParseT() {
+  const { dict: dictFromStore } = useDictionary()
+
+  return useCallback(
+    (key: keyof Dictionary, options?: { variables?: Variables; customElements?: CustomElements }) => {
+      const dict = dictFromStore ?? ({} as Dictionary)
+      return createParseT(dict)(key, options)
+    },
+    [dictFromStore],
+  )
+}
+```
+
+## Create a Server-Side Page Component
+Next, we'll render the parsed translation data in the app's UI.
+
+Inside the `[locale]` folder, create a new `page.tsx` file. Import `resolveDictionary` and use the `parseT` helper to render translated copy and inject custom elements seamlessly:
+
+```tsx title="src/app/[locale]/page.tsx"
+import { resolveDictionary } from '@/utils/dictionary'
+
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { parseT } = await resolveDictionary(await params)
+  return (
+    <main className="flex justify-center">
+      <article className="flex max-w-2xl flex-col gap-3 p-4 pb-8 underline-offset-4 sm:p-6 sm:pb-10 [&_a]:whitespace-nowrap [&_a]:underline [&_h2]:mt-3 [&_h2]:text-3xl [&_h2]:font-extrabold">
+        <h1 className="text-4xl sm:text-5xl">{parseT('article-title')}</h1>
+        <h2>{parseT('origins-heading')}</h2>
+        <p>{parseT('origins-p-1')}</p>
+        <p>
+          {parseT('origins-p-2', {
+            variables: { yearsAgo: 30000 },
+            customElements: {
+              a: ({ children, ...props }) => (
+                <a {...props} className="bg-pink-200">
+                  {children} ↗️
+                </a>
+              ),
+            },
+          })}
+        </p>
+        <h2>{parseT('writing-section-heading')}</h2>
+        <p>{parseT('writing-p-1')}</p>
+
+        <p>
+          {parseT('writing-p-2', {
+            customElements: {
+              a: ({ children, ...props }) => (
+                <a {...props} className="bg-yellow-200">
+                  {children} ↗️
+                </a>
+              ),
+            },
+          })}
+        </p>
+		...
+		...
+		...
+		{/*Continue with the remaining copy*/}
+      </article>
+    </main>
+  )
+}
+
+```
+
+## Create a Client-Side Page Component
+
+Similar to how the server component is structured, create a new `client-side` directory inside the `[locale]` folder, and add a `page.tsx` file there.
+
+Import the `useParseT` hook to access the `parseT` helper, then use it to render translations, inject custom elements, and replace variables dynamically.
+
+Since this page is set up to use React hooks and client-side features, make sure to include `'use client'` at the top of the file.
+
+```tsx title="src/app/[locale]/client-side/page.tsx"
+'use client'
+
+import { useParseT } from '@/hooks/useParseT'
+
+export default function Home() {
+  const parseT = useParseT()
+
+  return (
+    <main className="flex justify-center">
+      <article className="flex max-w-2xl flex-col gap-3 p-4 pb-8 underline-offset-4 sm:p-6 sm:pb-10 [&_a]:whitespace-nowrap [&_a]:underline [&_h2]:mt-3 [&_h2]:text-3xl [&_h2]:font-extrabold">
+        <h1 className="text-4xl sm:text-5xl">{parseT('article-title')}</h1>
+        <h2>{parseT('origins-heading')}</h2>
+        <p>{parseT('origins-p-1')}</p>
+        <p>
+          {parseT('origins-p-2', {
+            variables: { yearsAgo: 30000 },
+            customElements: {
+              a: ({ children, ...props }) => (
+                <a {...props} className="bg-pink-200">
+                  {children} ↗️
+                </a>
+              ),
+            },
+          })}
+        </p>
+		...
+		...
+		...
+		{/*Continue with the remaining copy*/}
+      </article>
+    </main>
+  )
+}
+```
+
+With this, you now have translations set up to work seamlessly on both server-side and client-side components, allowing you to use whichever fits your needs.
+
+## Create a Language Picker
+
+With the translation system in place, let's add a simple UI component to switch between languages.
+This component will detect the current pathname, swap out the locale segment, and use Next.js's `Link` for instant navigation without a full page reload.
+
+```tsx title="src/components/LanguagePicker.tsx"
+'use client'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { type FC } from 'react'
+import { twJoin } from 'tailwind-merge'
+
+import { useDictionary } from '@/components/DictionaryProvider'
+import { AvailableLocale, Locale } from '@/resources/locales'
+
+const LANGUAGES: Record<AvailableLocale, { icon: string; label: string; locale: AvailableLocale }> = {
+  [Locale.English]: { icon: '🇬🇧', label: 'English', locale: Locale.English },
+  [Locale.French]: { icon: '🇫🇷', label: 'Français', locale: Locale.French },
+}
+
+const LanguagePicker: FC = () => {
+  const pathname = usePathname()
+  const { locale } = useDictionary()
+
+  return (
+    <div className="flex gap-1 rounded-2xl bg-white p-2">
+      {Object.values(LANGUAGES).map((lang, index) => {
+        const isActive = locale === lang.locale
+        return (
+          <Link
+            key={'lang-btn-' + index}
+            scroll={false}
+            href={pathname.replace('/' + locale, '/' + lang.locale)}
+            className="flex w-15 flex-col items-center">
+            <span
+              className={twJoin(
+                'text-4xl leading-[0.8] transition-all duration-300',
+                !isActive && 'scale-90 grayscale-100',
+              )}>
+              {lang.icon}
+            </span>
+            <span className="text-xs font-extrabold">{lang.label}</span>
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
+
+export default LanguagePicker
+```
+
+## Create App Header with Page Navigation
+
+Now let's add a __global header__ that will appear across the app.
+It will include:
+
+- The `LanguagePicker` component you just built
+- Simple navigation links to switch between the server-side and client-side article pages
+
+This will make it easier for users to change languages and move between different parts of the app.
+
+```tsx title="src/components/Header.tsx"
+'use client'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { type FC } from 'react'
+import { twJoin } from 'tailwind-merge'
+
+import { useDictionary } from '@/components/DictionaryProvider'
+import LanguagePicker from '@/components/LanguagePicker'
+import { Dictionary } from '@/dictionaries'
+import { useParseT } from '@/hooks/useParseT'
+
+const LINKS: { labelKey: keyof Dictionary; path: string }[] = [
+  { labelKey: 'server-side', path: '' },
+  { labelKey: 'client-side', path: '/client-side' },
+]
+
+const Header: FC = () => {
+  const { locale } = useDictionary()
+  const pathname = usePathname()
+  const parseT = useParseT()
+
+  return (
+    <header className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 p-4 sm:p-6">
+      <LanguagePicker />
+      <nav className="flex items-center gap-3 text-right font-bold">
+        {LINKS.map((link, index) => {
+          const href = `/${locale}${link.path}`
+          const isActive = pathname === href
+          return (
+            <Link
+              key={`nav-link-${index}`}
+              href={href}
+              className={twJoin('text-sm sm:text-base', isActive ? 'underline underline-offset-2' : 'opacity-50')}>
+              {parseT(link.labelKey)}
+            </Link>
+          )
+        })}
+      </nav>
+    </header>
+  )
+}
+
+export default Header
+```
+
+Inside the [locale] folder, update your layout.tsx as follows:
+
+```tsx title="src/app/[locale]/layout.tsx"
+import { DictionaryProvider } from '@/components/DictionaryProvider'
+import Header from '@/components/Header'
+import { resolveDictionary } from '@/utils/dictionary'
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}>) {
+  const { dict, locale } = await resolveDictionary(await params)
+
+  return (
+    <>
+      <DictionaryProvider dict={dict} locale={locale}>
+        <Header />
+        {children}
+      </DictionaryProvider>
+    </>
+  )
+}
+
+```
+
+## All Set — Your Multilingual App is Ready 🎉
+
+You've now set up a **complete translation workflow** in Next.js:  
+
+- **Server-side rendering** of translated content for SEO and performance  
+- **Client-side rendering** for interactive pages  
+- **Context-based translation access** with `parseT`  
+- A **language picker** for seamless switching between locales  
+- A **global header** to navigate and switch languages anywhere in the app  
+
+Your app can now serve translations **wherever they're needed** — whether that's at build time on the server or dynamically in the browser.
+
+You can explore the full source code here:  
+[**GitHub Repository →**](https://github.com/atanas-dim/next-localization)
+
+And try the live demo here:  
+[**Live Demo →**](https://next-localization-phi.vercel.app)
