@@ -91,7 +91,7 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
           size="small"
           variant="outlined"
           icon={<ArrowRightIcon size={20} />}
-          // onClick={() => sendEvent(EventName.ClickReadMore, { blog_post: title })}
+        // onClick={() => sendEvent(EventName.ClickReadMore, { blog_post: title })}
         >
           Read more
         </Button>

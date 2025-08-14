@@ -13,6 +13,7 @@ import { BlogSlug } from '@/resources/pathname'
 import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './posts/animated-css-grid.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
+import NextJsLocalisation, { metadata as nextJsLocalisationMetadata } from './posts/next-js-localisation.mdx'
 import NextJsShadersBlog, { metadata as nextShadersMetadata } from './posts/next-webgl-shaders.mdx'
 import RTFWebGPUTypescriptBlog, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
 import WavePlaneBlog, { metadata as wavePlaneMetadata } from './posts/wave-plane.mdx'
@@ -73,6 +74,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: AnimatedGridPage,
     metadata: animatedCSSGridMetadata,
     videoSrc: '/blog/videos/animated-grid.mp4',
+  },
+  [BlogSlug.NextJsLocalisation]: {
+    Blog: NextJsLocalisation,
+    Demo: null,
+    metadata: nextJsLocalisationMetadata,
+    videoSrc: '/blog/videos/next-js-localisation.mp4',
   },
 }
 
