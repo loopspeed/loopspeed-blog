@@ -48,6 +48,8 @@
   /* Z Index */
   --z-index-max: 9999;
   --z-index-below-max: 9998;
+
+  --lg-highlight: rgba(255, 255, 255, 0.3);
 }
 
 * {

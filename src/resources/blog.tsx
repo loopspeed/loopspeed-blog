@@ -3,6 +3,7 @@ import { type FC } from 'react'
 import AnimatedGridPage from '@/components/examples/animatedCSSGrid/AnimatedGridPage'
 import FBOParticlesCanvas from '@/components/examples/fboParticles/FBOParticles'
 import ImageSequencePage from '@/components/examples/imageSequence/ImageSequenceHeader'
+import LiquidGlassPage from '@/components/examples/liquidGlass/LiquidGlassPage'
 import FaceIDMain from '@/components/examples/rebuilds/faceId/FaceIDMain'
 // import RayMarchingPage from '@/components/examples/raymarching/RayMarchingPage'
 import ScrollingBackgroundShaderPage from '@/components/examples/three/scrollingBackgroundGradient/ScrollingBackgroundGradientPage'
@@ -15,6 +16,7 @@ import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './post
 import FaceIdBlog, { metadata as faceIdMetadata } from './posts/face-id-rebuild.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
+import LiquidGlassBlog, { metadata as liquidGlassMetadata } from './posts/liquid-glass.mdx'
 import NextJsLocalisation, { metadata as nextJsLocalisationMetadata } from './posts/next-js-localisation.mdx'
 import NextJsShadersBlog, { metadata as nextShadersMetadata } from './posts/next-webgl-shaders.mdx'
 import RTFWebGPUTypescriptBlog, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
@@ -88,6 +90,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: FaceIDMain,
     metadata: faceIdMetadata,
     videoSrc: '/blog/videos/face-id.mp4',
+  },
+  [BlogSlug.LiquidGlass]: {
+    Blog: LiquidGlassBlog,
+    Demo: LiquidGlassPage,
+    metadata: liquidGlassMetadata,
+    videoSrc: '/blog/videos/liquid-glass.mp4',
   },
 }
 

@@ -8,7 +8,7 @@ import { ArrowUpRight, ChevronDown, ChevronUp } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { type FC, RefObject, useEffect, useRef, useState } from 'react'
+import { type FC, type RefObject, useEffect, useRef, useState } from 'react'
 import { Transition, type TransitionStatus } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
