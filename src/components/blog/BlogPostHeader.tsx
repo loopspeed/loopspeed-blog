@@ -8,21 +8,20 @@ import youtubeIcon from '@/assets/icons/socials/youtube.svg'
 import Button from '@/components/buttons/Button'
 import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
-import { BLOG_CONTENT } from '@/resources/blog'
 
-const BlogPostHeader: FC<BlogMetadata> = ({
+const BlogPostHeader: FC<BlogMetadata & { hasDemo: boolean }> = ({
   slug,
   title,
   tags,
   date,
   authors,
+  hasDemo,
   githubUrl,
   youtubeUrl,
   externalDemoUrl,
   viewLiveLink,
 }) => {
   const formattedDate = format(new Date(date), 'PPP')
-  const Demo = BLOG_CONTENT[slug]?.Demo
 
   return (
     <header className="relative flex w-full bg-linear-0 from-black/30 to-black/0 to-40% select-none">
@@ -47,7 +46,7 @@ const BlogPostHeader: FC<BlogMetadata> = ({
           <span>{formattedDate}</span>
         </div>
 
-        {!!Demo && (
+        {hasDemo && (
           <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
             Live demo
           </Button>
