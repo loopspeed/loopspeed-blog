@@ -12,5 +12,6 @@ export enum BlogSlug {
   AnimatedCSSGrid = 'animated-css-grid-with-tailwind-gsap',
   ReactThreeFiberWebGPUTypescript = 'react-three-fiber-webgpu-typescript',
   FBOParticles = 'fbo-particles-simulation',
-  NextJsLocalisation = "next-js-localisation"
+  NextJsLocalisation = 'next-js-localisation',
+  AIChatbot = 'ai-chatbot',
 }

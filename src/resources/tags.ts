@@ -20,4 +20,7 @@ export enum TagName {
   Advanced = 'advanced',
   Beginner = 'beginner',
   Intermediate = 'intermediate',
+  OpenAI = 'openai',
+  RAG = 'rag',
+  Vercel = 'vercel',
 }

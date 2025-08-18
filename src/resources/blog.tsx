@@ -10,6 +10,7 @@ import { WavePlanePage } from '@/components/examples/three/wavePlane/WavePlane'
 import type { BlogMetadata } from '@/model/blog'
 import { BlogSlug } from '@/resources/pathname'
 
+import AIChatbot, { metadata as aiChatbotMetadata } from './posts/ai-chatbot.mdx'
 import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './posts/animated-css-grid.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
@@ -29,9 +30,9 @@ import WavePlaneBlog, { metadata as wavePlaneMetadata } from './posts/wave-plane
 
 type BlogContent = {
   Blog: FC
-  Demo: FC | null // Optional demo component for the blog post
   metadata: BlogMetadata
   videoSrc: string | null
+  Demo?: FC // Optional demo component for the blog post
 }
 
 export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
@@ -77,9 +78,13 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
   },
   [BlogSlug.NextJsLocalisation]: {
     Blog: NextJsLocalisation,
-    Demo: null,
     metadata: nextJsLocalisationMetadata,
     videoSrc: '/blog/videos/next-js-localisation.mp4',
+  },
+  [BlogSlug.AIChatbot]: {
+    Blog: AIChatbot,
+    metadata: aiChatbotMetadata,
+    videoSrc: '/blog/videos/ai-chatbot.mp4',
   },
 }
 
@@ -88,23 +93,3 @@ const sortBlogContentByDate = (a: BlogContent, b: BlogContent): number => {
 }
 
 export const ORDERED_BLOG_CONTENT = Object.values(BLOG_CONTENT).sort(sortBlogContentByDate)
-
-//   [ExampleSlug.ScrollingThreeJs]: {
-//     Component: ScrollingScenePage,
-//     metadata: {
-//       title: 'Scrolling React Three Fiber Scene',
-//       slug: ExampleSlug.ScrollingThreeJs,
-//       youtubeUrl: 'https://youtu.be/1GGe3j59aKQ',
-//       githubUrl: 'https://github.com/prag-matt-ic/pragmattic/blob/main/src/app/examples/scrolling-three-scene/page.tsx',
-//     },
-//   },
-//   [ExampleSlug.RayMarching]: {
-//     Component: RayMarchingPage,
-//     metadata: {
-//       title: 'GLSL Ray Marching with infinite scroll',
-//       slug: ExampleSlug.RayMarching,
-//       githubUrl:
-//         'https://github.com/prag-matt-ic/pragmattic/blob/main/src/components/examples/raymarching/RayMarchingScreenQuad.tsx',
-//     },
-//   },
-// } as const

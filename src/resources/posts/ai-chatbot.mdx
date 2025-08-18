@@ -1,0 +1,485 @@
+import { TOM_ISHERWOOD } from '@/model/blog'
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: "Building an AI Chatbot with OpenAI: How We Created Loopspeed's Smart Assistant",
+  description:
+    "Discover how we built Loopspeed's intelligent chatbot using OpenAI's API, custom tools, and the Vercel AI SDK. From company knowledge retrieval to image generation, learn about next-generation chatbots",
+  date: '2025-08-20',
+  slug: BlogSlug.AIChatbot,
+  tags: [TagName.Advanced, TagName.Tutorial, TagName.OpenAI, TagName.Vercel, TagName.Typescript],
+  authors: [TOM_ISHERWOOD],
+  viewLiveLink: 'https://loopspeed.co.uk/chat',
+  isDraft: true,
+}
+
+<Video src="/blog/videos/ai-chatbot.mp4" />
+
+## Why We Built Our Own AI Chatbot
+
+At Loopspeed, we pride ourselves on staying ahead of the curve in this rapidly changing dev landscape. **Chatbots aren't new, but what we can do with them is. Utilising OpenAI, the Vercel AI SDK and custom tools, we can build the next generation of chatbots.** Ours will tell you all you need to know about us, what we can do for you, and really show off with AI image generation. This article walks you through our implementation and how we could develop yours soon.
+
+### What Makes Our Chatbot Special
+
+Go beyond simple Q&A:
+
+- **Answer company-specific questions** using our knowledge base
+- **Book consultation calls** by integrating with our scheduling system
+- **Collect user details and send follow-up emails** for lead generation and targeted marketing outreach
+- **Generate images from sketches** using OpenAI's image generation, turning user drawings into 3D renders
+- **Provide AI transformation insights** based on the user's industry, stating how chatbots and AI automation can solve their business problems
+
+## Getting Started
+
+### The Tech Stack
+
+- **Next.js 15 + TypeScript**
+- **Vercel AI SDK** for seamless AI integration
+- **OpenAI GPT-4o** for conversational intelligence
+- **OpenAI GPT Image** for image generation
+
+```bash
+# Create a new Next.js project
+npx create-next-app@latest ai-chatbot
+
+# Navigate to project directory
+cd ai-chatbot
+
+# Core dependencies
+npm install ai @ai-sdk/openai @ai-sdk/react openai zod
+
+# Optional dependencies
+npm install html-react-parser gsap @gsap/react react-transition-group
+```
+
+### Open an OpenAI Account
+
+1. Sign up at [platform.openai.com](https://platform.openai.com)
+2. Add billing information (required for API access)
+3. Generate an API key and add it to your project as an environment variable
+
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### Cost Management
+
+- **Token Monitoring & Usage Limits** - Set monthly spending limits in your OpenAI dashboard to avoid unexpected bills
+- **Image Generation** - Don't spam the image generation, it's not free!
+- **API Rate Limiting** - Set per-user limits to prevent abuse and control costs
+
+## API Endpoint
+
+Firstly, we need an API endpoint that utilises the most coherent and performant OpenAI model to stream text responses back to the frontend. We chose GPT-4o for its superior reasoning capabilities, tool-calling precision, and faster response times compared to GPT-4.
+
+We utilise the `streamText` utility function to stream text back to the frontend. It takes in different inputs that the model uses to construct its responses:
+
+- **System prompt** - Instructions that define the AI's role, personality, and behavior guidelines
+- **Messages** - The conversation history between user and assistant
+- **Tools** - Custom functions the AI can call to perform specific actions
+- **Max steps** - Limits how many tool calls can be made in a single response
+
+```typescript title="api/chat/route.ts"
+import { openai } from '@ai-sdk/openai'
+import { type CoreMessage, streamText, type ToolSet } from 'ai'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import getSystemPrompt from '@/services/openAi/systemPrompt'
+import TOOLS from '@/services/openAi/tools'
+import type { ToolId, ToolParams } from '@/services/openAi/tools/types'
+
+// Allow streaming responses up to 100 seconds
+export const maxDuration = 100
+
+const MODEL = 'gpt-4o'
+
+type Body = {
+  messages: CoreMessage[]
+  availableTools?: ToolId[]
+} & ToolParams
+
+export async function POST(req: NextRequest) {
+  // TODO: Add your own endpoint security, rate limiting & error handling
+
+  const { messages, availableTools, ...params } = (await req.json()) as Body
+
+  return streamText({
+    model: openai(MODEL),
+    system: getSystemPrompt(availableTools),
+    messages,
+    maxSteps: 4,
+    experimental_activeTools: availableTools,
+    // Return the tools as an object with the tool name as the key and the tool as the value
+    tools: TOOLS.reduce((acc, { id, tool }) => {
+      acc[id] = tool(params)
+      return acc
+    }, {} as ToolSet),
+  }).toDataStreamResponse()
+}
+```
+
+## System Prompt
+
+Creating an effective system prompt requires clear structure and concise language. Break it into distinct sections for better organisation, and pro tip: ask your AI assistant to help improve the prompt itself! AI inception, I know.
+
+1. **Persona** - Define who the AI is and its role (e.g., "You are Loopspeed's AI assistant")
+2. **Mission** - Establish the primary goals and objectives the AI should accomplish
+3. **Guidelines** - Set behavioral rules, tone, and interaction principles
+4. **Tools** - Explain when and how to use available custom functions
+5. **Formatting** - Specify output structure, markdown usage (return html & parse it on the frontend!), and response style
+
+## Custom Tools
+
+The chatbot's intelligence lies in its ability to select and execute the right tool based on user input. When a user asks a question or makes a request, the reasoning model doesn't just provide a generic response—it analyzes the intent and selects the right tool for the job! We can define business-critical functions with deterministic outcomes, while retaining the power of generative AI.
+
+- **"Tell me about your services"** → Triggers `LoopspeedInfo` tool with service-specific knowledge
+- **"I'd like to book a meeting"** → Activates `Enquire` tool to collect details and schedule
+- **"Send me more information"** → Uses `Enquire` tool for follow-up communications
+
+Intelligent routing means each user interaction gets handled by purpose-built code, ensuring consistent, reliable responses every time.
+
+### Automatic Parameter Generation
+
+**The AI model automatically generates the correct parameters for each tool based solely on the user's natural language input**. You simply define what parameters your tool expects, and GPT-4o intelligently extracts and structures the relevant information from the conversation.
+
+For example, when a user says _"I'm John Smith from Acme Corp, please send me information about your services"_, the model automatically populates:
+
+- `name: "John Smith"`
+- `company: "Acme Corp"`
+- `message: "information about your services"`
+
+This eliminates the need for complex parsing logic or form-based interactions—the AI handles the natural language understanding for you.
+
+### Tool Structure
+
+```typescript title="Custom Tools Overview"
+import { tool } from 'ai'
+import { z } from 'zod'
+
+import { ToolId, type ToolParams } from '@/services/openAi/tools/types'
+
+const TOOLS = {
+  [ToolId.LoopspeedInfo]: (params: ToolParams) => tool({
+    description: '"Loopspeed Info Tool": Use this tool when a user asks about Loopspeed, our services, or our team.',
+    parameters: z.object({
+      question: z.string(),
+    }),
+    execute: async ({ question }) => {
+      // Return relevant company information based on the knowledge base provided
+    },
+  }),
+
+  [ToolId.Enquire]: (params: ToolParams) => tool({
+    description:
+      '"Enquire Tool": Use this tool to establish contact between the user and Loopspeed, whether that be through scheduling a call or collecting their contact information for follow-up.',
+    parameters: z.object({
+      name: z.string().optional(),
+      email: z.string().email().optional(),
+      message: z.string().optional(),
+      scheduleCall: z.boolean(),
+      showreel: z.boolean(),
+    }),
+    execute: async (params) => {
+      // Send automated emails or return data back to the frontend for the user to book a call via our meeting scheduler
+    },
+  }),
+
+  [ToolId.SketchGen]: (params: ToolParams) => tool({
+    description: '"Sketch Tool": Loopspeed can turn a user's sketch into a 3D render. Use this tool if the user talks about creating or transforming a drawing or sketch.',
+    parameters: z.object({}),
+    execute: async () => {
+      // The sketch base64 image is sent to the backend from the frontend, which the GPT-4 Image model uses to create the image
+      const sketch = params.sketch
+    },
+  }),
+
+  [ToolId.UseCases]: (params: ToolParams) => tool({
+    description: '"Use Cases Tool": Use this tool when the user asks about the use cases of AI tools, especially chatbots or automation.',
+    parameters: z.object({
+      industry: z.string(),
+      challenges: z.string().optional(),
+    }),
+    execute: async (params) => {
+      // Provide tailored AI transformation suggestions
+    },
+  }),
+}
+
+export default TOOLS
+```
+
+## Image Generation
+
+The standout feature of our chatbot is its ability to create a 3D render from an input image. We prompt the user on the frontend to sketch inside of an HTML canvas, after which we base64 the image and send it to our bot. The bot understands the request and utilises the sketch tool. Inside of the sketch tool, we call our image gen utility function, and voilà, an image is created and sent back to the user.
+
+Check out this latest model from OpenAI for <a href='https://platform.openai.com/docs/guides/image-generation?image-generation-model=gpt-image-1' target='_blank'>image generation</a>.
+
+```typescript title="services/openAi/imageGen/index.ts"
+import OpenAI from 'openai'
+import type { Uploadable } from 'openai/uploads.mjs'
+
+let openai: OpenAI
+
+try {
+  openai = new OpenAI()
+} catch (error) {
+  console.error('Error initializing OpenAI:', error)
+}
+
+const MODEL = 'gpt-image-1'
+
+const COMMON_IMAGE_PARAMS = {
+  model: MODEL,
+  size: '1024x1024',
+} as const
+
+const getImage = async (prompt: string, image?: Uploadable) => {
+  try {
+    let result: OpenAI.Images.ImagesResponse
+
+    if (!!image) {
+      result = await openai.images.edit({
+        ...COMMON_IMAGE_PARAMS,
+        image,
+        prompt,
+      })
+    } else {
+      result = await openai.images.generate({
+        ...COMMON_IMAGE_PARAMS,
+        prompt,
+        moderation: 'low',
+      })
+    }
+
+    const b64Json = result.data?.[0].b64_json
+
+    if (!b64Json) throw new Error('Image was not successfully created')
+
+    return Buffer.from(b64Json, 'base64')
+  } catch (error) {
+    console.error('Error generating image:', error)
+    throw new Error('Error generating image')
+  }
+}
+
+export default getImage
+```
+
+## Frontend
+
+Our chatbot interface uses Vercel AI SDK's `useChat` hook to handle the complexity of real-time conversations. This powerful hook manages the complete message history state and handles streaming responses from our API route seamlessly.
+
+```tsx title="components/chat/Chat.tsx"
+'use client'
+
+import { useChat } from '@ai-sdk/react'
+import type { ChatRequestOptions, Message } from 'ai'
+import { type FC, useCallback, useEffect, useMemo, useRef } from 'react'
+import { SwitchTransition, Transition } from 'react-transition-group'
+
+import ChatInitialUI from '@/components/chat/ChatInitialUI'
+import Messages from '@/components/chat/Messages'
+import Input from '@/components/contact/Input'
+import useChatStore from '@/hooks/chat/useChatStore'
+import type { ToolId } from '@/services/openAi/tools/types'
+
+type Props = {
+  availableTools?: ToolId[]
+}
+
+const Chat: FC<Props> = ({ availableTools }) => {
+  const container = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const { messages, input, status, handleInputChange, handleSubmit, append } = useChat({
+    body: {
+      availableTools,
+    },
+  })
+
+  const hasMessages = useMemo(() => !!messages.length, [messages.length])
+  const isStatusReady = useMemo(() => status === 'ready', [status])
+
+  useEffect(() => {
+    if (isStatusReady && hasMessages) inputRef.current?.focus()
+  }, [isStatusReady, hasMessages])
+
+  const addAnotherMessage = useCallback(
+    (message: string) => {
+      append({
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: message,
+      })
+    },
+    [append],
+  )
+
+  return (
+    <section className="text-darkest from-light -from-20% z-10 grid size-full grid-rows-[1fr_auto] gap-4 overflow-hidden bg-linear-0 to-white to-20% px-4 pb-6 sm:pb-8 lg:gap-6 lg:px-6">
+      <SwitchTransition>
+        <Transition
+          key={`${hasMessages}`}
+          nodeRef={container}
+          timeout={{ enter: 0, exit: 300 }}
+          appear
+          mountOnEnter
+          unmountOnExit>
+          {(transitionStatus) => {
+            return (
+              <div ref={container} className="relative flex size-full min-h-0">
+                {hasMessages ? (
+                  <Messages messages={messages} />
+                ) : (
+                  <ChatInitialUI transitionStatus={transitionStatus} addAnotherMessage={addAnotherMessage} />
+                )}
+              </div>
+            )
+          }}
+        </Transition>
+      </SwitchTransition>
+
+      <form className="relative z-10" onSubmit={handleSubmit}>
+        <Input
+          ref={inputRef}
+          value={input}
+          placeholder={hasMessages ? 'Discover more...' : 'Start a chat...'}
+          disabled={!isStatusReady}
+          onChange={handleInputChange}
+        />
+      </form>
+    </section>
+  )
+}
+
+export default Chat
+```
+
+The Chat component demonstrates:
+
+- **State management** - Using `useChat` to handle messages, input, and conversation status
+- **Conditional rendering** - Switching between initial UI and message history based on conversation state
+- **Accessibility** - Auto-focusing input and proper form handling
+- **addAnotherMessage** - Manually append a new message to the conversation history
+
+We created a separate **Messages component** to render the complete chat history, with distinct styling for user and assistant messages. The component also handles tool responses by parsing the structured data returned from our backend—when a tool is called, we can identify which specific tool was used and render custom UI components accordingly.
+
+```tsx title="components/chat/Messages.tsx"
+import { useGSAP } from '@gsap/react'
+import type { UIMessage } from 'ai'
+import gsap from 'gsap'
+import parse from 'html-react-parser'
+import { type FC, useRef } from 'react'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
+
+import Thinking from '@/components/chat/Thinking'
+import { EnquireUI, SketchGenUI } from '@/components/chat/ToolResponseUI'
+import { ToolId, type ToolResponse } from '@/services/openAi/tools/types'
+
+gsap.registerPlugin(ScrollToPlugin)
+
+type Props = {
+  messages: UIMessage[]
+}
+
+const Messages: FC<Props> = ({ messages }) => {
+  const messagesContainer = useRef<HTMLDivElement>(null)
+
+  const createAssitantMessage = ({ parts }: UIMessage) => {
+    const getToolInvocationUI = (toolResponse: ToolResponse, textUI: React.JSX.Element) => {
+      switch (toolResponse.id) {
+        case ToolId.SketchGen:
+          return <SketchGenUI {...toolResponse} textUI={textUI} />
+        case ToolId.LoopspeedInfo:
+          return textUI
+        case ToolId.UseCases:
+          return textUI
+        case ToolId.Enquire:
+          return <EnquireUI {...toolResponse} textUI={textUI} />
+        default:
+          console.error('Unknown tool response: ', toolResponse)
+          return
+      }
+    }
+
+    const lastPart = parts.at(-1)
+    const lastPartType = lastPart?.type
+    if (!lastPartType || lastPartType !== 'text') return <Thinking />
+
+    const textUI = <div className="max-w-5/6">{parse(lastPart.text)}</div>
+
+    const toolInvocationPart = parts.find((part) => part.type === 'tool-invocation')
+    if (!toolInvocationPart) return textUI
+
+    const toolInvocation = toolInvocationPart.toolInvocation
+    if (toolInvocation.state !== 'result') return <Thinking />
+
+    return getToolInvocationUI(toolInvocation.result, textUI)
+  }
+
+  useGSAP(
+    () => {
+      // Only scroll Messages component when it has messages
+      if (!messagesContainer.current || !messages.length) return
+
+      // Smoothly move the scroll to the bottom of the Messages container
+      gsap.to(messagesContainer.current, {
+        duration: 0.3,
+        scrollTo: {
+          y: 'max',
+          autoKill: false,
+        },
+      })
+    },
+    { scope: messagesContainer, dependencies: [messages] },
+  )
+
+  return (
+    <div
+      ref={messagesContainer}
+      className="flex size-full flex-col gap-6 overflow-y-auto px-4 pt-10 font-semibold sm:gap-8 sm:px-6">
+      {messages.map((message, index) => {
+        const isUserMessage = message.role === 'user'
+
+        if (isUserMessage) {
+          return (
+            <p key={index} className="text-dark bg-light/30 max-w-4/5 self-end rounded-lg px-3 py-2">
+              {message.content}
+            </p>
+          )
+        }
+
+        return (
+          <div key={index} className="text-darkest flex flex-col gap-4">
+            {createAssitantMessage(message)}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export default Messages
+```
+
+## Key Takeaways
+
+1. **Vercel's AI SDK is a game changer** - The relative ease to navigate the documentation and implement a solution was impressive
+2. **AI tool selection is very precise** - The AI consistently chooses the correct tool with the correct parameters
+3. **Custom tools are incredibly powerful** - Purpose-built functions provide far more value and reliability than generic AI responses
+4. **This architecture transfers and scales easily** - The patterns and structure can be adapted to different use cases and grown over time
+
+## Ready for Your Own AI Chatbot?
+
+At Loopspeed, we can help you build a custom AI chatbot tailored to your specific business needs:
+
+- **Custom tool development** - Create specialized functions for your industry and workflows
+- **Seamless integrations** - Connect with your existing CRM, scheduling, payment, and business tools
+- **RAG (Retrieval Augmented Generation)** for powerful & dynamic knowledge retrieval
+- **Voice integration** - Add hands-free interaction capabilities for accessibility and convenience
+- **Multi-language support** - Reach global audiences with intelligent translation and localization
+
+## Conclusion
+
+Building an AI chatbot has been an incredibly rewarding project. It not only serves our business needs but also demonstrates the cutting-edge capabilities we can bring to client projects. The combination of OpenAI's powerful models, the Vercel AI SDK's developer-friendly helper functions, and carefully crafted custom tools creates a foundation for truly useful AI assistants. Whether you're envisioning a customer support bot, a sales assistant, or a creative tool like ours, the patterns and techniques we've shared provide a solid foundation for your own AI-powered applications.

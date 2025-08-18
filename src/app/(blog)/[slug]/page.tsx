@@ -40,6 +40,7 @@ export default async function BlogPage({ params }: Props) {
   const Component = BLOG_CONTENT[slug]?.Blog
   const metadata = BLOG_CONTENT[slug]?.metadata
   if (!Component || !metadata) redirect(Pathname.Home)
+  const hasDemo = !!BLOG_CONTENT[slug]?.Demo
 
   return (
     <>
@@ -47,7 +48,7 @@ export default async function BlogPage({ params }: Props) {
         <BlogBackgroundCanvas />
       </Suspense>
       <main className="relative w-full pt-(--nav-height)">
-        <BlogPostHeader {...metadata} />
+        <BlogPostHeader {...metadata} hasDemo={hasDemo} />
 
         <div className="grid grid-cols-1 grid-rows-1 xl:grid-cols-[1fr_auto]">
           <article className="w-full overflow-hidden bg-white px-4 py-12 text-pretty text-black md:px-8">
