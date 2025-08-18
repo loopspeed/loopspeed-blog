@@ -2,7 +2,7 @@
 
 # Loopspeed Blog
 
-The **Loopspeed Blog** is a modern blog platform built with **Next.js 15** and authored entirely in **MDX**. It leverages Next.js's App Router (`app/` directory structure) for efficient, file-based routing and uses **TypeScript** throughout the codebase for robust type safety. Blog posts are stored in the `resources/posts/` directory and written in MDX format, allowing rich content with embedded React components.
+The **Loopspeed Blog** is a modern blog platform built with **Next 15** and authored entirely in **MDX**. It leverages Next.js's App Router (`app/` directory structure) for efficient, file-based routing and uses **TypeScript** throughout the codebase for robust type safety. Blog posts are stored in the `resources/posts/` directory and written in MDX format, allowing rich content with embedded React components.
 
 ---
 
@@ -34,23 +34,6 @@ The blog features a range of article types and topics, including:
 - **Fragment Shader:** Pixel-level shader programming for advanced visual effects.
 - **WebGL:** Browser-based 3D graphics using the WebGL API.
 - **WebGPU:** Next-generation web graphics with the WebGPU API.
-
----
-
-## Getting Started
-
-Follow these steps to run the blog locally and in production:
-
-1. **Install Dependencies:**  
-   Run `npm install` to install all required packages.
-
-2. **Development Server:**  
-   Start the local dev server with `npm run dev` and open [http://localhost:3000](http://localhost:3000) in your browser to view the blog.
-
-3. **Production Build:**  
-   Generate an optimised production build with `npm run build`.  
-   Then start the production server using `npm start`.  
-   The blog will run on the default port (usually 3000) or as specified in your environment.
 
 ---
 
