@@ -80,10 +80,11 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
         </div>
         {/* Title and description */}
         <h3 className="heading-md !font-medium">{title}</h3>
-        <p className="paragraph-md text-white/80">{description}</p>
+        <p className="paragraph text-white/80">{description}</p>
         {/* Authors and date */}
-        <div className="paragraph-sm flex items-center gap-2 text-white/80 *:block">
-          <span>{authors.map(({ name }) => name).join(', ')}</span> •<span>{format(new Date(date), 'MMM yyyy')}</span>
+        <div className="paragraph-sm flex gap-2 text-white/60 *:block">
+          <span>{authors.map(({ name }) => name).join(', ')}</span> •
+          <span className="shrink-0 whitespace-nowrap">{format(new Date(date), 'MMM yyyy')}</span>
         </div>
         <Button
           className="w-fit"
@@ -91,7 +92,7 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
           size="small"
           variant="outlined"
           icon={<ArrowRightIcon size={20} />}
-        // onClick={() => sendEvent(EventName.ClickReadMore, { blog_post: title })}
+          // onClick={() => sendEvent(EventName.ClickReadMore, { blog_post: title })}
         >
           Read more
         </Button>

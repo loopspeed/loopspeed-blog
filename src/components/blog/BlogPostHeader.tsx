@@ -10,7 +10,16 @@ import Tag from '@/components/Tag'
 import type { BlogMetadata } from '@/model/blog'
 import { BLOG_CONTENT } from '@/resources/blog'
 
-const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, githubUrl, youtubeUrl, externalDemoUrl }) => {
+const BlogPostHeader: FC<BlogMetadata> = ({
+  slug,
+  title,
+  tags,
+  date,
+  authors,
+  githubUrl,
+  youtubeUrl,
+  externalDemoUrl,
+}) => {
   const formattedDate = format(new Date(date), 'PPP')
   const Demo = BLOG_CONTENT[slug]?.Demo
 
@@ -25,21 +34,23 @@ const BlogPostHeader: FC<BlogMetadata> = ({ slug, title, tags, date, authors, gi
 
         <h1 className="heading-xl text-center text-balance">{title}</h1>
 
-        <div className="paragraph-md relative flex w-fit items-center gap-2 whitespace-nowrap text-white/90 sm:gap-3">
+        <div className="paragraph relative flex w-fit max-w-full flex-col items-center gap-2 text-white/80 sm:gap-3 md:flex-row">
           <span>{authors.map(({ name }) => name).join(', ')}</span>
-          <span className="text-3xl">•</span>
+          <span className="hidden text-3xl md:block">•</span>
           <span>{formattedDate}</span>
         </div>
 
-        {!!Demo && <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
-          Live demo
-        </Button>}
+        {!!Demo && (
+          <Button href={`/${slug}/demo`} target="_blank" icon={<ArrowUpRight />}>
+            Live demo
+          </Button>
+        )}
 
-        {!!externalDemoUrl && <Button href={externalDemoUrl} icon={<ArrowUpRight />}>
-          Live demo
-        </Button>}
-
-
+        {!!externalDemoUrl && (
+          <Button href={externalDemoUrl} icon={<ArrowUpRight />}>
+            Live demo
+          </Button>
+        )}
 
         <div className="flex gap-3">
           {!!githubUrl && (

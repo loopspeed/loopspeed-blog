@@ -13,7 +13,7 @@ const Services: FC = () => {
       <div className="mt-2 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:w-fit">
         <div className="space-y-4 rounded-lg bg-linear-0 from-black/90 to-black/50 p-5 lg:p-8">
           <h4 className="heading-sm text-white">Design Services</h4>
-          <ul className="text-light paragraph-md space-y-2">
+          <ul className="text-light paragraph space-y-2">
             <li>UX Design Sprints </li>
             <li>3D design and motion</li>
             <li>Interactive Prototyping</li>
@@ -24,7 +24,7 @@ const Services: FC = () => {
 
         <div className="space-y-4 rounded-lg bg-linear-0 from-black/90 to-black/50 p-5 lg:p-8">
           <h4 className="heading-sm text-white">Development Services</h4>
-          <ul className="text-light paragraph-md space-y-2">
+          <ul className="text-light paragraph space-y-2">
             <li>Full-stack Next.js builds</li>
             <li>Bespoke LLM tools</li>
             <li>3D web with Three.js</li>
