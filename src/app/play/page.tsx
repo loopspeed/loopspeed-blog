@@ -1,7 +1,6 @@
 import type { Viewport } from 'next'
 import { headers } from 'next/headers'
 
-import FBOParticlesCanvas from '@/components/examples/fboParticles/FBOParticles'
 import FaceIDMain from '@/components/examples/rebuilds/faceId/FaceIDMain'
 import Scene from '@/components/examples/tsl/TSLRayMarchingAtom'
 import RayMarchingScene from '@/components/examples/tsl/TSLRayMarchingAtom'

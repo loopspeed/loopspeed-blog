@@ -60,14 +60,19 @@ const FaceIDMain: FC = () => {
               !isUnlocked && 'opacity-40 blur-md select-none',
             )}>
             <h2 className="mb-4 text-xl font-bold tracking-tight lg:text-2xl">Top Secret</h2>
-            <h3 className="text-lg font-bold lg:text-xl">How we recreated the Face ID interaction</h3>
-            <ul className="mt-3 list-disc pl-5 leading-loose lg:text-xl">
+            <h3 className="heading-sm font-bold">How we recreated the Face ID interaction</h3>
+            <ul className="paragraph-sm mt-3 list-disc pl-5 leading-loose">
               <li>SVG path morphing for the expanding island</li>
               <li>Tensorflow WebGL for recognising facial features</li>
               <li>Three.js Shading Language and a ray marching algorithm for volumetric spinning rings</li>
               <li>SVG line drawing for the animated check</li>
             </ul>
-            <button className="mt-6 flex cursor-pointer items-center gap-2 font-bold lg:text-lg" onClick={lock}>
+            <button
+              className={twJoin(
+                'hover:text-accent-red mt-6 flex cursor-pointer items-center gap-2 font-bold lg:text-lg',
+                !isUnlocked && 'pointer-events-none',
+              )}
+              onClick={lock}>
               <LockIcon />
               Click to lock
             </button>
@@ -78,7 +83,7 @@ const FaceIDMain: FC = () => {
               strokeWidth={2}
               size={64}
               role="button"
-              className="text-dark absolute cursor-pointer hover:opacity-50"
+              className="text-dark absolute size-12 cursor-pointer hover:opacity-50 sm:size-16"
               onClick={unlock}
             />
           )}
