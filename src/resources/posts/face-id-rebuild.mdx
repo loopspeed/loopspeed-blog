@@ -68,7 +68,8 @@ export const useFaceIDStore = create<Store>((set, get) => ({
 }))
 ```
 
-We have a status property for each of the system stages, and we track whether the camera is ready, and if the content is unlocked.
+We have a status property for each of the system stages, we track whether the camera is ready, and if the content is unlocked. 
+The combination of these three values is enough to drive the entire system.
 
 ## The Expanding Island
 
