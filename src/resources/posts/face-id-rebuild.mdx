@@ -111,7 +111,7 @@ The animation uses an **SVG clipPath** that's shaped by the morphing **path**.
 
 The container being clipped (masked element) is slightly taller than the SVG height because the expansion uses a **back.out** easing that overshoots the boundary before settling. Without this extra height, that overshoot would be visibly clipped, ruining the effect of elasticity of the shape.
 
-```tsx title="SVG clipPath jsx structure"
+```tsx title="SVG clipPath jsx structure" {11-15}
 <div
   ref={container}
   className="pointer-events-none relative z-100 flex h-[72px] w-[320px] flex-col items-center justify-center">
@@ -146,7 +146,7 @@ In the GSAP config, `morphSVG.shape` defines the next target path, `morphSVG.typ
 
 We set **transformOrigin** explicitly to avoid surprises with percentage anchors, and **ease: 'back.out(1.4)'** provides the bouncy, elastic effect when completing.
 
-```tsx title="useDidUpdate GSAP hook"
+```tsx title="useDidUpdate GSAP hook" {11-12}
 const isExpanded = status === VerificationStatus.Analysing || status === VerificationStatus.Success
 const timeline = useRef<GSAPTimeline | null>(null)
 
