@@ -10,7 +10,7 @@ const VIDEO_WIDTH = 640
 const VIDEO_HEIGHT = 480
 const DETECTION_INTERVAL_MS = 500
 const HAPPY_THRESHOLD = 0.7 // >0.7 usually means "smiling"
-const TIMEOUT_DURATION_MS = 10000
+const TIMEOUT_DURATION_MS = 12000
 
 const MODEL_URL = '/faceApiModels'
 
@@ -18,11 +18,13 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 
 const FaceIDCamera: FC = () => {
   const status = useFaceIDStore((s) => s.status)
-  const setStatus = useFaceIDStore((s) => s.setStatus)
   const isCameraReady = useFaceIDStore((s) => s.isCameraReady)
+
+  const setStatus = useFaceIDStore((s) => s.setStatus)
   const setIsCameraReady = useFaceIDStore((s) => s.setIsCameraReady)
+
   const shouldInit = status === VerificationStatus.Initialising
-  const shouldAnalyse = status === VerificationStatus.Analysing
+  const shouldDetectFace = status === VerificationStatus.Analysing && isCameraReady
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -71,7 +73,6 @@ const FaceIDCamera: FC = () => {
         .withFaceExpressions()
 
       const happy = detections?.expressions?.happy
-
       if (!!happy && happy > HAPPY_THRESHOLD) setStatus(VerificationStatus.Success)
     }
 
@@ -82,7 +83,7 @@ const FaceIDCamera: FC = () => {
       }, TIMEOUT_DURATION_MS)
     }
 
-    if (shouldAnalyse && isCameraReady) {
+    if (shouldDetectFace) {
       detectionIntervalRef.current = setInterval(detectFace, DETECTION_INTERVAL_MS)
       startIdleTimeout()
     }
@@ -91,7 +92,7 @@ const FaceIDCamera: FC = () => {
       if (detectionIntervalRef.current) clearInterval(detectionIntervalRef.current)
       if (idleTimeout.current) clearTimeout(idleTimeout.current)
     }
-  }, [isCameraReady, shouldAnalyse, setStatus])
+  }, [shouldDetectFace, setStatus])
 
   return (
     <video
@@ -101,8 +102,9 @@ const FaceIDCamera: FC = () => {
       )}
       width={VIDEO_WIDTH}
       height={VIDEO_HEIGHT}
-      autoPlay
-      muted
+      autoPlay={true}
+      muted={true}
+      controls={false}
     />
   )
 }
