@@ -1,9 +1,10 @@
 'use client'
 import { useGSAP } from '@gsap/react'
+import { useDidUpdate } from '@mantine/hooks'
 import gsap from 'gsap'
 import { useControls } from 'leva'
 import { LockIcon, SmileIcon, UnlockIcon } from 'lucide-react'
-import { type FC, useEffect, useRef } from 'react'
+import { type FC, useRef } from 'react'
 import { Transition } from 'react-transition-group'
 import { twJoin } from 'tailwind-merge'
 
@@ -32,7 +33,7 @@ const FaceIDMain: FC = () => {
   })
 
   // Sync controls with the store state
-  useEffect(() => {
+  useDidUpdate(() => {
     setControls({
       status,
     })
