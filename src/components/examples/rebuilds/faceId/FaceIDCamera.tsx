@@ -1,7 +1,7 @@
 'use client'
 
 import * as faceapi from 'face-api.js'
-import { type FC, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { type FC, useEffect, useRef, useState } from 'react'
 import { twJoin } from 'tailwind-merge'
 
 import { useFaceIDStore, VerificationStatus } from '@/components/examples/rebuilds/faceId/useFaceIDStore'
@@ -31,7 +31,7 @@ const FaceIDCamera: FC = () => {
   const shouldInit = status === VerificationStatus.Initialising && haveModelsLoaded
   const shouldDetectFace = status === VerificationStatus.Analysing && isCameraReady
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const loadModels = async () => {
       try {
         await Promise.all([
