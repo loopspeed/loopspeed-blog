@@ -1,7 +1,7 @@
 'use client'
 
 import * as faceapi from 'face-api.js'
-import { type FC, useEffect, useRef } from 'react'
+import { type FC, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twJoin } from 'tailwind-merge'
 
 import { useFaceIDStore, VerificationStatus } from '@/components/examples/rebuilds/faceId/useFaceIDStore'
@@ -17,18 +17,36 @@ const MODEL_URL = '/faceApiModels'
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 const FaceIDCamera: FC = () => {
-  const status = useFaceIDStore((s) => s.status)
-  const isCameraReady = useFaceIDStore((s) => s.isCameraReady)
-
-  const setStatus = useFaceIDStore((s) => s.setStatus)
-  const setIsCameraReady = useFaceIDStore((s) => s.setIsCameraReady)
-
-  const shouldInit = status === VerificationStatus.Initialising
-  const shouldDetectFace = status === VerificationStatus.Analysing && isCameraReady
-
   const videoRef = useRef<HTMLVideoElement>(null)
   const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const idleTimeout = useRef<NodeJS.Timeout | null>(null)
+
+  const status = useFaceIDStore((s) => s.status)
+  const isCameraReady = useFaceIDStore((s) => s.isCameraReady)
+  const setStatus = useFaceIDStore((s) => s.setStatus)
+  const setIsCameraReady = useFaceIDStore((s) => s.setIsCameraReady)
+
+  const [haveModelsLoaded, setHaveModelsLoaded] = useState(false)
+
+  const shouldInit = status === VerificationStatus.Initialising && haveModelsLoaded
+  const shouldDetectFace = status === VerificationStatus.Analysing && isCameraReady
+
+  useLayoutEffect(() => {
+    const loadModels = async () => {
+      try {
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+        ])
+        setHaveModelsLoaded(true)
+      } catch (err) {
+        console.error('Failed to load face-api.js models:', err)
+      }
+    }
+
+    loadModels()
+  }, [])
 
   useEffect(() => {
     const initCamera = async () => {
@@ -41,18 +59,9 @@ const FaceIDCamera: FC = () => {
       await videoRef.current.play()
     }
 
-    const loadModels = async () => {
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      ])
-    }
-
     const init = async () => {
       try {
         await initCamera()
-        await loadModels()
         setIsCameraReady(true)
       } catch (err) {
         console.error('Failed to init FaceID camera:', err)
