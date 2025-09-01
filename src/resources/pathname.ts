@@ -14,4 +14,5 @@ export enum BlogSlug {
   FBOParticles = 'fbo-particles-simulation',
   NextJsLocalisation = 'next-js-localisation',
   FaceIDRebuild = 'face-id-rebuild',
+  LiquidGlass = 'liquid-glass',
 }

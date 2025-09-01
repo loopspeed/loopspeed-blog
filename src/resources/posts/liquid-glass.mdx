@@ -1,0 +1,122 @@
+import { EDUARD_RADD } from '@/model/blog'
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+
+export const metadata = {
+  title: 'LiquidGlass: Shimmering Glass Effect for React',
+  description:
+    'A reusable Apple-inspired “liquid glass” wrapper built for React. It uses SVG refraction, chromatic aberration, and GPU-assisted backdrop blur/saturation. Customisable with props.',
+  date: '2025-09-01',
+  slug: BlogSlug.LiquidGlass,
+  tags: [TagName.Tutorial, TagName.React, TagName.SVG, TagName.UI, TagName.Tailwind],
+  authors: [EDUARD_RADD],
+  githubUrl: 'https://github.com/loopspeed/loopspeed-blog/tree/main/src/components/examples/liquidGlass'
+}
+
+<Video src='/blog/videos/liquid-glass.mp4' />
+
+## Overview
+
+**Imagine a UI element that looks like a piece of living glass.** Blurring what's behind it, bending light at its edges, and picking up subtle colors from the background. That's the effect LiquidGlass delivers, shining in scenarios like highlight overlays, modals, or feature sections where you want a frosted-glass aesthetic to stand out.
+
+### How It Works
+
+**LiquidGlass** is a React component that that works by layering an **SVG filter** over your content to refract the backdrop, combined with CSS `backdrop-filter` blur and saturation. Under the hood, LiquidGlass uses a **displacement map image** (`<feImage>` in a `<feDisplacementMap>` filter) to warp the background as if light is being bent through glass. A **chromatic aberration** routine adds a slight rainbow fringe at the edges (simulating light dispersion), while blur + saturate frost the backdrop for that dreamy glass finish. The result is a smooth, GPU-accelerated effect that makes UI elements feel like live glass panes.
+
+## Props Breakdown
+
+Each LiquidGlass prop tunes a different aspect of the effect:
+
+#### `refractionMode` — `'standard' | 'polar' | 'prominent' | 'crystal'` — **default:** `'standard'`
+
+Selects the refraction map used to distort the background. Ranges from subtle (**standard**) to pronounced (**prominent**), with **polar** offering radial distortion. **crystal** uses a sharper, faceted map for a prismatic, high-bend look.
+
+#### `displacementScale` — `number` — **default:** `100`
+
+Controls how intensely the background is warped by the refraction map. Higher values (max **200**) exaggerate the bending of light; lower values keep the glass uniform.
+
+#### `chromaticAberration` — `number` — **default:** `4`
+
+Sets the intensity of color separation at glass edges. **0** = no fringing; higher values (up to **20**) spread RGB channels for a subtle rainbow glow.
+
+#### `blurPx` — `number` — **default:** `4`
+
+Backdrop blur radius. Derived from an internal `blurAmount` (**0.05-1.0**) and quantized to discrete pixel steps (~**4-42px**). Higher blur yields a frostier look. Blur is GPU-accelerated but can cost on very large surfaces; **4-16px** is usually plenty.
+
+#### `saturationAmount` — `number` — **default:** `140`
+
+Backdrop saturation percentage. **100%** = unchanged; above **100%** boosts color to counter blur washout. Tune for muted glass (≈**100-120%**) or vivid “vibrancy” (up to **300%**).
+
+#### `tintClassName` — `string` — **default:** `"bg-white/5"`
+
+Optional Tailwind class for a translucent tint layer. Defaults to a faint white that brightens highlights. Swap for subtle color tints or set to `""` for clear glass.
+
+#### `className` — `string` — **default:** `""`
+
+Extra classes for the outer container. LiquidGlass sizes to its children; use `rounded-*`, layout, or spacing utilities as needed.
+
+<Aside>
+  The component also accepts standard props like <code>children</code> (content inside the glass) and inline{' '}
+  <code>style</code>. Filters render <i>behind</i> your children, so your content stays sharp—only the backdrop is
+  affected.
+</Aside>
+
+## Usage Example
+
+```tsx title="Implementation Example"
+import LiquidGlass from '@/components/liquidGlass/LiquidGlass'
+
+export const MyComponent: React.FC = () => {
+  return (
+    <LiquidGlass
+      refractionMode="crystal"
+      displacementScale={150}
+      chromaticAberration={8}
+      saturationAmount={200}
+      className="rounded-xl">
+      <div className="p-4 text-center">
+        <h2 className="text-lg font-semibold">Content Here</h2>
+        <p className="text-white/80">LiquidGlass background effect</p>
+      </div>
+    </LiquidGlass>
+  )
+}
+```
+
+This renders a content card wrapped in a LiquidGlass effect. We chose `refractionMode="crystal"` with a higher `displacementScale` and some chromatic aberration for a noticeably wavy, prismatic glass. The `saturationAmount={200}` (i.e. 200%) ensures the colors behind stay vivid, and we added a `rounded-xl` class to smoothly round the glass corners.
+
+---
+
+## Tuning Tips
+
+Try these recipes to dial in different looks:
+
+- **Subtle shimmer:**
+  Use `refractionMode="standard"`, `displacementScale` around **50**, and `chromaticAberration={3}`.
+  Keep blur low (e.g. default ~4px) and saturate ~120%.
+  _This yields a gentle frosted glass - just a hint of movement and color at the edges, great for a subtle overlay._
+
+- **Maximal caustics:**
+  Go with `refractionMode="crystal"`, `displacementScale` **180-200**, and crank `chromaticAberration` to ~12.
+  Set blur moderate (**10-20px**) and saturate ~200-300%.
+  _The result is an intense, “liquid sunshine” glass that strongly distorts and adds rainbow highlights - a striking effect (use sparingly, as it's visually busy)._
+
+- **Clean blur-only:**
+  For a classic frosted glass without refraction, set `displacementScale={0}` and `chromaticAberration={0}`.
+  Choose any blur (e.g. 8px) and maybe slight saturate (110-140%).
+  _This effectively disables the wavy distortion and color fringes, giving you a pure backdrop blur (and a small performance win by skipping the displacement work)._
+
+Feel free to experiment by toggling modes and values. Small adjustments to blur or saturation can significantly change the mood of the glass.
+
+<Video src='/blog/videos/liquid-glass/liquid-glass-controls.mp4' />
+
+---
+
+## Browser Support
+
+Safari and Firefox don't show the displacement refraction, so the effect will degrade gracefully to a simple blur on those browsers.
+
+
+## Wrap-up
+
+**LiquidGlass** is a handy tool whenever you want to bring a touch of interactive, glassy realism to your React app - perfect for making content panels feel like they're behind a pane of living glass.

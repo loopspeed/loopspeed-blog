@@ -4,7 +4,6 @@ export enum TagName {
   ThreeJS = 'threejs',
   Particles = 'particles',
   HTMLCanvas = 'html canvas',
-  SVG = 'svg',
   NextJS = 'nextjs',
   GSAP = 'gsap',
   Tailwind = 'tailwind',
@@ -25,4 +24,6 @@ export enum TagName {
   RayMarching = 'ray marching',
   MachineLearning = 'machine learning',
   Camera = 'camera',
+  SVG = 'svg',
+  UI = 'ui',
 }
