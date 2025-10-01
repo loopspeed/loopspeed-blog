@@ -12,6 +12,7 @@ import { WavePlanePage } from '@/components/examples/three/wavePlane/WavePlane'
 import type { BlogMetadata } from '@/model/blog'
 import { BlogSlug } from '@/resources/pathname'
 
+import AlcedoAIBlog, { metadata as alcedoAIMetadata } from './posts/alcedo-ai.mdx'
 import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './posts/animated-css-grid.mdx'
 import FaceIdBlog, { metadata as faceIdMetadata } from './posts/face-id-rebuild.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
@@ -96,6 +97,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: LiquidGlassPage,
     metadata: liquidGlassMetadata,
     videoSrc: '/blog/videos/liquid-glass.mp4',
+  },
+  [BlogSlug.AlcedoAI]: {
+    Blog: AlcedoAIBlog,
+    Demo: null,
+    metadata: alcedoAIMetadata,
+    videoSrc: null,
   },
 }
 
