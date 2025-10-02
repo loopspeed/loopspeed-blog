@@ -2,10 +2,12 @@ import type { BlogSlug } from '@/resources/pathname'
 
 type Author = {
   name: string
+  url?: string
 }
 
 export const MATTHEW_FRAWLEY: Author = {
   name: 'Matthew Frawley',
+  url: 'https://github.com/prag-matt-ic/',
 }
 
 export const EDUARD_RADD: Author = {
@@ -46,6 +48,6 @@ export type BlogMetadata = {
   authors: Author[]
   githubUrl?: string
   youtubeUrl?: string
-  externalDemoUrl?:string
+  externalDemoUrl?: string
   isDraft?: boolean
 }

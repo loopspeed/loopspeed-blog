@@ -34,9 +34,28 @@ const BlogPostHeader: FC<BlogMetadata> = ({
 
         <h1 className="heading-xl text-center text-balance">{title}</h1>
 
-        <div className="paragraph relative flex w-fit max-w-full flex-col items-center gap-2 text-white/80 sm:gap-3 md:flex-row">
-          <span>{authors.map(({ name }) => name).join(', ')}</span>
-          <span className="hidden text-3xl md:block">•</span>
+        <div className="paragraph relative flex w-fit max-w-full flex-col items-center gap-2 text-white/80 md:flex-row">
+          {authors.map(({ name, url }) => {
+            if (!!url) {
+              return (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-accent-orange rounded-md bg-black/20 px-2 py-0.5 underline">
+                  {name}
+                </a>
+              )
+            }
+            return (
+              <span key={name} className="rounded-md bg-black/20 px-2 py-0.5">
+                {name}
+              </span>
+            )
+          })}
+
+          <span className="mx-1 hidden text-3xl md:block">•</span>
           <span>{formattedDate}</span>
         </div>
 
