@@ -1,0 +1,129 @@
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+import { MATTHEW_FRAWLEY } from '@/model/blog'
+
+export const metadata = {
+  title: 'Magic Floor: Player driven ripple effects',
+  description:
+    'Just a misty, reactive floor inspired by Split Fiction. Arrow key movement moves the player and drives a WebGPU ripple simulation. Node-based shading, particles and cylindrical text bring the scene to life.',
+  date: '2025-10-03',
+  slug: BlogSlug.MagicPlayer,
+  authors: [MATTHEW_FRAWLEY],
+  tags: [
+    TagName.Advanced,
+    TagName.WebGPU,
+    TagName.ThreeJSShadingLanguage,
+    TagName.GSAP,
+    TagName.Particles,
+    'player movement',
+    'ripple simulation',
+  ],
+  githubUrl: 'https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu',
+  externalDemoUrl: 'https://magic-floor.vercel.app',
+}
+
+<Video src="/blog/videos/magic-player.mp4" />
+
+## Inspiration
+
+I set out to capture the essence of a shimmering, ethereal floor I'd seen in the Split Fiction game — rippling footsteps, radial light, drifting particles. 
+
+The result is a WebGPU-powered plane that reacts to player movement and evolves with lighting and pulses.
+
+![Reference](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu/blob/main/public/screenshots/reference.jpg?raw=true)
+
+## Overview 
+
+There are thousands of lines of code in the project, so we'll just cover high level details here. 
+
+If you want the full picture, dive into [the repo](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu).
+
+<Aside title="Tech Stack">
+- **Next.js**
+- **React Three Fiber** (WebGPU renderer)
+- **Three.js Shading Language** (TSL) for node-based shading — no GLSL files required!
+- **Zustand** for state management
+- **GSAP** for timelines
+- **Tailwind** for UI styling
+</Aside>
+
+
+## Player Movement
+
+Keyboard input (WASD/Arrows) is captured in an event listener and stored in a ref.
+
+Inside the frame hook, there are 2 helper functions:
+
+- `updatePlayerSpeed` - eases the speed up/down for smoother motion, and sets the speed uniform.
+- `updatePlayerPosition` - calculates the new player position and clamps it to the arena; calculates the bounce; sets the mesh position; and updates the shader uniform.
+
+In order to syncronise the mesh position with the ripple impact, an additional 'bounce phase' value is stored in the player position vector.
+
+Finally, the `renderer.compute([computeHeight])` is called to update the ripple simulation.
+
+[👉 Player Code Here 👈](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu/blob/main/components/Player.tsx)
+
+## Water Ripple Simulation
+
+The player's position and speed drive a simple, efficient height-field simulation. 
+
+When the player bounces down at speed, it applies an impulse that spreads out as ripples.
+
+The `computeHeight` function runs over a square grid on the GPU, diffusing neighbor heights with viscosity.
+The resulting height is visualised in the shader.
+
+The water ripple simulation was gratefully "borrowed" from the [ThreeJS example here](https://github.com/mrdoob/three.js/blob/master/examples/webgpu_compute_water.html).
+
+## Floor Plane Shading
+
+<Image src='/blog/images/magic-player/plane.png' alt='Plane shaders' width={1200} height={800} quality={80} className='object-contain' />
+
+The surface is coloured using several functions layered together:
+
+- `getFractalColour`: background gradient with fractal noise
+- `getGodRays`: soft radial beams from the center
+- `getPulsesColour`: concentric pulses that breathe over time
+- `getHeightColour`: visualises water simulation height
+- `getGrainyNoise`: adds subtle film grain for texture
+
+In combination these create a rich, dynamic surface that changes over time and with player movement.
+
+[👉 Plane Code Here 👈](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu/blob/main/components/Plane.tsx)
+
+
+## 3D Wrapped Text with Noise and Blur
+
+<Image src='/blog/images/magic-player/text.png' alt='3D wrapped text' width={1200} height={800} quality={80} className='object-contain' />
+
+I experimented first with true 3D text, but it was not going to be easy or performant to apply the effects that I wanted (e.g blur and noise). 
+
+So I opted for a texture based approach instead. Seeing as the text is on the outside, having it "flat" isn't a big deal.
+
+The text is drawn to an off-screen 2D canvas sized to match the cylinder's surface. 
+It's then applied to the node material as a `CanvasTexture`. 
+This allows me to easily apply an additional noise effect in the `colorNode` to give it a grainy, imperfect look.
+
+On stage changes (as the player moves closer to the center), GSAP is used to blur out, update the text, and then blur back in. 
+Between these stage transitions it gently animates between transparent blurred and opaque sharp.
+
+[👉 Text Code Here 👈](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu/blob/main/components/TextCylinder.tsx)
+
+## Drifting Particles
+
+<Image src='/blog/images/magic-player/particles.png' alt='Drifting particles' width={1200} height={800} quality={80} className='object-contain' />
+
+Particles are distributed in a shallow hemisphere under the plane in an initial compute pass.
+They then drift and flicker using custom position and opacity nodes.
+
+
+## The future of Web(GPU) is bright
+
+It's becoming increasingly feasible to build complex, game-like web experiences that run almost as smoothly as native apps.
+
+**As hardware continues to improve, I predict that more web experiences will utilise GPU capabilities and 3D environments to deliver rich, interactive content.**
+
+I'm excited for the future of `WebGPU` and `TSL` - these advancements empower web developers to bring new ideas to life with greater ease and performance.
+
+[Live Demo](https://magic-floor.vercel.app)
+
+[https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu](https://github.com/prag-matt-ic/magic-floor-player-movement-three-webgpu)

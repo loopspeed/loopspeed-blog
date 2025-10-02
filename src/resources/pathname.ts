@@ -15,4 +15,5 @@ export enum BlogSlug {
   NextJsLocalisation = 'next-js-localisation',
   FaceIDRebuild = 'face-id-rebuild',
   LiquidGlass = 'liquid-glass',
+  MagicPlayer = 'three-webgpu-magic-plane-player-ripple',
 }

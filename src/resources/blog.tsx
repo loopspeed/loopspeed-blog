@@ -17,6 +17,7 @@ import FaceIdBlog, { metadata as faceIdMetadata } from './posts/face-id-rebuild.
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
 import LiquidGlassBlog, { metadata as liquidGlassMetadata } from './posts/liquid-glass.mdx'
+import MagicPlayerBlog, { metadata as magicPlayerMetadata } from './posts/magic-player.mdx'
 import NextJsLocalisation, { metadata as nextJsLocalisationMetadata } from './posts/next-js-localisation.mdx'
 import NextJsShadersBlog, { metadata as nextShadersMetadata } from './posts/next-webgl-shaders.mdx'
 import RTFWebGPUTypescriptBlog, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
@@ -96,6 +97,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: LiquidGlassPage,
     metadata: liquidGlassMetadata,
     videoSrc: '/blog/videos/liquid-glass.mp4',
+  },
+  [BlogSlug.MagicPlayer]: {
+    Blog: MagicPlayerBlog,
+    Demo: null,
+    metadata: magicPlayerMetadata,
+    videoSrc: '/blog/videos/magic-player.mp4',
   },
 }
 

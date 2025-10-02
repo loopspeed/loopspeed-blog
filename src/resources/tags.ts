@@ -2,6 +2,7 @@ export enum TagName {
   Tutorial = 'tutorial',
   React = 'react',
   ThreeJS = 'threejs',
+  ThreeJSShadingLanguage = 'threejs shading language',
   Particles = 'particles',
   HTMLCanvas = 'html canvas',
   NextJS = 'nextjs',
