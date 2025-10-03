@@ -41,9 +41,9 @@ If you want the full picture, dive into [the repo](https://github.com/prag-matt-
 <Aside title="Tech Stack">
 - **Next.js**
 - **React Three Fiber** (WebGPU renderer)
-- **Three.js Shading Language** (TSL) for node-based shading — no GLSL files required!
+- **Three.js Shading Language** (TSL) for node-based shading — no GLSL code in site 😉
 - **Zustand** for state management
-- **GSAP** for timelines
+- **GSAP** for animation timelines
 - **Tailwind** for UI styling
 </Aside>
 
@@ -57,7 +57,7 @@ Inside the frame hook, there are 2 helper functions:
 - `updatePlayerSpeed` - eases the speed up/down for smoother motion, and sets the speed uniform.
 - `updatePlayerPosition` - calculates the new player position and clamps it to the arena; calculates the bounce; sets the mesh position; and updates the shader uniform.
 
-In order to syncronise the mesh position with the ripple impact, an additional 'bounce phase' value is stored in the player position vector.
+In order to synchronise the mesh position with the ripple impact, an additional 'bounce' value is stored in the player position vector.
 
 Finally, the `renderer.compute([computeHeight])` is called to update the ripple simulation.
 
