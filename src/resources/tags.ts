@@ -24,6 +24,7 @@ export enum TagName {
   Rebuild = 'rebuild',
   RayMarching = 'ray marching',
   MachineLearning = 'machine learning',
+  Game = 'game',
   Camera = 'camera',
   SVG = 'svg',
   UI = 'ui',

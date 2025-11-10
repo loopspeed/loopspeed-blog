@@ -20,16 +20,15 @@ import LiquidGlassBlog, { metadata as liquidGlassMetadata } from './posts/liquid
 import MagicPlayerBlog, { metadata as magicPlayerMetadata } from './posts/magic-player.mdx'
 import NextJsLocalisation, { metadata as nextJsLocalisationMetadata } from './posts/next-js-localisation.mdx'
 import NextJsShadersBlog, { metadata as nextShadersMetadata } from './posts/next-webgl-shaders.mdx'
+import QuizrollerBlog, { metadata as quizrollerMetadata } from './posts/quizroller.mdx'
 import RTFWebGPUTypescriptBlog, { metadata as r3fWebGPUMetadata } from './posts/r3f-webgpu-setup.mdx'
 import WavePlaneBlog, { metadata as wavePlaneMetadata } from './posts/wave-plane.mdx'
-
 // ** New Blog Requirements **
 // Article and code reviewed by at least one other team member
 
 // Title and description - concise and benefit focused - why should someone read this article?
 // Metadata populated and exported from .mdx file
 // Preview video recorded for 16:9 aspect ratio (record 1280 x 720 px)
-// Video must fade in and out to black. (Matt can help with this if needed)
 // Video added to public/blog/videos in .mp4 format
 
 type BlogContent = {
@@ -103,6 +102,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: null,
     metadata: magicPlayerMetadata,
     videoSrc: '/blog/videos/magic-player.mp4',
+  },
+  [BlogSlug.Quizroller]: {
+    Blog: QuizrollerBlog,
+    Demo: null,
+    metadata: quizrollerMetadata,
+    videoSrc: '/blog/videos/quizroller/quizroller.mp4',
   },
 }
 

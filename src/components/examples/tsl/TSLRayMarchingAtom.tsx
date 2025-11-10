@@ -75,12 +75,12 @@ const RayMarchingScene: FC<Props> = ({ className }) => {
       gl={async (props) => {
         const renderer = new WebGPURenderer(props as WebGPURendererParameters)
         renderer.outputColorSpace = 'srgb'
-        renderer.toneMapping = THREE.CineonToneMapping
+        renderer.toneMapping = THREE.ACESFilmicToneMapping
         await renderer.init()
         return renderer
       }}>
-      {process.env.NODE_ENV === 'development' && <Stats />}
       <PerformanceMonitor>
+        {process.env.NODE_ENV === 'development' && <Stats />}
         <OrthographicCamera makeDefault position={[0, 0, 1]} near={0.1} far={10} />
         <ReactAtomRayMarcher />
         <Bloom />
