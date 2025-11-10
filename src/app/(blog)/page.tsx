@@ -1,10 +1,10 @@
 import { format } from 'date-fns'
 import { ArrowRightIcon } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { FC } from 'react'
 
 import Button from '@/components/buttons/Button'
-import CTA from '@/components/CTA'
 import Header from '@/components/Header'
 import Tag from '@/components/Tag'
 // import { useGA4Event } from '@/hooks/useGA4Event'
@@ -12,6 +12,8 @@ import { BlogMetadata } from '@/model/blog'
 // import { EventName } from '@/resources/analytics'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
 import { Pathname, replaceSlug } from '@/resources/pathname'
+
+const CTA = dynamic(() => import('@/components/CTA'))
 
 const isProduction = process.env.NODE_ENV === 'production'
 
