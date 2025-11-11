@@ -1,23 +1,15 @@
 'use client'
 
-import {
-  OrthographicCamera,
-  PerformanceMonitor,
-  PerformanceMonitorApi,
-  ScreenQuad,
-  Stats,
-  usePerformanceMonitor,
-} from '@react-three/drei'
-import { Canvas, extend, type ThreeToJSXElements, useFrame, useThree } from '@react-three/fiber'
+import { PerformanceMonitor, Stats } from '@react-three/drei'
+import { Canvas, extend, type ThreeToJSXElements } from '@react-three/fiber'
 import { useControls } from 'leva'
-import { type FC, useEffect, useMemo, useRef, useState } from 'react'
+import { type FC, useMemo } from 'react'
 import { color, ShaderNodeObject } from 'three/src/nodes/tsl/TSLBase.js'
 import { type WebGPURendererParameters } from 'three/src/renderers/webgpu/WebGPURenderer.js'
 import {
   abs,
   Break,
   cos,
-  emissive,
   float,
   Fn,
   fract,
@@ -29,10 +21,7 @@ import {
   max,
   min,
   mix,
-  mrt,
   normalize,
-  output,
-  pass,
   positionGeometry,
   screenUV,
   select,
@@ -65,13 +54,14 @@ type Props = {
   className?: string
 }
 
-const RayMarchingScene: FC<Props> = ({ className }) => {
+const RayMarchingAtomScene: FC<Props> = ({ className }) => {
   return (
     <Canvas
       id="ray-marching-canvas"
       className={className}
       performance={{ min: 0.3, debounce: 300 }}
       flat={true}
+      camera={{ isOrthographicCamera: true, near: 0.1, far: 1 }}
       gl={async (props) => {
         const renderer = new WebGPURenderer(props as WebGPURendererParameters)
         renderer.outputColorSpace = 'srgb'
@@ -81,15 +71,15 @@ const RayMarchingScene: FC<Props> = ({ className }) => {
       }}>
       <PerformanceMonitor>
         {process.env.NODE_ENV === 'development' && <Stats />}
-        <OrthographicCamera makeDefault position={[0, 0, 1]} near={0.1} far={10} />
+
         <ReactAtomRayMarcher />
-        <Bloom />
+        {/* <Bloom /> */}
       </PerformanceMonitor>
     </Canvas>
   )
 }
 
-export default RayMarchingScene
+export default RayMarchingAtomScene
 
 enum MaterialId {
   Background = 0,
@@ -116,7 +106,6 @@ const MATERIAL_COLOURS: Record<MaterialId, ShaderNodeObject<THREE.Node>> = {
 }
 
 const ReactAtomRayMarcher: FC = () => {
-  const size = useThree((s) => s.size)
   const { vertexNode, colorNode, uMixStrength, uTimeMultiplier, uMinDistance, uMaxIterations } = useMemo(() => {
     const uTimeMultiplier = uniform(float(1.0)).label('uTimeMultiplier')
     const uMixStrength = uniform(float(0.75)).label('uMixStrength')

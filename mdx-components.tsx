@@ -84,6 +84,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         </aside>
       )
     },
+    // TODO: update this to support a poster image
     Video: ({ src, ...props }: { src: string; className?: string }) => {
       return (
         <video
@@ -95,7 +96,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           playsInline={true}
           disablePictureInPicture={true}
           className={twMerge('not-prose m-0 h-auto w-full max-w-full border border-black bg-black', props.className)}>
-          Your browser does not support the video tag
           <source src={src} type="video/mp4" />
         </video>
       )

@@ -70,6 +70,7 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
           playsInline
           className="shadow-light/15 outline-darkest hover:outline-accent-teal aspect-video max-h-[60svh] w-4xl overflow-hidden rounded-sm object-cover shadow-2xl outline">
           {!!videoSrc && <source src={videoSrc} type="video/mp4" />}
+          {/* TODO: update to support poster images. */}
         </video>
       </Link>
 

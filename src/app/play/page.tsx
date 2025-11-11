@@ -1,9 +1,7 @@
 import type { Viewport } from 'next'
 import { headers } from 'next/headers'
 
-import FaceIDMain from '@/components/examples/rebuilds/faceId/FaceIDMain'
-import Scene from '@/components/examples/tsl/TSLRayMarchingAtom'
-import RayMarchingScene from '@/components/examples/tsl/TSLRayMarchingAtom'
+import RayMarchingAtomScene from '@/components/examples/tsl/TSLRayMarchingAtom'
 import { DARKEST } from '@/resources/colours'
 
 export const viewport: Viewport = {
@@ -15,7 +13,7 @@ const PlaygroundPage = async () => {
   const userAgent = headersList.get('user-agent')
   const isMobile = !!userAgent?.includes('Mobile')
 
-  return <FaceIDMain />
+  return <RayMarchingAtomScene className="mx-auto h-svh! w-svh! max-w-full" />
 }
 
 export default PlaygroundPage

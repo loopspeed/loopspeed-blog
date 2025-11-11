@@ -51,13 +51,32 @@ In theory, the entire theme of the app can be changed by adjusting the 4 gradien
 
 There are helpers in GLSL and TypeScript to retrieve colours using an input value of 0-1.
 
+```glsl title="palette.glsl"
+vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ){
+    return a + b * cos(6.283185 * (c * t + d));
+}
+
+vec3 getColourFromPalette(in float t) {
+    // Cosine palette parameters (a, b, c, d)
+    // These can be adjusted to create different color schemes
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 0.5);
+    vec3 d = vec3(0.80, 0.90, 0.30);
+    return palette(t, a, b, c, d);
+}
+
+// Export for use in shaders
+#pragma glslify: export(getColourFromPalette)
+```
+
 I've also created a "texure generator" page which was used to produce the background image.
 
 ## State Management
 
-Most of the game logic is encapsulated within the `GameProvider` which is a Zustand store initialised into React Context.
+Most of the game logic is encapsulated within the [`GameProvider`](https://github.com/prag-matt-ic/quiz-roller/blob/main/components/GameProvider.tsx) which is a Zustand store initialised into React Context.
 
-The Game Store handles the current stage, questions, player positioning and collision/intersection events.
+The Game Store handles the current stage, platform speed, questions, player positioning and collision/intersection events.
 
 ### Fast Value Subscriptions 💨
 
@@ -115,13 +134,13 @@ The rotation animation is derived from the player velocity and helps the movemen
 
 ### Collisions and Confirmations ⏳
 
-Rapier sensors mark interactive surfaces: info zone, start tile, answer tiles, colour tiles, and out-of-bounds.
+Rapier sensors mark interactive surfaces: info zones, start tile, answer tiles, colour tiles, and out-of-bounds.
 
 For answers, entering a sensor triggers a GSAP-driven confirmation timer. Exiting before the timer completes cancels the choice. When the timer completes, the choice is confirmed.
 
-When the player enters an info zone, HTML content is animated in.
+When the player enters an info zone, HTML content is animated in using React Transition Group + GSAP.
 
-If the player falls off the edge, they intersect with out-of-bounds and it resets their position or transitions to the 'game over' stage.
+If the player falls off the platform, they intersect with out-of-bounds and it resets their position or transitions to the 'game over' stage.
 
 ### Colour Config 🎨
 
@@ -262,7 +281,7 @@ Take a look at the [`Platform` Component](https://github.com/prag-matt-ic/quiz-r
 
 ## Limitations / Wishlist 👀
 
-- **The question content is all hard-coded.** My original plan was to use AI to generate personalised quizes based on a user-provided URL or revision notes. I have code to do this, but it incurs cost and slows down the initial start.
+- **The question content is all hard-coded.** My original plan was to use AI to generate personalised quizes based on a user-provided URL or revision notes. I have code to do this, but it incurs cost and slows down the initial start. Maybe next time?
 - **The terrain/obstacles stage is basic.** I'd love to introduce new challenges such as jumps, wall runs and collectibles.
 
 If you're reading this and want to help develop the concept further, please get in touch.
