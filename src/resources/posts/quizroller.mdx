@@ -52,17 +52,17 @@ In theory, the entire theme of the app can be changed by adjusting the 4 gradien
 There are helpers in GLSL and TypeScript to retrieve colours using an input value of 0-1.
 
 ```glsl title="palette.glsl"
+// Cosine based palette function
 vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ){
     return a + b * cos(6.283185 * (c * t + d));
 }
 
 vec3 getColourFromPalette(in float t) {
-    // Cosine palette parameters (a, b, c, d)
     // These can be adjusted to create different color schemes
-    vec3 a = vec3(0.5, 0.5, 0.5);
-    vec3 b = vec3(0.5, 0.5, 0.5);
-    vec3 c = vec3(1.0, 1.0, 0.5);
-    vec3 d = vec3(0.80, 0.90, 0.30);
+    vec3 a = vec3(0.5, 0.5, 0.5); // Controls the brightness
+    vec3 b = vec3(0.5, 0.5, 0.5); // Controls the contrast
+    vec3 c = vec3(1.0, 1.0, 0.5); // Controls the frequency
+    vec3 d = vec3(0.80, 0.90, 0.30); // Controls the phase shift
     return palette(t, a, b, c, d);
 }
 
