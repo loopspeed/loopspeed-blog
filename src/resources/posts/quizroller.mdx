@@ -30,7 +30,7 @@ The core mechanic is pretty simple, you navigate your marble over terrain, answe
 
 **[👉 How far can you roll? 👈](https://quizroller.vercel.app)**
 
-![Game home stage](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/home.jpg?raw=true)
+![Game home stage](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/home.webp?raw=true)
 
 ## Tech Stack 💻
 
@@ -44,33 +44,23 @@ The core mechanic is pretty simple, you navigate your marble over terrain, answe
 
 ## Colour Palette 🌈
 
-![Palette](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/palette.jpg?raw=true)
+![Palette](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/palette.webp?raw=true)
 
 Colours are driven by a [cosine gradient palette](https://iquilezles.org/articles/palettes/).
-In theory, the entire theme of the app can be changed by adjusting the 4 gradient input vectors.
+
+The entire theme of the app can be changed by changing the 4 gradient input vectors!
 
 There are helpers in GLSL and TypeScript to retrieve colours using an input value of 0-1.
 
-```glsl title="palette.glsl"
-// Cosine based palette function
-vec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d ){
-    return a + b * cos(6.283185 * (c * t + d));
-}
+### Background Generation
 
-vec3 getColourFromPalette(in float t) {
-    // These can be adjusted to create different color schemes
-    vec3 a = vec3(0.5, 0.5, 0.5); // Controls the brightness
-    vec3 b = vec3(0.5, 0.5, 0.5); // Controls the contrast
-    vec3 c = vec3(1.0, 1.0, 0.5); // Controls the frequency
-    vec3 d = vec3(0.80, 0.90, 0.30); // Controls the phase shift
-    return palette(t, a, b, c, d);
-}
+![Background texture controls](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/background.webp?raw=true)
 
-// Export for use in shaders
-#pragma glslify: export(getColourFromPalette)
-```
+I've created a **background texure generator** which is called upon when the palette changes.
+It renders 1 to 8 frames (depending on performance) as textures for the background.
+_This is an expensive operation due to the fractal noise, but it's only run once when the palette changes._
 
-I've also created a "texure generator" page which was used to produce the background image.
+A background shader smoothly blends between these textures to give subtle movement beneath the platform.
 
 ## State Management
 
@@ -142,23 +132,21 @@ When the player enters an info zone, HTML content is animated in using React Tra
 
 If the player falls off the platform, they intersect with out-of-bounds and it resets their position or transitions to the 'game over' stage.
 
-### Colour Config 🎨
+### Palette Switching 🎨
 
-![Player colour selection](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/player-colour.jpg?raw=true)
+![Player colour selection](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/player-colour.webp?raw=true)
 
-The user can change their marble colour by rolling over one of the colour picker tiles.
-
-Colour selection is band-based (a range between 0 and 1 for sampling the gradient palette) and is persisted in the game store.
+The user can change the theme by rolling over one of the colour picker tiles, with their selection persisted in the game store.
 
 ### Marble Shading 🔮
 
-The marble uses a custom GLSL material that samples the cosine palette using the player's chosen colour.
+The marble uses a custom GLSL material that samples the palette using the chosen colour.
 
 It supports textured and flat modes depending on the quality mode.
 
 ## Infinite Platform 🏃
 
-![Platform](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/platform.jpg?raw=true)
+![Platform](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/platform.webp?raw=true)
 
 The main `Platform` is a grid of instanced rigid bodies that endlessly wrap forward.
 
@@ -186,7 +174,7 @@ The platform tiles use a custom GLSL shader to colour the tiles, fade in/out and
 
 ## Questions and Answers 🤔
 
-![Question stage](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/question.jpg?raw=true)
+![Question stage](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/question.webp?raw=true)
 
 Questions are chosen to avoids repeats where possible and shuffle the answer positions.
 
@@ -196,7 +184,7 @@ Question and Answer text is rendered into a Canvas Texture (see `useTextCanvas`)
 
 ### Answer Selection ✅
 
-![Answer selection](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/answer.jpg?raw=true)
+![Answer selection](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/answer.webp?raw=true)
 
 - A HUD indicator briefly shows correct (✅) or incorrect (❌)
 - A short particle burst plays, with a correct answer attracting green particles to the player, and an incorrect answer dispersing orange particles.
@@ -204,7 +192,7 @@ Question and Answer text is rendered into a Canvas Texture (see `useTextCanvas`)
 
 ## Floating Background Tiles ✨
 
-![Floating background tiles powered by GPU](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/floating-tiles.jpg?raw=true)
+![Floating background tiles powered by GPU](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/floating-tiles.webp?raw=true)
 
 Decorative floating tiles add depth and motion around the course. They are rendered as a single instanced mesh and animated entirely on the GPU using `GPUComputationRenderer`.
 
@@ -215,7 +203,7 @@ Decorative floating tiles add depth and motion around the course. They are rende
 
 The site achieves great performance even on mobile.
 
-![Stats fps display](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/stats.jpg?raw=true)
+![Stats fps display](https://github.com/prag-matt-ic/quiz-roller/blob/main/public/screenshots/stats.webp?raw=true)
 
 - My Macbook Pro M4 gets a consistent 120fps on high quality mode.
 - My iPhone 15 Pro gets a steady 60fps also on high quality mode.
@@ -281,7 +269,7 @@ Take a look at the [`Platform` Component](https://github.com/prag-matt-ic/quiz-r
 
 ### Limitations / Wishlist 👀
 
-- **The question content is all hard-coded.** My original plan was to use AI to generate personalised quizes based on a user-provided URL or revision notes. I have code to do this, but it incurs cost and slows down the initial start. Maybe next time?
+- **The question content is all hard-coded.** My original plan was to use AI to generate personalised quizes based on a user-provided URL or revision notes. I have code to do this, but it incurs cost and slows down the initial start. Maybe in the future!?
 - **The terrain/obstacles stage is basic.** I'd love to introduce new challenges such as jumps, wall runs and collectibles.
 
 If you're reading this and want to help develop the concept further, please get in touch.
