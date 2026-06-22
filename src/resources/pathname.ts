@@ -17,4 +17,5 @@ export enum BlogSlug {
   LiquidGlass = 'liquid-glass',
   MagicPlayer = 'three-webgpu-magic-plane-player-ripple',
   Quizroller = 'quizroller-threejs-webgl-game',
+  FootballGame = 'react-three-fiber-football-game',
 }

@@ -52,10 +52,6 @@
   --lg-highlight: rgba(255, 255, 255, 0.3);
 }
 
-* {
-  overscroll-behavior: none;
-}
-
 /* Custom scrollbars  */
 ::-webkit-scrollbar {
   width: 8px;

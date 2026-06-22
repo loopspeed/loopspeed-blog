@@ -1,0 +1,236 @@
+import { BlogSlug } from '../pathname'
+import { TagName } from '../tags'
+import { TOM_ISHERWOOD } from '@/model/blog'
+
+export const metadata = {
+  title: 'Building a 3D Penalty Shootout Game with React Three Fiber',
+  description:
+    'How I built an interactive penalty shootout game for the web - flick-to-kick controls, deterministic Rapier physics, a diving goalkeeper that makes real saves, and the tricks that keep it at 60fps on mobile.',
+  date: '2026-06-22',
+  slug: BlogSlug.FootballGame,
+  authors: [TOM_ISHERWOOD],
+  tags: [TagName.ThreeJS, TagName.React, TagName.Typescript, TagName.Game, TagName.NextJS, TagName.GSAP],
+  youtubeUrl: undefined,
+  githubUrl: undefined,
+  externalDemoUrl: 'https://football-game-demo.vercel.app',
+}
+
+<Video src="/blog/videos/football-demo.mp4" />
+
+## Overview
+
+**This is a 3D penalty shootout game that runs entirely in the browser.** You line up behind the ball, flick to kick, and try to beat a diving goalkeeper before the timer runs out. Hit a top corner for a bonus, build a streak, chase the high score.
+
+The core loop is simple, but getting it to _feel_ good - responsive controls, a keeper that reacts believably, goals that land where you aimed - took a fair bit of work. This post covers the high level details of how it's put together.
+
+**[👉 Take a penalty 👈](https://football-game-demo.vercel.app)**
+
+<Aside title="Tech Stack">
+  - **Next.js** _as the web framework_ 
+  - **React Three Fiber** _for 3D rendering_ 
+  - **Rapier** _for physics simulation
+  and collision sensors_ 
+  - **@use-gesture** _for the drag/flick input_ 
+  - **GSAP** _for camera animation and shake_ 
+  - **Zustand** _for state management_ 
+  - **Tailwind** _for the 2D HUD and UI_
+</Aside>
+
+The whole 3D scene lives inside a single R3F `<Canvas>`, with the stadium, goal, ball and keeper all rendered as children of a `<Physics>` world.
+
+## The Kick: Flick to Shoot 🎯
+
+The only input is a drag on the ball. `@use-gesture`'s `useDrag` is bound to an invisible sphere sitting around the football (slightly larger than the ball so there's room for error). Drag back and flick - the direction and speed of that flick become the shot.
+
+Before a drag becomes a kick it has to pass validation. This stops accidental taps and slow drags from registering as wild shots:
+
+```ts title="useDragValidation.ts"
+const validateDrag = (input: DragValidationInput): DragWarning => {
+  const { dragX, dragY, dragDuration } = input
+  const dragDistance = Math.sqrt(dragX * dragX + dragY * dragY)
+  const dragSpeed = dragDuration > 0 ? (dragDistance / dragDuration) * 1000 : 0
+
+  if (dragY > 0) return DragWarning.Backwards // dragged the wrong way
+  if (dragDistance < MIN_DRAG_DISTANCE) return DragWarning.MinimumDistanceNotMet
+  if (dragSpeed < MIN_DRAG_SPEED) return DragWarning.FlickSpeedSlow
+
+  return DragWarning.None
+}
+```
+
+A timeout also invalidates drags that are held too long - the intent is a quick flick, not a slow aim-and-release.
+
+### From Drag to Impulse
+
+A valid flick is converted into a 3D impulse vector. The drag is normalised, scaled by how far you dragged (a dampener, so short flicks are weaker), and split into horizontal aim, vertical lift and forward power:
+
+```ts title="useKickVectorCalculator.ts"
+const forceX = normalizedDragX * dragScale * horizontalDirectionMultiplier
+const forceY = -normalizedDragY * dragScale * verticalDirectionMultiplier
+const forceZ = -dragScale * forwardPower
+
+const kickVector = new Vector3(forceX, forceY, forceZ)
+if (kickVector.length() > maxSpeed) kickVector.setLength(maxSpeed)
+```
+
+The impulse is then applied to the ball's Rapier rigid body, and physics takes over.
+
+## Predicting the Trajectory 🔮
+
+Here's the part I'm most happy with. The moment the ball is kicked, the game already knows exactly where it will end up - **before the physics has simulated a single frame**.
+
+After applying the impulse I read the ball's _actual_ velocity back from Rapier, then solve projectile motion to find where it crosses the goal plane:
+
+```ts title="useKickTrajectoryCalculator.ts"
+// x(t) = x0 + vx * t
+// y(t) = y0 + vy * t - 0.5 * g * t²
+// z(t) = z0 + vz * t
+
+const gravity = Math.abs(world.gravity.y) // read straight from Rapier
+const timeToGoal = (goalZ - BALL_START_Z) / vz
+const goalPlaneX = vx * timeToGoal
+const goalPlaneY = BALL_START_Y + vy * timeToGoal - 0.5 * gravity * timeToGoal ** 2
+```
+
+Gravity is read straight from the Rapier world, so the prediction matches the simulation exactly. Solve for the time the ball reaches the goal's Z, plug that back in for X and Y, and you have the landing point.
+
+That landing point is classified into one of 14 **zones** - 7 inside the goal frame (corners + centre column) and 7 miss zones surrounding it:
+
+```text title="Goal zones"
+┌─────────┬─────────┬─────────┐
+│MissOverL│MissOverC│MissOverR│   (above crossbar)
+├─────────┼─────────┼─────────┤
+│MissTopL │  GOAL   │MissTopR │   (beside posts)
+├─────────┤  FRAME  ├─────────┤
+│MissBotL │         │MissBotR │
+└─────────┴─────────┴─────────┘
+```
+
+Why predict at all? Because the goalkeeper needs to react.
+
+## The Goalkeeper 🧤
+
+The keeper is a rigged GLB model (animated in Mixamo) with a set of dive, jump and tackle animations. The trick is choosing the right animation the instant you kick.
+
+Because we already computed the target zone, the keeper just looks it up:
+
+```ts title="Keeper.tsx"
+const ZONE_TO_ANIMATION: Record<BallZone, KeeperActionName> = {
+  [BallZone.TopLeft]: KeeperActionName.HighDiveLeft,
+  [BallZone.BottomLeft]: KeeperActionName.LowDiveLeft,
+  [BallZone.TopRight]: KeeperActionName.HighDiveRight,
+  [BallZone.BottomRight]: KeeperActionName.LowDiveRight,
+  [BallZone.CenterTop]: KeeperActionName.JumpCenter,
+  [BallZone.CenterMiddle]: KeeperActionName.ForwardTackle,
+  // ...miss zones still trigger a dive attempt
+}
+```
+
+### Making Saves Real, Not Faked
+
+The keeper genuinely saves the ball - there's no scripted outcome. Each frame, a handful of `BallCollider`s are pinned to the keeper's key bones (hands, forearms, torso, head, feet) by reading each bone's world position out of the skeleton:
+
+```ts title="Keeper.tsx"
+useFrame(() => {
+  if (!hasKicked) return
+  bones.forEach((bone, index) => {
+    const collider = colliderRefs.current[index]
+    if (!bone || !collider) return
+    bone.getWorldPosition(boneWorldPos)
+    collider.setTranslationWrtParent({
+      x: boneWorldPos.x,
+      y: boneWorldPos.y - KEEPER_Y_POSITION,
+      z: boneWorldPos.z - KEEPER_Z_POSITION,
+    })
+  })
+})
+```
+
+So if the diving animation puts a hand in the ball's path, the colliders actually intercept it and it counts as a save. The animation is chosen to dive _toward_ your shot, but whether it gets there in time depends on the real collision.
+
+### Giving the Player a Chance ⏱️
+
+If the keeper reacted instantly it'd be hard to beat. So the reaction is delayed, and the delay **scales inversely with kick speed** - smash it and the keeper barely moves in time; roll it in gently and the keeper gets there. That single knob does most of the work in making the difficulty feel fair.
+
+## Goals, Misses and Corners 🥅
+
+Rather than rely solely on physics resolution, the goal outcome is detected with Rapier **sensors** placed in world space:
+
+- A deep **goal sensor** box behind the goal line catches anything that crosses it.
+- **Miss sensors** form a frame around the posts and crossbar; the ball intersecting-then-exiting one registers a miss.
+- Two small **corner-spot sensors** sit just in front of the goal sensor (so they trigger first) - hit one for a bonus "corner goal".
+
+The corner sensors firing before the main goal sensor is handled with a tiny 10ms timeout on the goal sensor, giving the corner check a chance to win the race:
+
+```ts title="GoalLineSensors.tsx"
+onSensorCollision({
+  payload,
+  result: KickResult.Goal,
+  sensorHit: 'goal',
+  timeout: 10, // let corner sensors claim the goal first
+  goalSide: isLeftSide ? 'left' : 'right',
+})
+```
+
+The sensor dimensions aren't hardcoded - they're derived from the goal model's geometry (measured via vertex analysis) and stored in the Zustand store, so the sensors always line up with whatever goal model is loaded.
+
+## Camera Feel 🎥
+
+The camera is animated entirely with GSAP, no orbit controls. A few moments sell the action:
+
+- **Intro pan** - on countdown the camera tweens from a wide establishing shot down behind the ball.
+- **Kick push** - a subtle forward dolly on every kick adds urgency.
+- **Goal shake** - on a goal, a decaying sine/cosine shake rattles the camera for a beat:
+
+```ts title="CameraController.tsx"
+const decay = 1 - shakeData.progress
+const t = shakeData.progress * SHAKE_DURATION * SHAKE_FREQUENCY * Math.PI * 2
+camera.position.x = baseX + Math.sin(t) * SHAKE_INTENSITY * decay
+camera.position.y = baseY + Math.cos(t * 1.3) * SHAKE_INTENSITY * decay * 0.6
+```
+
+Every tween ends with a `camera.lookAt` on a fixed target so the goal stays framed throughout.
+
+## Confetti on Goal 🎉
+
+A goal fires two GPU-driven confetti bursts either side of the net. They're a single instanced points mesh animated in a custom shader - position, gravity and fade all computed on the GPU from a burst-progress uniform driven by GSAP. Keeping the animation on the GPU means a goal celebration costs almost nothing on the CPU.
+
+## Scoring & Streaks 🔥
+
+Scoring rewards consistency. A goal is worth a base amount, a corner goal more, and every consecutive goal adds a **streak bonus** (capped) on top:
+
+```ts title="useGameRound.ts"
+const streakBonus = Math.min(lastGoalPoints + STREAK_BONUS_PER_GOAL, STREAK_BONUS_CAP)
+const earnedPoints = points + lastGoalPoints
+```
+
+A miss or a save resets the streak to zero, so a run of clean strikes is worth far more than the same number of scrappy goals. Results are kept in a Zustand store and the game history persists to `localStorage` via Zustand's `persist` middleware.
+
+## Performance: Holding 60fps 🏎️
+
+A few decisions keep it smooth, including on phones:
+
+- **DPR is capped at 2** - retina sharpness without rendering a needless number of pixels.
+- **Drei's `PerformanceMonitor`** wraps the scene to watch the frame rate.
+- **The frameloop is paused** (`frameloop="demand"`) and the physics world is paused when the game is over, so an idle screen burns no GPU.
+- **High-frequency values stay out of React state.** The keeper's bone colliders update inside `useFrame` via refs, never triggering a re-render. React state is reserved for things that actually change the UI - score, game status, kick result.
+
+That last point is the same pattern throughout: anything that updates every frame lives in a ref and is read in `useFrame`; React only hears about discrete events.
+
+## Closing Thoughts
+
+### The Biggest Challenge 🏔️
+
+The hardest part was the goalkeeper - specifically making saves feel _earned_ rather than random or scripted. The breakthrough was separating the two concerns: **predict the trajectory deterministically** to pick a believable animation, but **let real bone colliders decide the outcome**. The keeper dives the right way because it knows where the ball is going, but it only saves if its hands genuinely get there in time - and that depends on the reaction delay, which scales with how hard you hit it.
+
+Getting the sensors, the corner-vs-goal race, and the world-scaled physics to all agree took plenty of iteration too.
+
+### Wishlist 👀
+
+- **Power/curve mechanics** - let players bend shots, not just aim them.
+- **Keeper difficulty tiers** - tune the reaction delay for easy/hard modes.
+- **A proper run-up** instead of a standing flick.
+
+### Links
+
+[Live Demo](https://football-game-demo.vercel.app)
