@@ -19,7 +19,7 @@ const BlogBackgroundCanvas: FC = () => {
   return (
     <Canvas
       id="blog-background-canvas"
-      className="!fixed !inset-0 !h-lvh"
+      className="pointer-events-none !fixed !inset-0 !h-lvh"
       flat={true}
       scene={{ backgroundNode: BackgroundNode }}
       gl={async (props) => {

@@ -61,7 +61,7 @@ const HeaderModelCanvas: FC = () => {
   return (
     <Canvas
       id="playground-canvas"
-      className="!relative aspect-square w-full overflow-hidden bg-transparent"
+      className="pointer-events-none !relative aspect-square w-full overflow-hidden bg-transparent"
       performance={{ min: 0.5, debounce: 300 }}
       flat={true}
       gl={async (props) => {
