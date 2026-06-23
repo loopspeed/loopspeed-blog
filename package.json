@@ -61,6 +61,7 @@
   },
   "overrides": {
     "postcss": "8.5.10",
-    "node-fetch": "2.7.0"
+    "node-fetch": "2.7.0",
+    "@types/three": "0.178.1"
   }
 }
