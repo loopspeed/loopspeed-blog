@@ -1,0 +1,27 @@
+# Loopspeed Blog
+
+> Technical articles, experiments, and implementation notes from Loopspeed.
+
+Loopspeed Blog publishes practical guides and demos for advanced web development, including Next.js, TypeScript, React Three Fiber, Three.js, WebGL, WebGPU, shaders, animation, and AI-adjacent production patterns.
+
+## Canonical Site
+
+- Blog: https://blog.loopspeed.co.uk
+- Main site: https://www.loopspeed.co.uk
+- Sitemap: https://blog.loopspeed.co.uk/sitemap.xml
+
+## Key Routes
+
+- https://blog.loopspeed.co.uk
+- https://blog.loopspeed.co.uk/[slug]
+- https://blog.loopspeed.co.uk/[slug]/demo
+
+## Content Notes
+
+- Blog posts are authored by Loopspeed team members.
+- Demo routes are interactive examples that accompany specific articles.
+- Draft posts should not be treated as public canonical content.
+
+## Contact
+
+- Email: hi@loopspeed.co.uk

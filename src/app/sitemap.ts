@@ -1,38 +1,36 @@
 import type { MetadataRoute } from 'next'
 
 import { BLOG_CONTENT } from '@/resources/blog'
-
-// Sitemap for the blog
-
-// TODO: review and validate that this is working correctly after deployment
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://blog.loopspeed.co.uk'
+import { getBlogDemoUrl, getBlogPostUrl, SEO } from '@/resources/seo'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date().toISOString().split('T')[0]
-
   const blogs: MetadataRoute.Sitemap = []
   const demos: MetadataRoute.Sitemap = []
 
   Object.values(BLOG_CONTENT).forEach(({ metadata, Demo }) => {
     if (metadata.isDraft) return
+
     blogs.push({
-      url: `${baseUrl}/${metadata.slug}`,
-      lastModified: lastModified,
-      priority: 1.0,
+      url: getBlogPostUrl(metadata.slug),
+      lastModified: metadata.date,
+      changeFrequency: 'monthly',
+      priority: 0.9,
     })
+
     if (!Demo) return
+
     demos.push({
-      url: `${baseUrl}/${metadata.slug}/demo`,
-      lastModified: lastModified,
-      priority: 0.8,
+      url: getBlogDemoUrl(metadata.slug),
+      lastModified: metadata.date,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     })
   })
 
   const site: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
-      lastModified: lastModified,
+      url: SEO.siteUrl,
+      lastModified: new Date().toISOString().split('T')[0],
       changeFrequency: 'weekly',
       priority: 1,
     },
