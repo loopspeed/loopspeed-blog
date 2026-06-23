@@ -20,6 +20,7 @@ const JSONSchema: FC<Props> = ({ type = 'BlogPosting', ...metadata }) => {
           dateModified: metadata.date,
           description: metadata.description,
           abstract: metadata.description,
+          keywords: metadata.keywords?.join(', '),
           // Tells search engines that this creative work is the main entity on the page
           mainEntityOfPage: url,
           // TODO: dynamically generated image with the blog title.

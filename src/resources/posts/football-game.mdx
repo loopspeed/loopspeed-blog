@@ -5,11 +5,20 @@ import { TOM_ISHERWOOD } from '@/model/blog'
 export const metadata = {
   title: 'Building a 3D Penalty Shootout Game with React Three Fiber',
   description:
-    'How I built an interactive penalty shootout game for the web - flick-to-kick controls, deterministic Rapier physics, a diving goalkeeper that makes real saves, and the tricks that keep it at 60fps on mobile.',
+    'With the 2026 World Cup in full swing, here is how I built an interactive penalty shootout game for the web - flick-to-kick controls, deterministic Rapier physics, a diving goalkeeper that makes real saves, and the tricks that keep it at 60fps on mobile.',
   date: '2026-06-22',
   slug: BlogSlug.FootballGame,
   authors: [TOM_ISHERWOOD],
   tags: [TagName.ThreeJS, TagName.React, TagName.Typescript, TagName.Game, TagName.NextJS, TagName.GSAP],
+  keywords: [
+    'penalty shootout game',
+    'world cup 2026',
+    'football game',
+    'browser game',
+    'react three fiber',
+    'web game development',
+    '3d football game',
+  ],
   youtubeUrl: undefined,
   githubUrl: undefined,
   externalDemoUrl: 'https://football-game-demo.vercel.app',
@@ -22,6 +31,8 @@ export const metadata = {
 **This is a 3D penalty shootout game that runs entirely in the browser.** You line up behind the ball, flick to kick, and try to beat a diving goalkeeper before the timer runs out. Hit a top corner for a bonus, build a streak, chase the high score.
 
 The core loop is simple, but getting it to _feel_ good - responsive controls, a keeper that reacts believably, goals that land where you aimed - took a fair bit of work. This post covers the high level details of how it's put together.
+
+With the **2026 World Cup** on, there's no better time to step up and take your own penalty - so I figured I'd share how it was built.
 
 **[👉 Take a penalty 👈](https://football-game-demo.vercel.app)**
 
@@ -36,7 +47,7 @@ The core loop is simple, but getting it to _feel_ good - responsive controls, a 
   - **Tailwind** _for the 2D HUD and UI_
 </Aside>
 
-The whole 3D scene lives inside a single R3F `<Canvas>`, with the stadium, goal, ball and keeper all rendered as children of a `<Physics>` world.
+The whole 3D scene lives inside a single R3F `<Canvas>`, with the goal, ball and keeper all rendered as children of a `<Physics>` world.
 
 ## The Kick: Flick to Shoot 🎯
 
