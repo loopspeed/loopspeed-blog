@@ -8,6 +8,7 @@ import { twJoin } from 'tailwind-merge'
 import Footer from '@/components/footer/Footer'
 import Nav from '@/components/Nav'
 import { ALL_AUTHORS } from '@/model/blog'
+import { SEO } from '@/resources/seo'
 
 const sans = Red_Hat_Display({
   subsets: ['latin'],
@@ -16,11 +17,35 @@ const sans = Red_Hat_Display({
 })
 
 export const metadata: Metadata = {
-  title: { template: '%s | Loopspeed', default: 'Loopspeed Blog' },
-  description: "A growing collection of guides, patterns, and fun stuff we've been building at Loopspeed.",
+  metadataBase: new URL(SEO.siteUrl),
+  title: { template: SEO.titleTemplate, default: SEO.defaultTitle },
+  applicationName: SEO.siteName,
+  description: SEO.defaultDescription,
   authors: ALL_AUTHORS.map((author) => ({
     name: author.name,
   })),
+  openGraph: {
+    title: SEO.defaultTitle,
+    description: SEO.defaultDescription,
+    url: SEO.siteUrl,
+    siteName: SEO.siteName,
+    locale: SEO.locale,
+    type: 'website',
+    images: [
+      {
+        url: SEO.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: SEO.siteName,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.defaultTitle,
+    description: SEO.defaultDescription,
+    images: [SEO.defaultTwitterImage],
+  },
 }
 
 export default async function RootLayout({
