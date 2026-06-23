@@ -1,46 +1,71 @@
 import { format } from 'date-fns'
 import { ArrowRightIcon } from 'lucide-react'
+import type { Metadata } from 'next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import type { FC } from 'react'
 
 import Button from '@/components/buttons/Button'
 import Header from '@/components/Header'
+import { JsonLd } from '@/components/JsonLd'
 import Tag from '@/components/Tag'
 // import { useGA4Event } from '@/hooks/useGA4Event'
 import { BlogMetadata } from '@/model/blog'
 // import { EventName } from '@/resources/analytics'
 import { ORDERED_BLOG_CONTENT } from '@/resources/blog'
+import { buildBlogListingJsonLd } from '@/resources/jsonLd'
 import { Pathname, replaceSlug } from '@/resources/pathname'
+import { getCanonicalUrl, SEO } from '@/resources/seo'
 
 const CTA = dynamic(() => import('@/components/CTA'))
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+export const metadata: Metadata = {
+  title: SEO.defaultTitle,
+  description: SEO.defaultDescription,
+  alternates: {
+    canonical: getCanonicalUrl(),
+  },
+  openGraph: {
+    title: SEO.defaultTitle,
+    description: SEO.defaultDescription,
+    url: getCanonicalUrl(),
+    siteName: SEO.siteName,
+    locale: SEO.locale,
+    type: 'website',
+    images: [
+      {
+        url: SEO.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: SEO.siteName,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO.defaultTitle,
+    description: SEO.defaultDescription,
+    images: [SEO.defaultOgImage],
+  },
+}
+
 export default function BlogListingPage() {
-  const blogData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: ORDERED_BLOG_CONTENT.map(({ metadata }, index) => ({
-      '@type': 'BlogPosting',
-      position: index + 1,
-      headline: metadata.title,
-      description: metadata.description,
-      url: `https://blog.loopspeed.co.uk/${metadata.slug}`,
-      author: metadata.authors?.map((author) => ({ '@type': 'Person', name: author.name })),
-      datePublished: metadata.date,
-    })),
-  }
+  const visiblePosts = ORDERED_BLOG_CONTENT.filter(({ metadata, videoSrc }) => {
+    if (!!metadata.isDraft && isProduction) return false
+    if (!videoSrc && isProduction) return false
+
+    return true
+  })
 
   return (
     <main className="relative min-h-lvh w-full text-white">
       <Header />
 
       <section className="flex flex-col items-center space-y-24 px-(--x-padding) py-20 lg:space-y-32">
-        {ORDERED_BLOG_CONTENT.map(({ metadata, videoSrc }) => {
-          const { slug, isDraft } = metadata
-          if (!!isDraft && isProduction) return null
-          if (!videoSrc && isProduction) return null
+        {visiblePosts.map(({ metadata, videoSrc }) => {
+          const { slug } = metadata
           return (
             <BlogPostCard key={slug} href={replaceSlug(Pathname.BlogPost, slug)} {...metadata} videoSrc={videoSrc} />
           )
@@ -48,7 +73,7 @@ export default function BlogListingPage() {
       </section>
 
       <CTA />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogData) }} />
+      <JsonLd data={buildBlogListingJsonLd(visiblePosts.map(({ metadata }) => metadata))} />
     </main>
   )
 }
@@ -103,5 +128,3 @@ const BlogPostCard: FC<CardProps> = ({ href, title, tags, authors, description, 
     </div>
   )
 }
-
-// TODO: add structured data (use AI and #fetch the relevant schema documentation)
