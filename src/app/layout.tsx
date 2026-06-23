@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: SEO.defaultTitle,
     description: SEO.defaultDescription,
-    images: [SEO.defaultTwitterImage],
+    images: [SEO.defaultOgImage],
   },
 }
 

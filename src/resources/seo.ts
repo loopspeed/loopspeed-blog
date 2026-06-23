@@ -17,7 +17,6 @@ export const SEO = {
   websiteId: `${SITE_URL}/#website`,
   blogId: `${SITE_URL}/#blog`,
   defaultOgImage: `${SITE_URL}/opengraph-image`,
-  defaultTwitterImage: `${SITE_URL}/twitter-image.jpg`,
   logoUrl: `${SITE_URL}/logo-type-dark.png`,
   linkedinUrl: 'https://www.linkedin.com/company/loopspeed',
 } as const
