@@ -46,6 +46,7 @@ export type BlogMetadata = {
   slug: BlogSlug
   tags: string[]
   authors: Author[]
+  keywords?: string[]
   githubUrl?: string
   youtubeUrl?: string
   externalDemoUrl?: string

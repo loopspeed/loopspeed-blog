@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: metadata.title,
     description: metadata.description,
     authors: metadata.authors,
+    keywords: metadata.keywords,
     alternates: {
       canonical: url,
     },
