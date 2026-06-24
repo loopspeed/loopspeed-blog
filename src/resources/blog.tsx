@@ -15,6 +15,7 @@ import { BlogSlug } from '@/resources/pathname'
 import AnimatedCSSGridBlog, { metadata as animatedCSSGridMetadata } from './posts/animated-css-grid.mdx'
 import FaceIdBlog, { metadata as faceIdMetadata } from './posts/face-id-rebuild.mdx'
 import FBOParticlesBlog, { metadata as fboParticlesMetadata } from './posts/fbo-particles.mdx'
+import FootballGameBlog, { metadata as footballGameMetadata } from './posts/football-game.mdx'
 import ImageSequenceBlog, { metadata as imageSequenceMetadata } from './posts/image-sequence.mdx'
 import LiquidGlassBlog, { metadata as liquidGlassMetadata } from './posts/liquid-glass.mdx'
 import MagicPlayerBlog, { metadata as magicPlayerMetadata } from './posts/magic-player.mdx'
@@ -108,6 +109,12 @@ export const BLOG_CONTENT: Record<BlogSlug, BlogContent> = {
     Demo: null,
     metadata: quizrollerMetadata,
     videoSrc: '/blog/videos/quizroller/quizroller.mp4',
+  },
+  [BlogSlug.FootballGame]: {
+    Blog: FootballGameBlog,
+    Demo: null,
+    metadata: footballGameMetadata,
+    videoSrc: '/blog/videos/football-demo.mp4',
   },
 }
 
