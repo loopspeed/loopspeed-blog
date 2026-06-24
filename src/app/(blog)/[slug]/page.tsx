@@ -68,7 +68,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metadata.description,
       images: [image],
     },
-    keywords: metadata.keywords,
   }
 }
 
